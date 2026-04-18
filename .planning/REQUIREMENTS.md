@@ -9,12 +9,12 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Data Ingestion & Security
 
-- [ ] **ING-01**: Система анонимизирует PII в тексте (ФИО, телефоны, email, ИНН) через Presidio + кастомные русские распознаватели перед любой обработкой
-- [ ] **ING-02**: Система парсит Telegram JSON export (result.json) и извлекает текстовые сообщения с метаданными (автор, дата, чат)
-- [ ] **ING-03**: Система транскрибирует голосовые сообщения из Telegram export через Groq Whisper API и включает транскрипцию в пайплайн обработки
-- [ ] **ING-04**: Система фильтрует шум из Telegram логов (service messages, приветствия, короткие ответы <5 слов, bot messages)
-- [ ] **ING-05**: Система извлекает текст из PDF документов с поддержкой кириллицы
-- [ ] **ING-06**: Система поддерживает пакетную обработку (batch processing) больших объёмов данных с прогресс-трекингом
+- [x] **ING-01**: Система анонимизирует PII в тексте (ФИО, телефоны, email, ИНН) через Presidio + кастомные русские распознаватели перед любой обработкой
+- [x] **ING-02**: Система парсит Telegram JSON export (result.json) и извлекает текстовые сообщения с метаданными (автор, дата, чат)
+- [x] **ING-03**: Система транскрибирует голосовые сообщения из Telegram export через Groq Whisper API и включает транскрипцию в пайплайн обработки
+- [x] **ING-04**: Система фильтрует шум из Telegram логов (service messages, приветствия, короткие ответы <5 слов, bot messages)
+- [x] **ING-05**: Система извлекает текст из PDF документов с поддержкой кириллицы
+- [x] **ING-06**: Система поддерживает пакетную обработку (batch processing) больших объёмов данных с прогресс-трекингом
 
 ### Knowledge Extraction & Indexing
 
@@ -76,12 +76,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ING-01 | Phase 1 | Pending |
-| ING-02 | Phase 1 | Pending |
-| ING-03 | Phase 1 | Pending |
-| ING-04 | Phase 1 | Pending |
-| ING-05 | Phase 1 | Pending |
-| ING-06 | Phase 1 | Pending |
+| ING-01 | Phase 1 | Completed |
+| ING-02 | Phase 1 | Completed |
+| ING-03 | Phase 1 | Completed |
+| ING-04 | Phase 1 | Completed |
+| ING-05 | Phase 1 | Completed |
+| ING-06 | Phase 1 | Completed |
 | KNW-01 | Phase 2 | Pending |
 | KNW-02 | Phase 2 | Pending |
 | KNW-03 | Phase 2 | Pending |

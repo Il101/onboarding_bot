@@ -12,7 +12,7 @@ V-Brain превращает разрозненные рабочие чаты (T
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation & Data Ingestion** - Парсинг источников, PII-анонимизация и индексация в векторной БД
+- [x] **Phase 1: Foundation & Data Ingestion** - Парсинг источников, PII-анонимизация и индексация в векторной БД
 - [ ] **Phase 2: Knowledge Extraction & RAG** - Извлечение знаний LLM, генерация SOP и RAG-пайплайн с гибридным поиском
 - [ ] **Phase 3: Telegram Bot** - Q&A бот с мульти-_turn контекстом, цитированием источников и защитой от галлюцинаций
 - [ ] **Phase 4: Web Admin Panel** - Веб-интерфейс для управления источниками, рецензирования знаний и аналитики
@@ -32,12 +32,12 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 6 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Project infrastructure, config, models, test fixtures
-- [ ] 01-02-PLAN.md — Telegram JSON parser, noise filter, chronological grouping
-- [ ] 01-03-PLAN.md — PDF parser (Docling) and voice transcription (Groq Whisper)
-- [ ] 01-04-PLAN.md — PII anonymization (Presidio + custom Russian recognizers)
-- [ ] 01-05-PLAN.md — Text/Telegram chunking, embedding generation, Qdrant indexing
-- [ ] 01-06-PLAN.md — Celery task orchestration, REST API endpoints, integration
+- [x] 01-01-PLAN.md — Project infrastructure, config, models, test fixtures
+- [x] 01-02-PLAN.md — Telegram JSON parser, noise filter, chronological grouping
+- [x] 01-03-PLAN.md — PDF parser (Docling) and voice transcription (Groq Whisper)
+- [x] 01-04-PLAN.md — PII anonymization (Presidio + custom Russian recognizers)
+- [x] 01-05-PLAN.md — Text/Telegram chunking, embedding generation, Qdrant indexing
+- [x] 01-06-PLAN.md — Celery task orchestration, REST API endpoints, integration
 
 ### Phase 2: Knowledge Extraction & RAG
 **Goal**: LLM извлекает структурированные знания из проиндексированных данных, генерирует SOP-инструкции, а RAG-пайплайн возвращает релевантные ответы на основе гибридного поиска с reranking
@@ -82,7 +82,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Data Ingestion | 0/6 | Planned | - |
+| 1. Foundation & Data Ingestion | 6/6 | Completed | 2026-04-18 |
 | 2. Knowledge Extraction & RAG | 0/? | Not started | - |
 | 3. Telegram Bot | 0/? | Not started | - |
 | 4. Web Admin Panel | 0/? | Not started | - |
