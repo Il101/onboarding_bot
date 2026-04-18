@@ -55,3 +55,20 @@ def test_one_clarify_turn_limit_in_state():
     assert state.clarify_turns_used == 0
     state.clarify_turns_used += 1
     assert state.clarify_turns_used == 1
+
+
+def test_settings_load_telegram_and_context_fields(monkeypatch):
+    from src.core.config import Settings
+
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "test-token")
+    monkeypatch.setenv("TELEGRAM_ALLOWED_ROLES", '["employee","admin"]')
+    monkeypatch.setenv("BOT_CONTEXT_MAX_MESSAGES", "14")
+    monkeypatch.setenv("BOT_CONTEXT_MAX_TOKENS", "900")
+    monkeypatch.setenv("BOT_CLARIFY_MAX_TURNS", "1")
+
+    overridden = Settings()
+    assert overridden.telegram_bot_token == "test-token"
+    assert overridden.telegram_allowed_roles == {"employee", "admin"}
+    assert overridden.bot_context_max_messages == 14
+    assert overridden.bot_context_max_tokens == 900
+    assert overridden.bot_clarify_max_turns == 1
