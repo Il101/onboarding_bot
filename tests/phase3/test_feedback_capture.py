@@ -55,3 +55,24 @@ def test_feedback_event_does_not_store_raw_answer_text():
     assert "message_id" in columns
     assert "user_id" in columns
     assert "chat_id" in columns
+
+
+def test_save_feedback_rejects_malformed_callback_data():
+    from src.bot.feedback import save_feedback_event
+    from src.models.base import Base
+
+    engine = create_engine("sqlite+pysqlite:///:memory:", future=True)
+    Base.metadata.create_all(bind=engine)
+    SessionLocal = sessionmaker(bind=engine, class_=Session, autoflush=False, autocommit=False)
+
+    with SessionLocal() as db:
+        with pytest.raises(ValueError):
+            save_feedback_event(
+                db,
+                callback_data="feedback:unknown",
+                thread_id="tg:100:200",
+                message_id=300,
+                user_id=200,
+                chat_id=100,
+                answer_confidence=0.84,
+            )
