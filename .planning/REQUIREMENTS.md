@@ -18,10 +18,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Knowledge Extraction & Indexing
 
-- [ ] **KNW-01**: LLM извлекает структурированные знания из анонимизированного текста и группирует по темам
-- [ ] **KNW-02**: LLM генерирует SOP инструкции (Markdown) из кластеризованных знаний на основе чатов
-- [ ] **KNW-03**: Система индексирует извлечённые знания в векторной БД (Qdrant) с hybrid search (векторный + BM25 для русского)
-- [ ] **KNW-04**: Каждый фрагмент знания хранит source attribution (ссылка на оригинальное сообщение/документ)
+- [x] **KNW-01**: LLM извлекает структурированные знания из анонимизированного текста и группирует по темам
+- [x] **KNW-02**: LLM генерирует SOP инструкции (Markdown) из кластеризованных знаний на основе чатов
+- [x] **KNW-03**: Система индексирует извлечённые знания в векторной БД (Qdrant) с hybrid search (векторный + BM25 для русского)
+- [x] **KNW-04**: Каждый фрагмент знания хранит source attribution (ссылка на оригинальное сообщение/документ)
 
 ### Telegram Bot
 
@@ -82,10 +82,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ING-04 | Phase 1 | Completed |
 | ING-05 | Phase 1 | Completed |
 | ING-06 | Phase 1 | Completed |
-| KNW-01 | Phase 2 | Pending |
-| KNW-02 | Phase 2 | Pending |
-| KNW-03 | Phase 2 | Pending |
-| KNW-04 | Phase 2 | Pending |
+| KNW-01 | Phase 2 | Completed |
+| KNW-02 | Phase 2 | Completed |
+| KNW-03 | Phase 2 | Completed |
+| KNW-04 | Phase 2 | Completed |
 | BOT-01 | Phase 3 | Pending |
 | BOT-02 | Phase 3 | Pending |
 | BOT-03 | Phase 3 | Pending |

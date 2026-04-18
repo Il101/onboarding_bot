@@ -13,7 +13,7 @@ V-Brain превращает разрозненные рабочие чаты (T
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation & Data Ingestion** - Парсинг источников, PII-анонимизация и индексация в векторной БД
-- [ ] **Phase 2: Knowledge Extraction & RAG** - Извлечение знаний LLM, генерация SOP и RAG-пайплайн с гибридным поиском
+- [x] **Phase 2: Knowledge Extraction & RAG** - Извлечение знаний LLM, генерация SOP и RAG-пайплайн с гибридным поиском
 - [ ] **Phase 3: Telegram Bot** - Q&A бот с мульти-_turn контекстом, цитированием источников и защитой от галлюцинаций
 - [ ] **Phase 4: Web Admin Panel** - Веб-интерфейс для управления источниками, рецензирования знаний и аналитики
 
@@ -48,7 +48,12 @@ Plans:
   2. LLM генерирует читаемые Markdown SOP-инструкции из кластеризованных знаний на основе чатов
   3. RAG-пайплайн находит релевантные фрагменты через гибридный поиск (векторный + BM25) и возвращает контекст для генерации ответа
   4. Каждый ответ RAG-пайплайна содержит ссылку на оригинальный источник (сообщение/документ)
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [x] 02-01-PLAN.md — Contracts and policy gates for extraction/RAG thresholds and attribution schema
+- [x] 02-02-PLAN.md — Structured extraction + SOP generation pipeline with confidence gate and Celery orchestration
+- [x] 02-03-PLAN.md — Hybrid retrieval + reranking + fallback synthesis and knowledge query API
 
 ### Phase 3: Telegram Bot
 **Goal**: Новый сотрудник задаёт вопрос через Telegram бот на русском языке и получает точный ответ с цитированием источников, защитой от галлюцинаций и учётом контекста диалога
@@ -83,6 +88,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Data Ingestion | 6/6 | Completed | 2026-04-18 |
-| 2. Knowledge Extraction & RAG | 0/? | Not started | - |
+| 2. Knowledge Extraction & RAG | 3/3 | Completed | 2026-04-18 |
 | 3. Telegram Bot | 0/? | Not started | - |
 | 4. Web Admin Panel | 0/? | Not started | - |
