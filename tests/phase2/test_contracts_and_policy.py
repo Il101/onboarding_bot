@@ -72,3 +72,44 @@ def test_rag_answer_contract():
     missing_excerpt["sources"] = [{"source_id": "x", "score": 0.4}]
     with pytest.raises(ValidationError):
         RagAnswer.model_validate(missing_excerpt)
+
+
+def test_publish_policy_threshold():
+    from src.ai.extraction.publish_policy import should_publish_knowledge
+    from src.ai.extraction.schemas import KnowledgeUnit
+
+    blocked_unit = KnowledgeUnit.model_validate(
+        {
+            "fact": "Если заказ не найден, эскалировать руководителю смены.",
+            "topic": "Эскалация",
+            "confidence": 0.2,
+            "source_refs": [
+                {
+                    "source_id": "telegram:ops",
+                    "excerpt": "Если заказ не находится — пиши руководителю смены.",
+                    "timestamp": "2026-04-11T12:00:00",
+                }
+            ],
+        }
+    )
+    decision = should_publish_knowledge(blocked_unit)
+    assert decision.publish is False
+    assert decision.reason
+
+
+def test_phase2_threshold_settings(monkeypatch):
+    from src.core.config import Settings
+
+    settings = Settings()
+    assert settings.knowledge_confidence_threshold == 0.7
+    assert settings.rag_relevance_threshold == 0.35
+    assert settings.rag_similarity_top_k == 8
+    assert settings.rag_sparse_top_k == 12
+    assert settings.rag_hybrid_top_k == 6
+    assert settings.rag_rerank_top_k == 5
+
+    monkeypatch.setenv("KNOWLEDGE_CONFIDENCE_THRESHOLD", "0.81")
+    monkeypatch.setenv("RAG_RELEVANCE_THRESHOLD", "0.41")
+    overridden = Settings()
+    assert overridden.knowledge_confidence_threshold == 0.81
+    assert overridden.rag_relevance_threshold == 0.41
