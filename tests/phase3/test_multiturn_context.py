@@ -90,3 +90,34 @@ def test_summarize_never_removes_latest_user_message():
         msg["role"] == "user" and msg["content"] == "А что с доступом сегодня?"
         for msg in updated["messages"]
     )
+
+
+@pytest.mark.asyncio
+async def test_graph_allows_single_clarify_then_forces_final_branch(monkeypatch):
+    from src.ai.langgraph.graph import build_graph
+
+    async def _fake_retrieve(*args, **kwargs):
+        return {
+            "rag_payload": {
+                "answer": "Оформление доступа CRM",
+                "confidence": 0.9,
+                "fallback_used": False,
+                "sources": [{"source_id": "doc:crm", "excerpt": "Инструкция CRM", "timestamp": "2026-04-10T10:00:00"}],
+            }
+        }
+
+    monkeypatch.setattr("src.ai.langgraph.graph.retrieve_phase2_payload", _fake_retrieve)
+    graph = build_graph()
+    config = {"configurable": {"thread_id": "tg:111:222"}}
+
+    first = await graph.ainvoke(
+        {"role": "employee", "query": "Что делать с отчетом?", "user_id": "222", "chat_id": "111"},
+        config=config,
+    )
+    second = await graph.ainvoke(
+        {"role": "employee", "query": "Что делать с отчетом?", "user_id": "222", "chat_id": "111"},
+        config=config,
+    )
+
+    assert first["decision"] == "clarify"
+    assert second["decision"] in {"answer", "conflict"}
