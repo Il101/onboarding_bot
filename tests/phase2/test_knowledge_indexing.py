@@ -36,8 +36,22 @@ def _publishable_units():
 def test_index_writer_maps_units_to_qdrant_points_payload_shape():
     from src.pipeline.indexer.knowledge_writer import index_knowledge_units
 
+    class _DenseVector:
+        def __init__(self, values):
+            self._values = values
+
+        def tolist(self):
+            return self._values
+
+    class _FakeEmbedder:
+        def embed_batch(self, texts):
+            return (
+                [_DenseVector([0.1, 0.2]) for _ in texts],
+                [SimpleNamespace(indices=[1], values=[0.5]) for _ in texts],
+            )
+
     store = _FakeStore()
-    count = index_knowledge_units(_publishable_units(), store=store)
+    count = index_knowledge_units(_publishable_units(), store=store, embedder=_FakeEmbedder())
     assert count == 1
     payload = store.calls[0][0]["metadata"]
     assert payload["source_id"] == "telegram:src1"
@@ -49,8 +63,22 @@ def test_index_writer_maps_units_to_qdrant_points_payload_shape():
 def test_writer_uses_knowledge_collection_contract_and_locator_metadata():
     from src.pipeline.indexer.knowledge_writer import index_knowledge_units
 
+    class _DenseVector:
+        def __init__(self, values):
+            self._values = values
+
+        def tolist(self):
+            return self._values
+
+    class _FakeEmbedder:
+        def embed_batch(self, texts):
+            return (
+                [_DenseVector([0.1, 0.2]) for _ in texts],
+                [SimpleNamespace(indices=[1], values=[0.5]) for _ in texts],
+            )
+
     store = _FakeStore()
-    index_knowledge_units(_publishable_units(), store=store)
+    index_knowledge_units(_publishable_units(), store=store, embedder=_FakeEmbedder())
     assert store.COLLECTION_NAME == "knowledge"
     assert "excerpt" in store.calls[0][0]["metadata"]
 
@@ -87,7 +115,15 @@ def test_extract_task_indexes_only_publishable_units():
         captured["count"] = len(units)
         return len(units)
 
-    result = extract_knowledge_task.run(source_id="src1", chunks=chunks, extraction_outputs=extraction_outputs, index_writer=_writer)
+    from unittest.mock import patch
+
+    with patch.object(extract_knowledge_task, "update_state", return_value=None):
+        result = extract_knowledge_task.run(
+            source_id="src1",
+            chunks=chunks,
+            extraction_outputs=extraction_outputs,
+            index_writer=_writer,
+        )
     assert result["indexed_count"] == 1
     assert captured["count"] == 1
 
