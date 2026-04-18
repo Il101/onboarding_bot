@@ -65,7 +65,12 @@ Plans:
   3. Бот учитывает контекст диалога -- пользователь может задавать уточняющие вопросы без повторения контекста
   4. Пользователь может оценить ответ (thumbs up/down), и обратная связь записывается для анализа
   5. Неавторизованный пользователь не получает доступ к боту -- при /start запрашивается проверка роли
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [x] 03-01-PLAN.md — Phase 3 contracts/tests foundation: bot state, auth gate, feedback persistence
+- [ ] 03-02-PLAN.md — LangGraph policy workflow: retrieval, summarization, fallback/clarify/answer decisions
+- [ ] 03-03-PLAN.md — Telegram transport integration: handlers, presentation with sources, thumbs feedback wiring
 
 ### Phase 4: Web Admin Panel
 **Goal**: Администратор управляет всей системой через веб-интерфейс: загружает источники, рецензирует знания, управляет пользователями и отслеживает аналитику использования
@@ -89,5 +94,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 |-------|----------------|--------|-----------|
 | 1. Foundation & Data Ingestion | 6/6 | Completed | 2026-04-18 |
 | 2. Knowledge Extraction & RAG | 3/3 | Completed | 2026-04-18 |
-| 3. Telegram Bot | 0/? | Not started | - |
+| 3. Telegram Bot | 1/3 | In Progress | - |
 | 4. Web Admin Panel | 0/? | Not started | - |
