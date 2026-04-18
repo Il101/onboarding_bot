@@ -35,6 +35,13 @@ class Settings(BaseSettings):
 
     telegram_grouping_window_minutes: int = 30
     telegram_max_messages: int = 100000
+    telegram_bot_token: str = ""
+    telegram_allowed_roles: set[str] = {"employee", "mentor", "admin"}
+    telegram_feedback_enabled: bool = True
+
+    bot_context_max_messages: int = 20
+    bot_context_max_tokens: int = 1200
+    bot_clarify_max_turns: int = 1
 
 
 settings = Settings()
