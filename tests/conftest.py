@@ -65,6 +65,12 @@ def mock_groq_client():
 
 @pytest.fixture
 def sample_pdf_path(tmp_path):
+    from fpdf import FPDF
+
     pdf_path = tmp_path / "sample.pdf"
-    pdf_path.write_bytes(b"%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< >>\n%%EOF")
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Helvetica", size=12)
+    pdf.cell(text="Test PDF content")
+    pdf.output(str(pdf_path))
     return str(pdf_path)
