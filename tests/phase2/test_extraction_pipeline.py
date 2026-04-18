@@ -140,6 +140,11 @@ def test_extract_task_reports_progress_stages():
     ]
 
     with patch.object(extract_knowledge_task, "update_state", side_effect=_capture):
-        extract_knowledge_task.run(source_id="src1", chunks=_chunks()[:1], extraction_outputs=raw)
+        extract_knowledge_task.run(
+            source_id="src1",
+            chunks=_chunks()[:1],
+            extraction_outputs=raw,
+            index_writer=lambda units: len(units),
+        )
 
     assert stages == ["extracting", "validating", "gating", "grouping", "completed"]

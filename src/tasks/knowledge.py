@@ -3,6 +3,7 @@ from __future__ import annotations
 from celery import Celery
 
 from src.ai.extraction.extractor import extract_knowledge_units, group_units_by_topic
+from src.ai.sop.generator import generate_sop_for_topic
 from src.core.config import settings
 from src.core.logging import get_logger
 from src.pipeline.indexer.knowledge_writer import index_knowledge_units
@@ -55,6 +56,17 @@ def extract_knowledge_task(
 
 
 @celery_app.task(bind=True, autoretry_for=(Exception,), max_retries=3)
-def generate_sop_task(self, source_id: str, grouped_units: dict[str, list[dict]]):
-    self.update_state(state="PROGRESS", meta={"stage": "completed", "progress": 100})
-    return {"status": "completed", "source_id": source_id, "topics": list(grouped_units.keys())}
+def generate_sop_task(self, source_id: str, grouped_units: dict[str, list]):
+    try:
+        self.update_state(state="PROGRESS", meta={"stage": "generating", "progress": 50})
+        topic_results = [generate_sop_for_topic(topic, units) for topic, units in grouped_units.items()]
+        self.update_state(state="PROGRESS", meta={"stage": "completed", "progress": 100})
+        return {
+            "status": "completed",
+            "source_id": source_id,
+            "topics": topic_results,
+        }
+    except Exception as exc:
+        logger.error("SOP generation failed for source %s: %s", source_id, exc)
+        self.update_state(state="FAILURE", meta={"error": str(exc)})
+        raise
