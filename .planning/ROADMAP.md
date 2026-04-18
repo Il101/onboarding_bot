@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation & Data Ingestion** - Парсинг источников, PII-анонимизация и индексация в векторной БД
 - [x] **Phase 2: Knowledge Extraction & RAG** - Извлечение знаний LLM, генерация SOP и RAG-пайплайн с гибридным поиском
-- [ ] **Phase 3: Telegram Bot** - Q&A бот с мульти-_turn контекстом, цитированием источников и защитой от галлюцинаций
+- [ ] **Phase 3: Telegram Bot** - Q&A бот с мульти-turn контекстом, цитированием источников и защитой от галлюцинаций
 - [ ] **Phase 4: Web Admin Panel** - Веб-интерфейс для управления источниками, рецензирования знаний и аналитики
 
 ## Phase Details
@@ -69,7 +69,7 @@ Plans:
 
 Plans:
 - [x] 03-01-PLAN.md — Phase 3 contracts/tests foundation: bot state, auth gate, feedback persistence
-- [ ] 03-02-PLAN.md — LangGraph policy workflow: retrieval, summarization, fallback/clarify/answer decisions
+- [x] 03-02-PLAN.md — LangGraph policy workflow: retrieval, summarization, fallback/clarify/answer decisions
 - [ ] 03-03-PLAN.md — Telegram transport integration: handlers, presentation with sources, thumbs feedback wiring
 
 ### Phase 4: Web Admin Panel
@@ -94,5 +94,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 |-------|----------------|--------|-----------|
 | 1. Foundation & Data Ingestion | 6/6 | Completed | 2026-04-18 |
 | 2. Knowledge Extraction & RAG | 3/3 | Completed | 2026-04-18 |
-| 3. Telegram Bot | 1/3 | In Progress | - |
+| 3. Telegram Bot | 2/3 | In Progress | - |
 | 4. Web Admin Panel | 0/? | Not started | - |

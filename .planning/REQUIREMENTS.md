@@ -25,8 +25,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Telegram Bot
 
-- [ ] **BOT-01**: Новый сотрудник задаёт вопрос через Telegram бот и получает ответ на русском языке на основе RAG
-- [ ] **BOT-02**: Бот возвращает "Я не знаю — обратитесь к коллеге" при confidence ниже порога (предотвращение галлюцинаций)
+- [x] **BOT-01**: Новый сотрудник задаёт вопрос через Telegram бот и получает ответ на русском языке на основе RAG
+- [x] **BOT-02**: Бот возвращает "Я не знаю — обратитесь к коллеге" при confidence ниже порога (предотвращение галлюцинаций)
 - [x] **BOT-03**: Бот учитывает контекст диалога (предыдущие вопросы в сессии)
 - [x] **BOT-04**: Пользователь может оценить ответ (thumbs up/down) для обратной связи
 - [x] **BOT-05**: Доступ к боту только для авторизованных сотрудников (проверка роли при /start)
@@ -86,8 +86,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | KNW-02 | Phase 2 | Completed |
 | KNW-03 | Phase 2 | Completed |
 | KNW-04 | Phase 2 | Completed |
-| BOT-01 | Phase 3 | Pending |
-| BOT-02 | Phase 3 | Pending |
+| BOT-01 | Phase 3 | Completed (03-02) |
+| BOT-02 | Phase 3 | Completed (03-02) |
 | BOT-03 | Phase 3 | Completed (03-01) |
 | BOT-04 | Phase 3 | Completed (03-01) |
 | BOT-05 | Phase 3 | Completed (03-01) |
