@@ -29,7 +29,15 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Система загружает PDF документ с кириллицей и извлекает из него текст
   4. Во всех извлечённых данных ФИО, телефоны, email и ИНН заменены на токены до любой дальнейшей обработки
   5. Обработанные данные индексируются в Qdrant с hybrid search (векторный + BM25), и каждый фрагмент хранит source attribution
-**Plans**: TBD
+**Plans**: 6 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Project infrastructure, config, models, test fixtures
+- [ ] 01-02-PLAN.md — Telegram JSON parser, noise filter, chronological grouping
+- [ ] 01-03-PLAN.md — PDF parser (Docling) and voice transcription (Groq Whisper)
+- [ ] 01-04-PLAN.md — PII anonymization (Presidio + custom Russian recognizers)
+- [ ] 01-05-PLAN.md — Text/Telegram chunking, embedding generation, Qdrant indexing
+- [ ] 01-06-PLAN.md — Celery task orchestration, REST API endpoints, integration
 
 ### Phase 2: Knowledge Extraction & RAG
 **Goal**: LLM извлекает структурированные знания из проиндексированных данных, генерирует SOP-инструкции, а RAG-пайплайн возвращает релевантные ответы на основе гибридного поиска с reranking
@@ -74,7 +82,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Data Ingestion | 0/? | Not started | - |
+| 1. Foundation & Data Ingestion | 0/6 | Planned | - |
 | 2. Knowledge Extraction & RAG | 0/? | Not started | - |
 | 3. Telegram Bot | 0/? | Not started | - |
 | 4. Web Admin Panel | 0/? | Not started | - |
