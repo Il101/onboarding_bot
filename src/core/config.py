@@ -23,11 +23,18 @@ class Settings(BaseSettings):
     sparse_model_name: str = "Qdrant/bm42-all-MiniLM-L6-v2-quantized"
 
     pii_confidence_threshold: float = 0.5
+    knowledge_confidence_threshold: float = 0.7
+    rag_relevance_threshold: float = 0.35
+    rag_similarity_top_k: int = 8
+    rag_sparse_top_k: int = 12
+    rag_hybrid_top_k: int = 6
+    rag_rerank_top_k: int = 5
 
     upload_dir: str = "./data/uploads"
     max_file_size_mb: int = 100
 
     telegram_grouping_window_minutes: int = 30
+    telegram_max_messages: int = 100000
 
 
 settings = Settings()
