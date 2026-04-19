@@ -39,7 +39,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **ADM-04**: Администратор может редактировать и одобрять знания перед публикацией в RAG (review gate)
 - [x] **ADM-05**: Администратор может удалять или отклонять некорректные знания
 - [x] **ADM-06**: Система поддерживает управление пользователями и ролями (admin, employee)
-- [ ] **ADM-07**: Dashboard показывает аналитику: популярные вопросы, средняя оценка ответов, активность пользователей
+- [x] **ADM-07**: Dashboard показывает аналитику: популярные вопросы, средняя оценка ответов, активность пользователей
 
 ## v2 Requirements
 
@@ -97,7 +97,7 @@ Which phases cover which requirements. Reconciled against phase-level VERIFICATI
 | ADM-04 | Phase 6 | Complete |
 | ADM-05 | Phase 6 | Complete |
 | ADM-06 | Phase 6 | Complete |
-| ADM-07 | Phase 6 | Pending |
+| ADM-07 | Phase 6 | Complete |
 
 **Coverage:**
 - v1 requirements: 22 total
