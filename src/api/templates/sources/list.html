@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Источники - V-Brain Admin{% endblock %}
+{% block content %}
+<div>
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="display">Источники</h2>
+        <a href="/api/admin/sources/upload"
+           class="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition-colors">
+            Upload Document
+        </a>
+    </div>
+    {% if not sources %}
+    <div class="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+        <p class="text-lg mb-2">No sources found</p>
+        <p class="text-sm">Upload PDF or Telegram export to get started with knowledge extraction</p>
+    </div>
+    {% else %}
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b bg-gray-50">
+                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Имя</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Тип</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Статус</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Сообщений</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Чанков</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Дата</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for source in sources %}
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="py-3 px-4">{{ source.filename }}</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2 py-1 rounded text-xs bg-gray-100 text-gray-800">{{ source.type.value }}</span>
+                    </td>
+                    <td class="py-3 px-4">
+                        <span class="px-2 py-1 rounded text-xs
+                            {% if source.status.value == 'completed' %}bg-green-100 text-green-800
+                            {% elif source.status.value == 'processing' %}bg-yellow-100 text-yellow-800
+                            {% elif source.status.value == 'failed' %}bg-red-100 text-red-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ source.status.value }}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4">{{ source.messages_count or 0 }}</td>
+                    <td class="py-3 px-4">{{ source.chunks_indexed or 0 }}</td>
+                    <td class="py-3 px-4 text-sm text-gray-500">{{ source.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

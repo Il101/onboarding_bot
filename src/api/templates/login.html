@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V-Brain Admin - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 flex items-center justify-center h-screen">
+    <div class="bg-white rounded-lg shadow p-8 w-80">
+        <h1 class="display text-center mb-6">V-Brain Admin</h1>
+        {% if error %}
+        <div class="bg-red-50 text-red-700 px-4 py-2 rounded mb-4 text-sm">{{ error }}</div>
+        {% endif %}
+        <form method="POST" action="/api/admin/login">
+            <input type="password"
+                   name="password"
+                   placeholder="Пароль"
+                   required
+                   class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+                   autofocus>
+            <button type="submit"
+                    class="w-full bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition-colors">
+                Войти
+            </button>
+        </form>
+    </div>
+</body>
+</html>
