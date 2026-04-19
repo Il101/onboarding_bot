@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-03-PLAN.md
-last_updated: "2026-04-19T14:20:00Z"
-last_activity: 2026-04-19 -- Phase 7 plan 07-03 executed (traceability reconciliation and no-orphaned regression checks)
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-04-19T14:56:00Z"
+last_activity: 2026-04-19 -- Phase 5 plan 05-01 executed (BOT-05 wave1 test scaffolding and auth gate refactor)
 progress:
   total_phases: 7
   completed_phases: 5
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 5 of 7 (Bot Access Hardening)
-Plan: 0 of ? in current phase
-Status: Phases 1-4 and 7 completed, Phase 5 pending
-Last activity: 2026-04-19 -- Executed 07-03 traceability reconciliation
+Plan: 1 of 2 in current phase
+Status: Phase 5 in progress (05-01 completed), next plan 05-02
+Last activity: 2026-04-19 -- Executed 05-01 BOT-05 test scaffolding and refactor
 
 Progress: [███████░░░] 71%
 
@@ -73,6 +73,7 @@ Recent decisions affecting current work:
 - Phase 3 retrieval/summarize: bounded top_k envelope adapter plus thread-scoped summary trimming that preserves latest user turn
 - Phase 3 transport: telegram handlers invoke graph by thread_id, always render mandatory sources block, and persist thumbs feedback callbacks
 - Phase 7 reconciliation: REQUIREMENTS/ROADMAP/milestone audit are now aligned to 01-04 VERIFICATION evidence with no-orphaned assertion for phases 1-4
+- Phase 5 wave1: BOT-05 whitelist authorization behavior is now codified in failing policy scaffolding tests plus whitelist-anchored auth gate regressions
 
 ### Pending Todos
 
@@ -94,6 +95,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-19T14:20:00Z
-Stopped at: Completed 07-03-PLAN.md
-Resume file: .planning/phases/07-verification-evidence-backfill/07-03-SUMMARY.md
+Last session: 2026-04-19T14:56:00Z
+Stopped at: Completed 05-01-PLAN.md
+Resume file: .planning/phases/05-bot-access-hardening/05-01-SUMMARY.md

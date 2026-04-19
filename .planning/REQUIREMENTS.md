@@ -90,7 +90,7 @@ Which phases cover which requirements. Reconciled against phase-level VERIFICATI
 | BOT-02 | Phase 3 / 4 | Satisfied overall (partial delegation in 04-VERIFICATION) |
 | BOT-03 | Phase 3 | Satisfied (03-VERIFICATION) |
 | BOT-04 | Phase 3 | Satisfied (03-VERIFICATION) |
-| BOT-05 | Phase 5 | Unsatisfied (Phase 5 not executed) |
+| BOT-05 | Phase 5 | In progress (05-01 test scaffolding committed) |
 | ADM-01 | Phase 6 | Pending |
 | ADM-02 | Phase 6 | Pending |
 | ADM-03 | Phase 6 | Pending |
@@ -104,7 +104,7 @@ Which phases cover which requirements. Reconciled against phase-level VERIFICATI
 - Mapped to phases: 22
 - Unmapped: 0
 - Verified satisfied (Phases 1-4): 14
-- Unsatisfied/pending: 8 (BOT-05 + ADM-01..ADM-07)
+- Unsatisfied/pending: 8 (BOT-05 in progress + ADM-01..ADM-07)
 
 ---
 *Requirements defined: 2026-04-17*
