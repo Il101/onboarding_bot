@@ -2,6 +2,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
+from sqlalchemy import func
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -57,3 +58,28 @@ async def test_callback_handler_rejects_invalid_vote_with_safe_ack(db_session):
     await handle_feedback_callback(update, ctx)
 
     query.answer.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_callback_handler_replay_is_idempotent_and_not_duplicated(db_session):
+    from src.bot.telegram_app import handle_feedback_callback
+    from src.models.feedback_event import FeedbackEvent
+
+    query = SimpleNamespace(
+        data="feedback:up",
+        answer=AsyncMock(),
+        message=SimpleNamespace(message_id=300, chat=SimpleNamespace(id=100)),
+        from_user=SimpleNamespace(id=200),
+    )
+    update = SimpleNamespace(callback_query=query)
+    ctx = SimpleNamespace(application=SimpleNamespace(bot_data={"db_session_factory": lambda: db_session}))
+
+    await handle_feedback_callback(update, ctx)
+    await handle_feedback_callback(update, ctx)
+    db_session.commit()
+
+    assert query.answer.await_count == 2
+    second_call = query.answer.await_args_list[1]
+    assert second_call.kwargs.get("text") == "Оценка уже учтена."
+    count = db_session.scalar(select(func.count()).select_from(FeedbackEvent))
+    assert count == 1

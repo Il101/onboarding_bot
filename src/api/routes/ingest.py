@@ -23,6 +23,22 @@ def _validate_size(content: bytes):
         raise HTTPException(status_code=413, detail="File too large")
 
 
+def _validate_json_content(content: bytes):
+    try:
+        import json
+
+        payload = json.loads(content.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=400, detail="Invalid JSON content") from exc
+    if not isinstance(payload, dict) or "messages" not in payload:
+        raise HTTPException(status_code=400, detail="Invalid JSON content")
+
+
+def _validate_ogg_content(content: bytes):
+    if not (content.startswith(b"OggS") or content.startswith(b"ID3")):
+        raise HTTPException(status_code=400, detail="Invalid voice file content")
+
+
 @router.post("/telegram")
 async def upload_telegram(
     json_file: UploadFile = File(...),
@@ -37,6 +53,7 @@ async def upload_telegram(
     json_path = base / json_name
     json_content = await json_file.read()
     _validate_size(json_content)
+    _validate_json_content(json_content)
     json_path.write_bytes(json_content)
 
     voice_dir = base / f"{source_id}_voices"
@@ -46,6 +63,7 @@ async def upload_telegram(
             raise HTTPException(status_code=400, detail="Invalid voice file type")
         content = await file.read()
         _validate_size(content)
+        _validate_ogg_content(content)
         safe_name = f"{uuid4()}.ogg"
         (voice_dir / safe_name).write_bytes(content)
 
@@ -82,7 +100,7 @@ async def get_status(job_id: str):
     if result.state == "SUCCESS":
         return {"status": "completed", **(result.result or {})}
     if result.state == "FAILURE":
-        return {"status": "failed", "error": str(result.result)}
+        return {"status": "failed", "error": "Task failed"}
     if result.state == "PENDING":
         return {"status": "pending"}
     return {"status": result.state.lower()}

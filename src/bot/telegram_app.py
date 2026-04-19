@@ -126,7 +126,10 @@ async def handle_feedback_callback(update: Update, context: ContextTypes.DEFAULT
                 answer_confidence=float(confidence),
             )
         await query.answer(text="Спасибо за оценку!")
-    except ValueError:
+    except ValueError as exc:
+        if str(exc) == "duplicate_feedback_callback":
+            await query.answer(text="Оценка уже учтена.")
+            return
         await query.answer(text="Некорректный формат оценки.")
     except Exception as exc:  # noqa: BLE001
         logger.error("telegram feedback handler failed: %s", exc)

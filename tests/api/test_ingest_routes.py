@@ -155,6 +155,33 @@ def test_upload_telegram_returns_job_id(mock_task, client):
     assert data["status"] == "started"
 
 
+def test_upload_telegram_invalid_json_content_returns_400(client):
+    response = client.post(
+        "/api/ingest/telegram",
+        files={"json_file": ("result.json", b"not-json", "application/json")},
+    )
+    assert response.status_code == 400
+
+
+def test_upload_telegram_missing_messages_field_returns_400(client):
+    response = client.post(
+        "/api/ingest/telegram",
+        files={"json_file": ("result.json", b'{"foo": "bar"}', "application/json")},
+    )
+    assert response.status_code == 400
+
+
+def test_upload_telegram_invalid_ogg_content_returns_400(client):
+    response = client.post(
+        "/api/ingest/telegram",
+        files=[
+            ("json_file", ("result.json", b'{"messages": []}', "application/json")),
+            ("voice_files", ("voice.ogg", b"NOT_OGG", "audio/ogg")),
+        ],
+    )
+    assert response.status_code == 400
+
+
 @patch("src.api.routes.ingest.ingest_pdf")
 def test_upload_pdf_returns_job_id(mock_task, client):
     mock_task.delay.return_value = MagicMock(id="test-job-456")
@@ -173,6 +200,16 @@ def test_get_status_returns_progress(mock_result, client):
     response = client.get("/api/ingest/status/test-job-123")
     assert response.status_code == 200
     assert response.json()["status"] == "processing"
+
+
+@patch("src.api.routes.ingest.AsyncResult")
+def test_get_status_failure_masks_internal_error(mock_result, client):
+    mock_result.return_value.state = "FAILURE"
+    mock_result.return_value.result = RuntimeError("sensitive details")
+    response = client.get("/api/ingest/status/test-job-123")
+    assert response.status_code == 200
+    assert response.json()["status"] == "failed"
+    assert response.json()["error"] == "Task failed"
 
 
 def test_upload_invalid_file_type_returns_400(client):

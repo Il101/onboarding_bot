@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Mapping
 from typing import Any
 
@@ -23,10 +24,24 @@ async def retrieve_phase2_payload(
         base_url="http://localhost:8000",
         timeout=httpx.Timeout(15.0),
     )
+    attempts = max(1, settings.bot_retrieve_max_attempts)
+    backoff = max(0.0, settings.bot_retrieve_retry_backoff_seconds)
     try:
-        response = await local_client.post("/api/knowledge/query", json=payload)
-        response.raise_for_status()
-        data = response.json()
+        last_error: Exception | None = None
+        data: Any = None
+        for attempt in range(1, attempts + 1):
+            try:
+                response = await local_client.post("/api/knowledge/query", json=payload)
+                response.raise_for_status()
+                data = response.json()
+                break
+            except (httpx.TimeoutException, httpx.TransportError, httpx.HTTPStatusError) as exc:
+                last_error = exc
+                if attempt >= attempts:
+                    raise
+                await asyncio.sleep(backoff * attempt)
+        if last_error is not None and data is None:
+            raise last_error
     finally:
         if owns_client:
             await local_client.aclose()

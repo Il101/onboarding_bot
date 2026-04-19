@@ -4,6 +4,8 @@ from typing import Optional
 
 from bs4 import BeautifulSoup
 
+from src.core.config import settings
+
 
 @dataclass
 class TelegramMessage:
@@ -34,11 +36,20 @@ def parse_text_field(text_field) -> str:
 
 
 def parse_telegram_export(filepath: str) -> list[TelegramMessage]:
-    with open(filepath, "r", encoding="utf-8") as file:
-        data = json.load(file)
+    try:
+        with open(filepath, "r", encoding="utf-8") as file:
+            data = json.load(file)
+    except json.JSONDecodeError as exc:
+        raise ValueError("Invalid Telegram JSON export") from exc
+
+    raw_messages = data.get("messages", [])
+    if not isinstance(raw_messages, list):
+        raise ValueError("Invalid Telegram JSON export: messages must be a list")
+    if len(raw_messages) > settings.telegram_max_messages:
+        raise ValueError("Telegram export exceeds max messages limit")
 
     messages: list[TelegramMessage] = []
-    for msg in data.get("messages", []):
+    for msg in raw_messages:
         msg_type = msg.get("type", "")
         if msg_type == "service":
             continue

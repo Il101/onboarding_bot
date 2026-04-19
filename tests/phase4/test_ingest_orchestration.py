@@ -126,3 +126,20 @@ def test_dispatch_failure_sets_controlled_failure_state_and_raises():
             ingest_telegram.run(source_id="src1", json_path="/tmp/x.json", voice_dir="/tmp/voices")
 
     assert "FAILURE" in states
+
+
+def test_invalid_source_id_sets_failure_state_and_blocks_dispatch():
+    from src.tasks.ingest import ingest_telegram
+
+    states: list[str] = []
+
+    def _capture_state(*, state, meta):
+        states.append(state)
+
+    with (
+        patch.object(ingest_telegram, "update_state", side_effect=_capture_state),
+        pytest.raises(ValueError, match="Invalid source_id"),
+    ):
+        ingest_telegram.run(source_id="   ", json_path="/tmp/x.json", voice_dir="/tmp/voices")
+
+    assert "FAILURE" in states

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from src.models.feedback_event import FeedbackEvent
@@ -34,5 +35,8 @@ def save_feedback_event(
         answer_confidence=answer_confidence,
     )
     db.add(event)
-    db.flush()
+    try:
+        db.flush()
+    except IntegrityError as exc:
+        raise ValueError("duplicate_feedback_callback") from exc
     return event

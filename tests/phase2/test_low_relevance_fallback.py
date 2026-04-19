@@ -48,3 +48,21 @@ def test_api_rejects_malformed_payload_without_internal_leakage():
     body = response.text.lower()
     assert "traceback" not in body
     assert "exception" not in body
+
+
+def test_api_accepts_top_k_within_config_limit():
+    from src.api.main import app
+
+    client = TestClient(app)
+    response = client.post("/api/knowledge/query", json={"query": "как оформить заказ", "top_k": 3})
+    assert response.status_code == 200
+    data = response.json()
+    assert set(data.keys()) == {"answer", "confidence", "sources", "fallback_used"}
+
+
+def test_api_rejects_top_k_above_config_limit():
+    from src.api.main import app
+
+    client = TestClient(app)
+    response = client.post("/api/knowledge/query", json={"query": "как оформить заказ", "top_k": 999})
+    assert response.status_code == 422

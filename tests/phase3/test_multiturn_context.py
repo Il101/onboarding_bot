@@ -1,4 +1,5 @@
 import pytest
+import httpx
 
 
 @pytest.mark.asyncio
@@ -121,3 +122,92 @@ async def test_graph_allows_single_clarify_then_forces_final_branch(monkeypatch)
 
     assert first["decision"] == "clarify"
     assert second["decision"] in {"answer", "conflict"}
+
+
+@pytest.mark.asyncio
+async def test_graph_conflict_prefers_newest_source(monkeypatch):
+    from src.ai.langgraph.graph import build_graph
+
+    async def _fake_retrieve(*args, **kwargs):
+        return {
+            "rag_payload": {
+                "answer": "Найдены противоречия",
+                "confidence": 0.9,
+                "fallback_used": False,
+                "sources": [
+                    {
+                        "source_id": "doc:old",
+                        "excerpt": "Старое правило",
+                        "timestamp": "2026-03-01T00:00:00",
+                    },
+                    {
+                        "source_id": "doc:new",
+                        "excerpt": "Новое правило",
+                        "timestamp": "2026-04-10T00:00:00",
+                    },
+                ],
+            }
+        }
+
+    monkeypatch.setattr("src.ai.langgraph.graph.retrieve_phase2_payload", _fake_retrieve)
+    graph = build_graph()
+    result = await graph.ainvoke(
+        {"role": "employee", "query": "Какой регламент верный?", "user_id": "222", "chat_id": "111"},
+        config={"configurable": {"thread_id": "tg:111:222"}},
+    )
+    sources = result["result"].sources
+    assert result["decision"] == "conflict"
+    assert len(sources) >= 2
+    assert sources[0].source_id == "doc:new"
+
+
+@pytest.mark.asyncio
+async def test_retrieve_retries_with_ceiling_on_transient_failures():
+    from src.ai.langgraph.nodes.retrieve_phase2 import retrieve_phase2_payload
+
+    attempts = {"n": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        attempts["n"] += 1
+        if attempts["n"] < 3:
+            return httpx.Response(502, json={"detail": "upstream"})
+        return httpx.Response(
+            200,
+            json={
+                "answer": "ok",
+                "confidence": 0.8,
+                "sources": [{"source_id": "doc:x", "excerpt": "x", "timestamp": "2026-04-01T00:00:00"}],
+                "fallback_used": False,
+            },
+        )
+
+    transport = httpx.MockTransport(handler)
+    async with httpx.AsyncClient(base_url="http://test", transport=transport) as client:
+        with pytest.MonkeyPatch.context() as mp:
+            mp.setattr("src.ai.langgraph.nodes.retrieve_phase2.settings.bot_retrieve_max_attempts", 3)
+            mp.setattr("src.ai.langgraph.nodes.retrieve_phase2.settings.bot_retrieve_retry_backoff_seconds", 0.0)
+            result = await retrieve_phase2_payload({"query": "q"}, client=client)
+
+    assert attempts["n"] == 3
+    assert result["rag_payload"]["answer"] == "ok"
+
+
+@pytest.mark.asyncio
+async def test_retrieve_stops_after_retry_ceiling():
+    from src.ai.langgraph.nodes.retrieve_phase2 import retrieve_phase2_payload
+
+    attempts = {"n": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        attempts["n"] += 1
+        return httpx.Response(503, json={"detail": "down"})
+
+    transport = httpx.MockTransport(handler)
+    async with httpx.AsyncClient(base_url="http://test", transport=transport) as client:
+        with pytest.MonkeyPatch.context() as mp:
+            mp.setattr("src.ai.langgraph.nodes.retrieve_phase2.settings.bot_retrieve_max_attempts", 2)
+            mp.setattr("src.ai.langgraph.nodes.retrieve_phase2.settings.bot_retrieve_retry_backoff_seconds", 0.0)
+            with pytest.raises(httpx.HTTPStatusError):
+                await retrieve_phase2_payload({"query": "q"}, client=client)
+
+    assert attempts["n"] == 2

@@ -1,5 +1,8 @@
 import json
 
+import pytest
+
+from src.core.config import settings
 from src.pipeline.parsers.telegram import parse_telegram_export
 
 
@@ -117,3 +120,31 @@ def test_edited_message(tmp_path):
     path.write_text(json.dumps(data), encoding="utf-8")
     parsed = parse_telegram_export(str(path))
     assert parsed[0].edit_date == "2024-01-15T10:01:00"
+
+
+def test_invalid_json_raises_value_error(tmp_path):
+    path = tmp_path / "result.json"
+    path.write_text("{invalid json", encoding="utf-8")
+    with pytest.raises(ValueError, match="Invalid Telegram JSON export"):
+        parse_telegram_export(str(path))
+
+
+def test_non_list_messages_raises_value_error(tmp_path):
+    path = tmp_path / "result.json"
+    path.write_text(json.dumps({"messages": {}}), encoding="utf-8")
+    with pytest.raises(ValueError, match="messages must be a list"):
+        parse_telegram_export(str(path))
+
+
+def test_message_limit_exceeded_raises_value_error(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "telegram_max_messages", 1)
+    data = {
+        "messages": [
+            {"id": 1, "type": "message", "date": "2024-01-15T10:00:00", "from": "A", "from_id": "user1", "text": "one"},
+            {"id": 2, "type": "message", "date": "2024-01-15T10:01:00", "from": "B", "from_id": "user2", "text": "two"},
+        ]
+    }
+    path = tmp_path / "result.json"
+    path.write_text(json.dumps(data), encoding="utf-8")
+    with pytest.raises(ValueError, match="exceeds max messages limit"):
+        parse_telegram_export(str(path))

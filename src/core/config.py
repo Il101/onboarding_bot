@@ -35,6 +35,8 @@ class Settings(BaseSettings):
 
     telegram_grouping_window_minutes: int = 30
     telegram_max_messages: int = 100000
+    bot_retrieve_max_attempts: int = 2
+    bot_retrieve_retry_backoff_seconds: float = 0.05
     telegram_bot_token: str = ""
     telegram_user_roles: dict[int, str] = {}
     telegram_allowed_roles: set[str] = {"employee", "mentor", "admin"}

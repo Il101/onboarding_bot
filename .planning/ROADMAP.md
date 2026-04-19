@@ -104,7 +104,7 @@ Plans:
 
 Plans:
 - [x] 05-01-PLAN.md — Wave 0 BOT-05 test scaffolding for whitelist-based auth behavior
-- [ ] 05-02-PLAN.md — Implement whitelist user_id authorization wiring across transport and graph
+- [x] 05-02-PLAN.md — Implement whitelist user_id authorization wiring across transport and graph
 
 ### Phase 6: Web Admin Panel
 **Goal**: Администратор управляет всей системой через веб-интерфейс: загружает источники, рецензирует знания, управляет пользователями и отслеживает аналитику использования
@@ -146,6 +146,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 2. Knowledge Extraction & RAG | 3/3 | Completed | 2026-04-18 |
 | 3. Telegram Bot | 3/3 | Completed | 2026-04-19 |
 | 4. Runtime Integration Hardening | 2/2 | Completed | 2026-04-19 |
-| 5. Bot Access Hardening | 1/2 | In progress | 2026-04-19 |
+| 5. Bot Access Hardening | 2/2 | Completed | 2026-04-19 |
 | 6. Web Admin Panel | 0/? | Not started | - |
 | 7. Verification Evidence Backfill | 3/3 | Completed | 2026-04-19 |

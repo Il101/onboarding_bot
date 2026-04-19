@@ -42,3 +42,12 @@ def test_cyrillic_preserved(sample_pdf_path):
 
         result = extract_pdf_text(sample_pdf_path)
     assert "Тестовый" in result
+
+
+def test_invalid_pdf_signature_raises(tmp_path):
+    import pytest
+
+    fake_pdf = tmp_path / "file.pdf"
+    fake_pdf.write_bytes(b"NOTPDF")
+    with pytest.raises(ValueError, match="Invalid PDF content"):
+        extract_pdf_text(str(fake_pdf))

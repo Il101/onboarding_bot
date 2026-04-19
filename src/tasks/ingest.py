@@ -19,9 +19,26 @@ logger = get_logger(__name__)
 celery_app = Celery("vbrain", broker=settings.redis_url, backend=settings.redis_url)
 
 
+def _validate_source_id(source_id: str) -> str:
+    if not isinstance(source_id, str) or not source_id.strip():
+        raise ValueError("Invalid source_id for dispatch payload")
+    return source_id.strip()
+
+
+def _validate_chunks_for_dispatch(chunks: list[dict]) -> None:
+    for idx, chunk in enumerate(chunks):
+        if not isinstance(chunk, dict):
+            raise ValueError(f"Invalid chunk payload at index {idx}: expected dict")
+        if not isinstance(chunk.get("text"), str):
+            raise ValueError(f"Invalid chunk payload at index {idx}: missing text")
+        if not isinstance(chunk.get("metadata"), dict):
+            raise ValueError(f"Invalid chunk payload at index {idx}: missing metadata")
+
+
 @celery_app.task(bind=True, autoretry_for=(Exception,), max_retries=3)
 def ingest_telegram(self, source_id: str, json_path: str, voice_dir: str):
     try:
+        source_id = _validate_source_id(source_id)
         self.update_state(state="PROGRESS", meta={"stage": "parsing", "progress": 10})
         messages = parse_telegram_export(json_path)
 
@@ -46,6 +63,8 @@ def ingest_telegram(self, source_id: str, json_path: str, voice_dir: str):
         store.ensure_collection()
 
         for chunk in chunks:
+            if not isinstance(chunk.get("metadata"), dict):
+                raise ValueError("Invalid chunk payload: missing metadata")
             chunk["metadata"]["source_id"] = source_id
 
         texts = [c["text"] for c in chunks]
@@ -57,6 +76,7 @@ def ingest_telegram(self, source_id: str, json_path: str, voice_dir: str):
             chunk["id"] = f"telegram:{source_id}:{i}"
 
         count = store.upsert_chunks(chunks)
+        _validate_chunks_for_dispatch(chunks)
         extract_knowledge_task.delay(source_id=source_id, chunks=chunks)
         return {"status": "completed", "messages_processed": len(messages), "chunks_indexed": count}
     except Exception as exc:
@@ -68,6 +88,7 @@ def ingest_telegram(self, source_id: str, json_path: str, voice_dir: str):
 @celery_app.task(bind=True, autoretry_for=(Exception,), max_retries=3)
 def ingest_pdf(self, source_id: str, file_path: str):
     try:
+        source_id = _validate_source_id(source_id)
         self.update_state(state="PROGRESS", meta={"stage": "parsing", "progress": 15})
         markdown = extract_pdf_text(file_path)
 
@@ -95,6 +116,7 @@ def ingest_pdf(self, source_id: str, file_path: str):
             chunk["id"] = f"pdf:{source_id}:{i}"
 
         count = store.upsert_chunks(chunks)
+        _validate_chunks_for_dispatch(chunks)
         extract_knowledge_task.delay(source_id=source_id, chunks=chunks)
         return {"status": "completed", "chunks_indexed": count}
     except Exception as exc:

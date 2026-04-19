@@ -1,5 +1,9 @@
 {
-  "model_profile": "balanced",
+  "model_profile": "budget",
+  "model_overrides": {
+    "gsd-plan-checker": "opus",
+    "gsd-verifier": "opus"
+  },
   "commit_docs": true,
   "parallelization": true,
   "search_gitignored": false,
