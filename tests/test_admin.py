@@ -1,5 +1,5 @@
 import hashlib
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -129,3 +129,88 @@ def test_users_page_requires_auth(client):
 def test_analytics_page_requires_auth(client):
     response = client.get("/api/admin/analytics")
     assert response.status_code == 302
+
+
+# --- ADM-01: PDF upload via admin (upload endpoints) ---
+
+
+@patch("src.api.routes.admin.ingest_pdf")
+def test_admin_pdf_upload_returns_success(mock_task, admin_client, db_session):
+    mock_task.delay.return_value = MagicMock(id="admin-job-pdf-1")
+    response = admin_client.post(
+        "/api/admin/sources/pdf",
+        files={"file": ("report.pdf", b"%PDF-1.4 test content", "application/pdf")},
+    )
+    assert response.status_code == 200
+    assert "Job ID" in response.text or "job_id" in response.text.lower()
+
+
+def test_admin_pdf_upload_invalid_extension_returns_error(admin_client):
+    response = admin_client.post(
+        "/api/admin/sources/pdf",
+        files={"file": ("image.png", b"\x89PNG", "image/png")},
+    )
+    assert response.status_code == 200
+    assert "Неверный тип" in response.text or "Invalid" in response.text
+
+
+def test_admin_pdf_upload_invalid_content_returns_error(admin_client):
+    response = admin_client.post(
+        "/api/admin/sources/pdf",
+        files={"file": ("fake.pdf", b"not real pdf content", "application/pdf")},
+    )
+    assert response.status_code == 200
+    assert "Неверное содержимое" in response.text or "Invalid" in response.text
+
+
+# --- ADM-02: Telegram upload via admin (upload endpoints) ---
+
+
+@patch("src.api.routes.admin.ingest_telegram")
+def test_admin_telegram_upload_returns_success(mock_task, admin_client, db_session):
+    mock_task.delay.return_value = MagicMock(id="admin-job-tg-1")
+    response = admin_client.post(
+        "/api/admin/sources/telegram",
+        files=[("json_file", ("result.json", b'{"name":"Test","messages":[]}', "application/json"))],
+    )
+    assert response.status_code == 200
+    assert "Job ID" in response.text or "job_id" in response.text.lower()
+
+
+def test_admin_telegram_upload_invalid_extension_returns_error(admin_client):
+    response = admin_client.post(
+        "/api/admin/sources/telegram",
+        files=[("json_file", ("result.txt", b'{"name":"Test","messages":[]}', "text/plain"))],
+    )
+    assert response.status_code == 200
+    assert "Неверный тип" in response.text or "Invalid" in response.text
+
+
+def test_admin_telegram_upload_invalid_json_returns_error(admin_client):
+    response = admin_client.post(
+        "/api/admin/sources/telegram",
+        files=[("json_file", ("result.json", b"not json", "application/json"))],
+    )
+    assert response.status_code == 200
+    assert "Неверный" in response.text or "Invalid" in response.text
+
+
+@patch("src.api.routes.admin.ingest_telegram")
+def test_admin_telegram_upload_with_voice_files_returns_success(mock_task, admin_client, db_session):
+    mock_task.delay.return_value = MagicMock(id="admin-job-tg-2")
+    response = admin_client.post(
+        "/api/admin/sources/telegram",
+        files=[
+            ("json_file", ("result.json", b'{"name":"Test","messages":[]}', "application/json")),
+            ("voice_files", ("voice1.ogg", b"OggS\x00test", "audio/ogg")),
+        ],
+    )
+    assert response.status_code == 200
+    assert "Job ID" in response.text or "job_id" in response.text.lower()
+
+
+def test_admin_sources_list_returns_html(admin_client, db_session):
+    db_session.query.return_value.order_by.return_value.all.return_value = []
+    response = admin_client.get("/api/admin/sources")
+    assert response.status_code == 200
+    assert "sources" in response.text.lower() or "Источники" in response.text
