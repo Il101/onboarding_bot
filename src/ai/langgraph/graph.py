@@ -11,7 +11,7 @@ from src.ai.langgraph.nodes.decide import LOCKED_FALLBACK_TEXT, decide_next_acti
 from src.ai.langgraph.nodes.retrieve_phase2 import retrieve_phase2_payload
 from src.ai.langgraph.nodes.summarize import summarize_history_if_needed
 from src.ai.langgraph.state import BotAnswer, SourceRef
-from src.bot.auth import is_authorized_role
+from src.bot.auth import authorize_telegram_user
 from src.core.config import settings
 from src.core.logging import get_logger
 
@@ -96,8 +96,8 @@ def build_graph():
     workflow = StateGraph(GraphState)
 
     def auth_node(state: GraphState) -> dict[str, Any]:
-        decision = is_authorized_role(state.get("role"))
-        return {"authorized": decision.allowed}
+        decision = authorize_telegram_user(state.get("user_id", ""))
+        return {"authorized": decision.allowed, "role": decision.role}
 
     async def retrieve_node(state: GraphState) -> dict[str, Any]:
         try:

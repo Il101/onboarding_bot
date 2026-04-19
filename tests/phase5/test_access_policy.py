@@ -55,3 +55,4 @@ def test_authorize_user_allowed_role_allowed(monkeypatch):
 
     assert decision.allowed is True
     assert decision.reason == "allowed"
+    assert decision.role == "employee"

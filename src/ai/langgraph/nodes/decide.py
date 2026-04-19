@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from src.bot.auth import is_authorized_role
 from src.core.config import settings
 
 LOCKED_FALLBACK_TEXT = "Я не знаю — обратитесь к коллеге"
@@ -31,8 +30,7 @@ def _has_source_conflict(sources: list[dict[str, Any]]) -> bool:
 
 
 def decide_next_action(state: dict[str, Any]) -> Literal["deny", "offtopic", "fallback", "clarify", "conflict", "answer"]:
-    role = str(state.get("role", ""))
-    if not is_authorized_role(role).allowed:
+    if not bool(state.get("authorized", False)):
         return "deny"
 
     query = str(state.get("query", ""))

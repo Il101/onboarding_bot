@@ -17,17 +17,13 @@ from telegram.ext import (
 
 from src.ai.langgraph.graph import build_graph
 from src.ai.langgraph.state import BotAnswer, SourceRef, build_thread_id
-from src.bot.auth import build_access_denied_answer, is_authorized_role
+from src.bot.auth import authorize_telegram_user, build_access_denied_answer
 from src.bot.feedback import save_feedback_event
 from src.bot.presenters import render_bot_message
 from src.core.config import settings
 from src.core.logging import get_logger
 
 logger = get_logger(__name__)
-
-
-def resolve_role_for_update(update: Update) -> str:
-    return "employee"
 
 
 def _feedback_keyboard() -> InlineKeyboardMarkup:
@@ -65,11 +61,11 @@ def _session_scope(factory: Callable[[], Session]):
 
 
 async def handle_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    if update.message is None:
+    if update.message is None or update.effective_user is None:
         return
-    role = resolve_role_for_update(update)
-    if not is_authorized_role(role).allowed:
-        denied = build_access_denied_answer(reason="role_not_allowed")
+    decision = authorize_telegram_user(update.effective_user.id)
+    if not decision.allowed:
+        denied = build_access_denied_answer(reason=decision.reason)
         await update.message.reply_text(text=render_bot_message(denied))
         return
     await update.message.reply_text(text="Бот готов. Задайте рабочий вопрос.")
@@ -78,9 +74,9 @@ async def handle_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.message is None or update.effective_chat is None or update.effective_user is None:
         return
-    role = resolve_role_for_update(update)
-    if not is_authorized_role(role).allowed:
-        denied = build_access_denied_answer(reason="role_not_allowed")
+    decision = authorize_telegram_user(update.effective_user.id)
+    if not decision.allowed:
+        denied = build_access_denied_answer(reason=decision.reason)
         await update.message.reply_text(text=render_bot_message(denied))
         return
 
@@ -89,7 +85,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     try:
         result = await graph.ainvoke(
             {
-                "role": role,
+                "role": decision.role,
                 "query": update.message.text or "",
                 "user_id": str(update.effective_user.id),
                 "chat_id": str(update.effective_chat.id),

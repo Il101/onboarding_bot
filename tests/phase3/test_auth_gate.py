@@ -40,10 +40,14 @@ async def test_start_unauthorized_returns_deny_and_skips_graph(monkeypatch):
     ctx = SimpleNamespace(application=SimpleNamespace(bot_data={"graph": graph}))
     upd = _update(user_id=999_000)
 
-    def _resolve_role_from_whitelist(update):
-        return WHITELIST_USER_ROLES.get(update.effective_user.id, "guest")
-
-    monkeypatch.setattr("src.bot.telegram_app.resolve_role_for_update", _resolve_role_from_whitelist)
+    monkeypatch.setattr(
+        "src.bot.telegram_app.authorize_telegram_user",
+        lambda user_id: SimpleNamespace(
+            allowed=user_id in WHITELIST_USER_ROLES,
+            reason="allowed" if user_id in WHITELIST_USER_ROLES else "not_whitelisted",
+            role=WHITELIST_USER_ROLES.get(user_id, ""),
+        ),
+    )
 
     await handle_start(upd, ctx)
 
@@ -72,10 +76,14 @@ async def test_authorized_message_invokes_graph_with_thread_id_and_sends_formatt
     upd = _update(user_id=200)
     upd.message.text = "Как оформить доступ?"
 
-    def _resolve_role_from_whitelist(update):
-        return WHITELIST_USER_ROLES.get(update.effective_user.id, "guest")
-
-    monkeypatch.setattr("src.bot.telegram_app.resolve_role_for_update", _resolve_role_from_whitelist)
+    monkeypatch.setattr(
+        "src.bot.telegram_app.authorize_telegram_user",
+        lambda user_id: SimpleNamespace(
+            allowed=user_id in WHITELIST_USER_ROLES,
+            reason="allowed" if user_id in WHITELIST_USER_ROLES else "not_whitelisted",
+            role=WHITELIST_USER_ROLES.get(user_id, ""),
+        ),
+    )
 
     await handle_message(upd, ctx)
 
@@ -107,6 +115,10 @@ async def test_unauthorized_role_short_circuits_before_retrieve(monkeypatch):
         raise AssertionError("retrieve must not run for unauthorized role")
 
     monkeypatch.setattr("src.ai.langgraph.graph.retrieve_phase2_payload", _forbidden_retrieve)
+    monkeypatch.setattr(
+        "src.ai.langgraph.graph.authorize_telegram_user",
+        lambda user_id: SimpleNamespace(allowed=False, reason="not_whitelisted", role=""),
+    )
     graph = build_graph()
     result = await graph.ainvoke(
         {"role": derived_role, "query": "Как оформить доступ?", "user_id": unauthorized_user_id, "chat_id": "11"},
@@ -123,7 +135,10 @@ async def test_handler_error_path_returns_safe_russian_message(monkeypatch):
     ctx = SimpleNamespace(application=SimpleNamespace(bot_data={"graph": graph}))
     upd = _update()
     upd.message.text = "Как оформить доступ?"
-    monkeypatch.setattr("src.bot.telegram_app.resolve_role_for_update", lambda _u: "employee")
+    monkeypatch.setattr(
+        "src.bot.telegram_app.authorize_telegram_user",
+        lambda _user_id: SimpleNamespace(allowed=True, reason="allowed", role="employee"),
+    )
 
     await handle_message(upd, ctx)
 
