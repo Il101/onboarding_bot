@@ -16,6 +16,7 @@ from src.core.config import settings
 from src.models.ingest_job import IngestJob
 from src.models.knowledge_item import KnowledgeItem, KnowledgeStatus
 from src.models.source import IngestStatus, Source, SourceType
+from src.models.telegram_user import TelegramUser, UserRole
 from src.tasks.ingest import ingest_pdf, ingest_telegram
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -408,3 +409,73 @@ async def delete_source(source_id: str, db: Session = Depends(get_db_session)):
     db.delete(source)
     db.commit()
     return HTMLResponse(content='<div class="bg-green-50 text-green-700 p-3 rounded">Источник удалён</div>')
+
+
+# --- User management endpoints (ADM-06) ---
+
+
+@router.get("/users", response_class=HTMLResponse)
+async def users_page(request: Request, db: Session = Depends(get_db_session)):
+    users = db.query(TelegramUser).order_by(TelegramUser.created_at.desc()).all()
+    return templates.TemplateResponse(
+        request,
+        "users/manage.html",
+        {"users": users},
+    )
+
+
+@router.post("/users", response_class=HTMLResponse)
+async def create_user(
+    request: Request,
+    user_id: int = Form(...),
+    role: str = Form(...),
+    db: Session = Depends(get_db_session),
+):
+    # Validate role
+    try:
+        user_role = UserRole(role)
+    except ValueError:
+        return templates.TemplateResponse(
+            request,
+            "users/_add_result.html",
+            {"success": False, "message": "Неверная роль. Допустимые: admin, employee"},
+        )
+
+    # Check if user already exists
+    existing = db.query(TelegramUser).filter(TelegramUser.user_id == user_id).first()
+    if existing:
+        return templates.TemplateResponse(
+            request,
+            "users/_add_result.html",
+            {"success": False, "message": "Пользователь с таким ID уже существует"},
+        )
+
+    user = TelegramUser(user_id=user_id, role=user_role)
+    db.add(user)
+    db.commit()
+
+    # Also update runtime config so bot auth sees the new user immediately
+    settings.telegram_user_roles[user_id] = role
+
+    return templates.TemplateResponse(
+        request,
+        "users/_add_result.html",
+        {"success": True, "message": f"Пользователь {user_id} добавлен"},
+    )
+
+
+@router.delete("/users/{user_id}", response_class=HTMLResponse)
+async def delete_user(user_id: int, db: Session = Depends(get_db_session)):
+    user = db.query(TelegramUser).filter(TelegramUser.user_id == user_id).first()
+    if not user:
+        return HTMLResponse(
+            content='<div class="bg-red-50 text-red-700 p-3 rounded">Пользователь не найден</div>',
+            status_code=404,
+        )
+    db.delete(user)
+    db.commit()
+
+    # Remove from runtime config
+    settings.telegram_user_roles.pop(user_id, None)
+
+    return HTMLResponse(content='<div class="bg-green-50 text-green-700 p-3 rounded">Пользователь удалён</div>')
