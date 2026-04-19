@@ -33,12 +33,12 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Web Admin Panel
 
-- [ ] **ADM-01**: Администратор может загружать PDF документы через веб-интерфейс
-- [ ] **ADM-02**: Администратор может подключить Telegram export (JSON + голосовые файлы) для обработки
+- [x] **ADM-01**: Администратор может загружать PDF документы через веб-интерфейс
+- [x] **ADM-02**: Администратор может подключить Telegram export (JSON + голосовые файлы) для обработки
 - [ ] **ADM-03**: Администратор может просматривать список извлечённых знаний с фильтрацией по темам и источникам
 - [ ] **ADM-04**: Администратор может редактировать и одобрять знания перед публикацией в RAG (review gate)
 - [ ] **ADM-05**: Администратор может удалять или отклонять некорректные знания
-- [ ] **ADM-06**: Система поддерживает управление пользователями и ролями (admin, employee)
+- [x] **ADM-06**: Система поддерживает управление пользователями и ролями (admin, employee)
 - [ ] **ADM-07**: Dashboard показывает аналитику: популярные вопросы, средняя оценка ответов, активность пользователей
 
 ## v2 Requirements
@@ -91,12 +91,12 @@ Which phases cover which requirements. Reconciled against phase-level VERIFICATI
 | BOT-03 | Phase 3 | Satisfied (03-VERIFICATION) |
 | BOT-04 | Phase 3 | Satisfied (03-VERIFICATION) |
 | BOT-05 | Phase 5 | Satisfied (05-VERIFICATION) |
-| ADM-01 | Phase 6 | Pending |
-| ADM-02 | Phase 6 | Pending |
+| ADM-01 | Phase 6 | Complete |
+| ADM-02 | Phase 6 | Complete |
 | ADM-03 | Phase 6 | Pending |
 | ADM-04 | Phase 6 | Pending |
 | ADM-05 | Phase 6 | Pending |
-| ADM-06 | Phase 6 | Pending |
+| ADM-06 | Phase 6 | Complete |
 | ADM-07 | Phase 6 | Pending |
 
 **Coverage:**

@@ -153,5 +153,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 3. Telegram Bot | 3/3 | Completed | 2026-04-19 |
 | 4. Runtime Integration Hardening | 2/2 | Completed | 2026-04-19 |
 | 5. Bot Access Hardening | 2/2 | Completed | 2026-04-19 |
-| 6. Web Admin Panel | 0/5 | Not started | - |
+| 6. Web Admin Panel | 0/5 | Planned    |  |
 | 7. Verification Evidence Backfill | 3/3 | Completed | 2026-04-19 |
