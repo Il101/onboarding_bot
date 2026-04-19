@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     upload_dir: str = "./data/uploads"
     max_file_size_mb: int = 100
 
+    admin_password: str = ""
+    admin_session_timeout: int = 3600
+
     telegram_grouping_window_minutes: int = 30
     telegram_max_messages: int = 100000
     bot_retrieve_max_attempts: int = 2
