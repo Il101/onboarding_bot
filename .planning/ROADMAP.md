@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Telegram Bot** - Q&A бот с мульти-turn контекстом, цитированием источников и защитой от галлюцинаций
 - [x] **Phase 4: Runtime Integration Hardening** - Сквозная runtime-интеграция ingestion -> extraction -> retrieval для реальной базы знаний
 - [ ] **Phase 5: Bot Access Hardening** - Реальная авторизация Telegram-пользователей через whitelist user_id и интеграция роли без hardcode
-- [ ] **Phase 6: Web Admin Panel** - Веб-интерфейс для управления источниками, рецензирования знаний и аналитики
+- [x] **Phase 6: Web Admin Panel** - Веб-интерфейс для управления источниками, рецензирования знаний и аналитики
 - [x] **Phase 7: Verification Evidence Backfill** - Закрытие orphaned-gaps через фазовые VERIFICATION-артефакты и обновление трассируемости
 
 ## Phase Details
