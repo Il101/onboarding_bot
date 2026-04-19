@@ -9,27 +9,27 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Data Ingestion & Security
 
-- [x] **ING-01**: Система анонимизирует PII в тексте (ФИО, телефоны, email, ИНН) через Presidio + кастомные русские распознаватели перед любой обработкой
-- [x] **ING-02**: Система парсит Telegram JSON export (result.json) и извлекает текстовые сообщения с метаданными (автор, дата, чат)
-- [x] **ING-03**: Система транскрибирует голосовые сообщения из Telegram export через Groq Whisper API и включает транскрипцию в пайплайн обработки
-- [x] **ING-04**: Система фильтрует шум из Telegram логов (service messages, приветствия, короткие ответы <5 слов, bot messages)
-- [x] **ING-05**: Система извлекает текст из PDF документов с поддержкой кириллицы
-- [x] **ING-06**: Система поддерживает пакетную обработку (batch processing) больших объёмов данных с прогресс-трекингом
+- [ ] **ING-01**: Система анонимизирует PII в тексте (ФИО, телефоны, email, ИНН) через Presidio + кастомные русские распознаватели перед любой обработкой
+- [ ] **ING-02**: Система парсит Telegram JSON export (result.json) и извлекает текстовые сообщения с метаданными (автор, дата, чат)
+- [ ] **ING-03**: Система транскрибирует голосовые сообщения из Telegram export через Groq Whisper API и включает транскрипцию в пайплайн обработки
+- [ ] **ING-04**: Система фильтрует шум из Telegram логов (service messages, приветствия, короткие ответы <5 слов, bot messages)
+- [ ] **ING-05**: Система извлекает текст из PDF документов с поддержкой кириллицы
+- [ ] **ING-06**: Система поддерживает пакетную обработку (batch processing) больших объёмов данных с прогресс-трекингом
 
 ### Knowledge Extraction & Indexing
 
-- [x] **KNW-01**: LLM извлекает структурированные знания из анонимизированного текста и группирует по темам
-- [x] **KNW-02**: LLM генерирует SOP инструкции (Markdown) из кластеризованных знаний на основе чатов
-- [x] **KNW-03**: Система индексирует извлечённые знания в векторной БД (Qdrant) с hybrid search (векторный + BM25 для русского)
-- [x] **KNW-04**: Каждый фрагмент знания хранит source attribution (ссылка на оригинальное сообщение/документ)
+- [ ] **KNW-01**: LLM извлекает структурированные знания из анонимизированного текста и группирует по темам
+- [ ] **KNW-02**: LLM генерирует SOP инструкции (Markdown) из кластеризованных знаний на основе чатов
+- [ ] **KNW-03**: Система индексирует извлечённые знания в векторной БД (Qdrant) с hybrid search (векторный + BM25 для русского)
+- [ ] **KNW-04**: Каждый фрагмент знания хранит source attribution (ссылка на оригинальное сообщение/документ)
 
 ### Telegram Bot
 
-- [x] **BOT-01**: Новый сотрудник задаёт вопрос через Telegram бот и получает ответ на русском языке на основе RAG
-- [x] **BOT-02**: Бот возвращает "Я не знаю — обратитесь к коллеге" при confidence ниже порога (предотвращение галлюцинаций)
-- [x] **BOT-03**: Бот учитывает контекст диалога (предыдущие вопросы в сессии)
-- [x] **BOT-04**: Пользователь может оценить ответ (thumbs up/down) для обратной связи
-- [x] **BOT-05**: Доступ к боту только для авторизованных сотрудников (проверка роли при /start)
+- [ ] **BOT-01**: Новый сотрудник задаёт вопрос через Telegram бот и получает ответ на русском языке на основе RAG
+- [ ] **BOT-02**: Бот возвращает "Я не знаю — обратитесь к коллеге" при confidence ниже порога (предотвращение галлюцинаций)
+- [ ] **BOT-03**: Бот учитывает контекст диалога (предыдущие вопросы в сессии)
+- [ ] **BOT-04**: Пользователь может оценить ответ (thumbs up/down) для обратной связи
+- [ ] **BOT-05**: Доступ к боту только для авторизованных сотрудников (проверка роли при /start)
 
 ### Web Admin Panel
 
@@ -72,38 +72,40 @@ Deferred to future release. Tracked but not in current roadmap.
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
+Which phases cover which requirements. Reconciled against phase-level VERIFICATION artifacts (01-04) and strict no-orphaned gate.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ING-01 | Phase 1 | Completed |
-| ING-02 | Phase 1 | Completed |
-| ING-03 | Phase 1 | Completed |
-| ING-04 | Phase 1 | Completed |
-| ING-05 | Phase 1 | Completed |
-| ING-06 | Phase 1 | Completed |
-| KNW-01 | Phase 2 | Completed |
-| KNW-02 | Phase 2 | Completed |
-| KNW-03 | Phase 2 | Completed |
-| KNW-04 | Phase 2 | Completed |
-| BOT-01 | Phase 3 | Completed (03-02) |
-| BOT-02 | Phase 3 | Completed (03-02) |
-| BOT-03 | Phase 3 | Completed (03-01) |
-| BOT-04 | Phase 3 | Completed (03-01) |
-| BOT-05 | Phase 3 | Completed (03-01) |
-| ADM-01 | Phase 4 | Pending |
-| ADM-02 | Phase 4 | Pending |
-| ADM-03 | Phase 4 | Pending |
-| ADM-04 | Phase 4 | Pending |
-| ADM-05 | Phase 4 | Pending |
-| ADM-06 | Phase 4 | Pending |
-| ADM-07 | Phase 4 | Pending |
+| ING-01 | Phase 1 | Satisfied (01-VERIFICATION) |
+| ING-02 | Phase 1 | Satisfied (01-VERIFICATION) |
+| ING-03 | Phase 1 | Satisfied (01-VERIFICATION) |
+| ING-04 | Phase 1 | Satisfied (01-VERIFICATION) |
+| ING-05 | Phase 1 | Satisfied (01-VERIFICATION) |
+| ING-06 | Phase 1 | Satisfied (01-VERIFICATION) |
+| KNW-01 | Phase 2 / 4 | Satisfied (02-VERIFICATION, 04-VERIFICATION) |
+| KNW-02 | Phase 2 / 4 | Satisfied (02-VERIFICATION, 04-VERIFICATION) |
+| KNW-03 | Phase 2 / 4 | Satisfied overall (partial delegation in 04-VERIFICATION) |
+| KNW-04 | Phase 2 / 4 | Satisfied overall (partial delegation in 04-VERIFICATION) |
+| BOT-01 | Phase 3 / 4 | Satisfied (03-VERIFICATION, 04-VERIFICATION) |
+| BOT-02 | Phase 3 / 4 | Satisfied overall (partial delegation in 04-VERIFICATION) |
+| BOT-03 | Phase 3 | Satisfied (03-VERIFICATION) |
+| BOT-04 | Phase 3 | Satisfied (03-VERIFICATION) |
+| BOT-05 | Phase 5 | Unsatisfied (Phase 5 not executed) |
+| ADM-01 | Phase 6 | Pending |
+| ADM-02 | Phase 6 | Pending |
+| ADM-03 | Phase 6 | Pending |
+| ADM-04 | Phase 6 | Pending |
+| ADM-05 | Phase 6 | Pending |
+| ADM-06 | Phase 6 | Pending |
+| ADM-07 | Phase 6 | Pending |
 
 **Coverage:**
 - v1 requirements: 22 total
 - Mapped to phases: 22
 - Unmapped: 0
+- Verified satisfied (Phases 1-4): 14
+- Unsatisfied/pending: 8 (BOT-05 + ADM-01..ADM-07)
 
 ---
 *Requirements defined: 2026-04-17*
-*Last updated: 2026-04-17 after roadmap creation*
+*Last updated: 2026-04-19 after verification evidence reconciliation*

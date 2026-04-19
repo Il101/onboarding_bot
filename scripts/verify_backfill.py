@@ -399,9 +399,15 @@ def main() -> int:
     functional_gap_rows: list[tuple[str, str, str, str, str]] = []
     orphaned_assertion_set = set(parse_phase_numbers(args.assert_no_orphaned_phases))
 
+    explicitly_scoped = bool(args.phase or args.changed_only)
+
     for report in reports:
         print_report(report)
-        all_errors.extend(report.errors)
+        if report.orphaned and not explicitly_scoped and report.phase not in orphaned_assertion_set:
+            # Non-scoped scans should not fail on future phases unless explicitly asserted.
+            pass
+        else:
+            all_errors.extend(report.errors)
         functional_gap_rows.extend(report.functional_gaps)
         if report.phase in orphaned_assertion_set and report.orphaned:
             all_errors.append(f"Phase {report.phase} is orphaned but --assert-no-orphaned-phases requires evidence.")
