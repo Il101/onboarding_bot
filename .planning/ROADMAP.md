@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Knowledge Extraction & RAG** - Извлечение знаний LLM, генерация SOP и RAG-пайплайн с гибридным поиском
 - [x] **Phase 3: Telegram Bot** - Q&A бот с мульти-turn контекстом, цитированием источников и защитой от галлюцинаций
 - [x] **Phase 4: Runtime Integration Hardening** - Сквозная runtime-интеграция ingestion -> extraction -> retrieval для реальной базы знаний
-- [ ] **Phase 5: Bot Access Hardening** - Реальная авторизация Telegram-пользователей через whitelist user_id и интеграция роли без hardcode
+- [x] **Phase 5: Bot Access Hardening** - Реальная авторизация Telegram-пользователей через whitelist user_id и интеграция роли без hardcode
 - [x] **Phase 6: Web Admin Panel** - Веб-интерфейс для управления источниками, рецензирования знаний и аналитики
 - [x] **Phase 7: Verification Evidence Backfill** - Закрытие orphaned-gaps через фазовые VERIFICATION-артефакты и обновление трассируемости
 
@@ -120,10 +120,10 @@ Plans:
 
 Plans:
 - [x] 06-01-PLAN.md — Foundation: KnowledgeItem model, admin auth, base template with sidebar, test scaffolding
-- [ ] 06-02-PLAN.md — Sources section: PDF and Telegram upload forms with HTMX status updates
-- [ ] 06-03-PLAN.md — Knowledge review: filterable table with approve, reject, delete, edit, bulk operations
+- [x] 06-02-PLAN.md — Sources section: PDF and Telegram upload forms with HTMX status updates
+- [x] 06-03-PLAN.md — Knowledge review: filterable table with approve, reject, delete, edit, bulk operations
 - [x] 06-04-PLAN.md — User management: TelegramUser model, add/remove users, role assignment
-- [ ] 06-05-PLAN.md — Analytics dashboard: knowledge counts, avg rating, active users, popular questions
+- [x] 06-05-PLAN.md — Analytics dashboard: knowledge counts, avg rating, active users, popular questions
 
 ### Phase 7: Verification Evidence Backfill
 **Goal**: Устранить orphaned-требования из milestone audit через создание/обновление phase-level VERIFICATION артефактов и согласование traceability-статусов
@@ -153,5 +153,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 3. Telegram Bot | 3/3 | Completed | 2026-04-19 |
 | 4. Runtime Integration Hardening | 2/2 | Completed | 2026-04-19 |
 | 5. Bot Access Hardening | 2/2 | Completed | 2026-04-19 |
-| 6. Web Admin Panel | 2/5 | In Progress|  |
+| 6. Web Admin Panel | 5/5 | Completed | 2026-04-19 |
 | 7. Verification Evidence Backfill | 3/3 | Completed | 2026-04-19 |
