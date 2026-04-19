@@ -14,7 +14,7 @@
             <h3 class="mb-4">PDF документ</h3>
             <form hx-post="/api/admin/sources/pdf"
                   hx-target="#pdf-status"
-                  hx-swap="outerHTML"
+                  hx-swap="innerHTML"
                   enctype="multipart/form-data">
                 <input type="file"
                        name="file"
@@ -34,7 +34,7 @@
             <h3 class="mb-4">Telegram логи</h3>
             <form hx-post="/api/admin/sources/telegram"
                   hx-target="#telegram-status"
-                  hx-swap="outerHTML"
+                  hx-swap="innerHTML"
                   enctype="multipart/form-data">
                 <div class="mb-3">
                     <label class="block text-sm text-gray-600 mb-1">JSON файл</label>
