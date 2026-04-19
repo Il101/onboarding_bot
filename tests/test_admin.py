@@ -123,6 +123,76 @@ def test_users_page_requires_auth(client):
     assert response.status_code == 302
 
 
+# --- ADM-06: User management CRUD tests ---
+
+
+def test_users_page_renders(admin_client, db_session):
+    from datetime import datetime
+    users = [MagicMock(user_id=12345, role="employee", created_at=datetime.utcnow())]
+    db_session.query.return_value.order_by.return_value.all.return_value = users
+
+    response = admin_client.get("/api/admin/users")
+    assert response.status_code == 200
+    assert "Пользователи" in response.text
+
+
+def test_create_user_success(admin_client, db_session):
+    db_session.query.return_value.filter.return_value.first.return_value = None  # no existing user
+
+    response = admin_client.post(
+        "/api/admin/users",
+        data={"user_id": "123456", "role": "employee"},
+    )
+    assert response.status_code == 200
+    assert "добавлен" in response.text.lower()
+    db_session.add.assert_called_once()
+
+
+def test_create_user_duplicate_returns_error(admin_client, db_session):
+    existing = MagicMock(user_id=123456)
+    db_session.query.return_value.filter.return_value.first.return_value = existing
+
+    response = admin_client.post(
+        "/api/admin/users",
+        data={"user_id": "123456", "role": "employee"},
+    )
+    assert response.status_code == 200
+    assert "уже существует" in response.text.lower()
+
+
+def test_create_user_invalid_role_returns_error(admin_client, db_session):
+    response = admin_client.post(
+        "/api/admin/users",
+        data={"user_id": "123456", "role": "superadmin"},
+    )
+    assert response.status_code == 200
+    assert "Неверная роль" in response.text
+
+
+def test_delete_user_success(admin_client, db_session):
+    user = MagicMock(user_id=123456)
+    db_session.query.return_value.filter.return_value.first.return_value = user
+
+    response = admin_client.delete("/api/admin/users/123456")
+    assert response.status_code == 200
+    assert "удалён" in response.text.lower() or "deleted" in response.text.lower()
+
+
+def test_delete_user_not_found(admin_client, db_session):
+    db_session.query.return_value.filter.return_value.first.return_value = None
+
+    response = admin_client.delete("/api/admin/users/999999")
+    assert response.status_code == 404
+
+
+def test_telegram_user_model_importable():
+    from src.models.telegram_user import TelegramUser, UserRole
+    assert hasattr(TelegramUser, "user_id")
+    assert hasattr(TelegramUser, "role")
+    assert hasattr(UserRole, "ADMIN")
+    assert hasattr(UserRole, "EMPLOYEE")
+
+
 # --- ADM-07: Analytics tests ---
 
 
