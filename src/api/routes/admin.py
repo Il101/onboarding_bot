@@ -262,6 +262,141 @@ async def admin_upload_telegram(
         )
 
 
+@router.get("/knowledge", response_class=HTMLResponse)
+async def knowledge_page(
+    request: Request,
+    db: Session = Depends(get_db_session),
+    status: str | None = None,
+    topic: str | None = None,
+    page: int = 1,
+    limit: int = 20,
+):
+    query = db.query(KnowledgeItem)
+    total = query.count()
+
+    if status and status in ("published", "pending", "rejected"):
+        query = query.filter(KnowledgeItem.status == status)
+    if topic:
+        query = query.filter(KnowledgeItem.topic.contains(topic))
+
+    filtered_total = query.count()
+    items = query.order_by(KnowledgeItem.created_at.desc()).offset((page - 1) * limit).limit(limit).all()
+
+    topics = db.query(KnowledgeItem.topic).distinct().all()
+
+    status_counts = {
+        "total": total,
+        "published": db.query(KnowledgeItem).filter(KnowledgeItem.status == KnowledgeStatus.PUBLISHED).count(),
+        "pending": db.query(KnowledgeItem).filter(KnowledgeItem.status == KnowledgeStatus.PENDING).count(),
+        "rejected": db.query(KnowledgeItem).filter(KnowledgeItem.status == KnowledgeStatus.REJECTED).count(),
+    }
+
+    total_pages = max(1, (filtered_total + limit - 1) // limit)
+
+    return templates.TemplateResponse(
+        request,
+        "knowledge/review.html",
+        {
+            "items": items,
+            "topics": [t[0] for t in topics],
+            "current_status": status,
+            "current_topic": topic,
+            "current_page": page,
+            "total_pages": total_pages,
+            "filtered_total": filtered_total,
+            "status_counts": status_counts,
+        },
+    )
+
+
+@router.post("/knowledge/approve", response_class=HTMLResponse)
+async def approve_knowledge(
+    item_ids: list[int] = Form(...),
+    db: Session = Depends(get_db_session),
+):
+    try:
+        items = db.query(KnowledgeItem).filter(KnowledgeItem.id.in_(item_ids)).all()
+        count = 0
+        for item in items:
+            item.status = KnowledgeStatus.PUBLISHED
+            item.updated_at = datetime.utcnow()
+            count += 1
+        db.commit()
+        return HTMLResponse(
+            content=f'<div class="bg-green-50 text-green-700 px-4 py-3 rounded-lg text-sm">'
+                    f'<i class="ti ti-check mr-1"></i> {count} знаний опубликовано</div>',
+        )
+    except Exception:
+        db.rollback()
+        return HTMLResponse(
+            content='<div class="bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm">'
+                    '<i class="ti ti-alert-circle mr-1"></i> Ошибка при публикации</div>',
+            status_code=500,
+        )
+
+
+@router.post("/knowledge/reject", response_class=HTMLResponse)
+async def reject_knowledge(
+    item_ids: list[int] = Form(...),
+    db: Session = Depends(get_db_session),
+):
+    try:
+        items = db.query(KnowledgeItem).filter(KnowledgeItem.id.in_(item_ids)).all()
+        count = 0
+        for item in items:
+            item.status = KnowledgeStatus.REJECTED
+            item.updated_at = datetime.utcnow()
+            count += 1
+        db.commit()
+        return HTMLResponse(
+            content=f'<div class="bg-yellow-50 text-yellow-700 px-4 py-3 rounded-lg text-sm">'
+                    f'<i class="ti ti-x mr-1"></i> {count} знаний отклонено</div>',
+        )
+    except Exception:
+        db.rollback()
+        return HTMLResponse(
+            content='<div class="bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm">'
+                    '<i class="ti ti-alert-circle mr-1"></i> Ошибка при отклонении</div>',
+            status_code=500,
+        )
+
+
+@router.delete("/knowledge/{item_id}", response_class=HTMLResponse)
+async def delete_knowledge(item_id: int, db: Session = Depends(get_db_session)):
+    item = db.query(KnowledgeItem).filter(KnowledgeItem.id == item_id).first()
+    if not item:
+        return HTMLResponse(
+            content='<div class="bg-red-50 text-red-700 p-3 rounded">Знание не найдено</div>',
+            status_code=404,
+        )
+    db.delete(item)
+    db.commit()
+    return HTMLResponse(content='<div class="bg-green-50 text-green-700 p-3 rounded">Знание удалено</div>')
+
+
+@router.put("/knowledge/{item_id}", response_class=HTMLResponse)
+async def edit_knowledge(
+    request: Request,
+    item_id: int,
+    fact: str = Form(...),
+    db: Session = Depends(get_db_session),
+):
+    item = db.query(KnowledgeItem).filter(KnowledgeItem.id == item_id).first()
+    if not item:
+        return HTMLResponse(
+            content='<div class="bg-red-50 text-red-700 p-3 rounded">Знание не найдено</div>',
+            status_code=404,
+        )
+    item.fact = fact
+    item.updated_at = datetime.utcnow()
+    db.commit()
+    return templates.TemplateResponse(
+        request,
+        "knowledge/_row.html",
+        {"item": item},
+    )
+
+
 @router.delete("/sources/{source_id}", response_class=HTMLResponse)
 async def delete_source(source_id: str, db: Session = Depends(get_db_session)):
     source = db.query(Source).filter(Source.id == source_id).first()

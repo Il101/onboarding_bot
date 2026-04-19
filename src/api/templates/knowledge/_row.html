@@ -1,0 +1,76 @@
+<tr class="border-b hover:bg-gray-50" id="row-{{ item.id }}">
+    <td class="py-3 px-4">
+        <input type="checkbox"
+               class="knowledge-checkbox"
+               value="{{ item.id }}"
+               @change="
+                   const val = parseInt($el.value);
+                   if ($el.checked) selectedItems.push(val);
+                   else selectedItems = selectedItems.filter(i => i !== val);
+               ">
+    </td>
+    <td class="py-3 px-4">
+        <div class="max-w-xs truncate text-sm" title="{{ item.fact }}">{{ item.fact }}</div>
+    </td>
+    <td class="py-3 px-4">
+        <span class="px-2 py-1 rounded text-xs bg-gray-100 text-gray-700">{{ item.topic }}</span>
+    </td>
+    <td class="py-3 px-4">
+        <div class="flex items-center gap-2">
+            <div class="w-16 bg-gray-200 rounded-full h-1.5">
+                <div class="bg-blue-600 h-1.5 rounded-full"
+                     style="width: {{ (item.confidence * 100)|int }}%"></div>
+            </div>
+            <span class="text-xs text-gray-600">{{ (item.confidence * 100)|int }}%</span>
+        </div>
+    </td>
+    <td class="py-3 px-4">
+        <span class="px-2 py-1 rounded text-xs
+            {% if item.status.value == 'published' %}bg-green-100 text-green-800
+            {% elif item.status.value == 'pending' %}bg-yellow-100 text-yellow-800
+            {% else %}bg-red-100 text-red-800{% endif %}">
+            {% if item.status.value == 'published' %}Опубликовано
+            {% elif item.status.value == 'pending' %}На проверке
+            {% else %}Отклонено{% endif %}
+        </span>
+    </td>
+    <td class="py-3 px-4">
+        <div class="flex gap-1">
+            {% if item.status.value == 'pending' %}
+            <button hx-post="/api/admin/knowledge/approve"
+                    hx-vals='{"item_ids": {{ item.id }}}'
+                    hx-target="#row-{{ item.id }}"
+                    hx-swap="outerHTML"
+                    class="p-1.5 text-green-600 hover:bg-green-50 rounded"
+                    title="Одобрить">
+                <i class="ti ti-check"></i>
+            </button>
+            <button hx-post="/api/admin/knowledge/reject"
+                    hx-vals='{"item_ids": {{ item.id }}}'
+                    hx-target="#row-{{ item.id }}"
+                    hx-swap="outerHTML"
+                    class="p-1.5 text-yellow-600 hover:bg-yellow-50 rounded"
+                    title="Отклонить">
+                <i class="ti ti-x"></i>
+            </button>
+            {% endif %}
+            <button @click="
+                        document.getElementById('edit-modal').classList.remove('hidden');
+                        document.getElementById('edit-fact').value = {{ item.fact | tojson }};
+                        document.getElementById('edit-item-id').value = {{ item.id }};
+                    "
+                    class="p-1.5 text-blue-600 hover:bg-blue-50 rounded"
+                    title="Редактировать">
+                <i class="ti ti-edit"></i>
+            </button>
+            <button hx-delete="/api/admin/knowledge/{{ item.id }}"
+                    hx-target="#row-{{ item.id }}"
+                    hx-swap="outerHTML"
+                    hx-confirm="Удалить это знание безвозвратно?"
+                    class="p-1.5 text-red-600 hover:bg-red-50 rounded"
+                    title="Удалить">
+                <i class="ti ti-trash"></i>
+            </button>
+        </div>
+    </td>
+</tr>
