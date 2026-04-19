@@ -116,8 +116,14 @@ Plans:
   3. Администратор может удалить или отклонить некорректные знания
   4. Администратор управляет пользователями и ролями (admin, employee)
   5. Dashboard показывает популярные вопросы, среднюю оценку ответов и активность пользователей
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 5 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — Foundation: KnowledgeItem model, admin auth, base template with sidebar, test scaffolding
+- [ ] 06-02-PLAN.md — Sources section: PDF and Telegram upload forms with HTMX status updates
+- [ ] 06-03-PLAN.md — Knowledge review: filterable table with approve, reject, delete, edit, bulk operations
+- [ ] 06-04-PLAN.md — User management: TelegramUser model, add/remove users, role assignment
+- [ ] 06-05-PLAN.md — Analytics dashboard: knowledge counts, avg rating, active users, popular questions
 
 ### Phase 7: Verification Evidence Backfill
 **Goal**: Устранить orphaned-требования из milestone audit через создание/обновление phase-level VERIFICATION артефактов и согласование traceability-статусов
@@ -147,5 +153,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 3. Telegram Bot | 3/3 | Completed | 2026-04-19 |
 | 4. Runtime Integration Hardening | 2/2 | Completed | 2026-04-19 |
 | 5. Bot Access Hardening | 2/2 | Completed | 2026-04-19 |
-| 6. Web Admin Panel | 0/? | Not started | - |
+| 6. Web Admin Panel | 0/5 | Not started | - |
 | 7. Verification Evidence Backfill | 3/3 | Completed | 2026-04-19 |
