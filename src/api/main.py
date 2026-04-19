@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from src.api.routes.admin import AdminAuthMiddleware, router as admin_router
 from src.api.routes.ingest import router as ingest_router
 from src.api.routes.knowledge import router as knowledge_router
 from src.core.logging import setup_logging
@@ -19,5 +20,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.add_middleware(AdminAuthMiddleware)
 app.include_router(ingest_router)
 app.include_router(knowledge_router)
+app.include_router(admin_router)
