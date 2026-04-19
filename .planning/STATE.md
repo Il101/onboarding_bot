@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 06-web-admin-panel-06-01-PLAN.md
-last_updated: "2026-04-19T16:20:13.433Z"
+stopped_at: Completed 06-web-admin-panel-06-02-PLAN.md
+last_updated: "2026-04-19T16:28:46.237Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 24
-  completed_plans: 19
-  percent: 79
+  completed_plans: 20
+  percent: 83
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 06 (Web Admin Panel) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-04-19
 
@@ -57,6 +57,7 @@ Progress: [███████░░░] 71%
 
 *Updated after each plan completion*
 | Phase 06-web-admin-panel P01 | 11 | 3 tasks | 11 files |
+| Phase 06 P02 | 229 | 1 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,8 @@ Recent decisions affecting current work:
 - Phase 5 wave1: BOT-05 whitelist authorization behavior is now codified in failing policy scaffolding tests plus whitelist-anchored auth gate regressions
 - [Phase 06-web-admin-panel]: Used Starlette 1.0.0 TemplateResponse API (request-first signature) instead of legacy (name-first)
 - [Phase 06-web-admin-panel]: In-memory session store with UUID keys for single-admin MVP per threat model T-6-06 accept
+- [Phase 06]: Catch HTTPException in upload handlers to return HTMX error fragments (not re-raise) — HTMX won't swap on non-2xx responses
+- [Phase 06]: Use hx-swap=innerHTML on status divs so the target div persists across multiple uploads in same session
 
 ### Pending Todos
 
@@ -98,6 +101,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-19T16:20:13.428Z
-Stopped at: Completed 06-web-admin-panel-06-01-PLAN.md
+Last session: 2026-04-19T16:28:46.233Z
+Stopped at: Completed 06-web-admin-panel-06-02-PLAN.md
 Resume file: None

@@ -119,7 +119,7 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Foundation: KnowledgeItem model, admin auth, base template with sidebar, test scaffolding
+- [x] 06-01-PLAN.md — Foundation: KnowledgeItem model, admin auth, base template with sidebar, test scaffolding
 - [ ] 06-02-PLAN.md — Sources section: PDF and Telegram upload forms with HTMX status updates
 - [ ] 06-03-PLAN.md — Knowledge review: filterable table with approve, reject, delete, edit, bulk operations
 - [ ] 06-04-PLAN.md — User management: TelegramUser model, add/remove users, role assignment
@@ -153,5 +153,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 3. Telegram Bot | 3/3 | Completed | 2026-04-19 |
 | 4. Runtime Integration Hardening | 2/2 | Completed | 2026-04-19 |
 | 5. Bot Access Hardening | 2/2 | Completed | 2026-04-19 |
-| 6. Web Admin Panel | 0/5 | Planned    |  |
+| 6. Web Admin Panel | 1/5 | In Progress|  |
 | 7. Verification Evidence Backfill | 3/3 | Completed | 2026-04-19 |
