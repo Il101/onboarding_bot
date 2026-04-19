@@ -6,6 +6,7 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, Response, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy import case, desc, func
 from sqlalchemy.orm import Session
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import RedirectResponse as StarletteRedirectResponse
@@ -13,6 +14,7 @@ from starlette.responses import RedirectResponse as StarletteRedirectResponse
 from src.api.deps import get_db_session
 from src.api.routes.ingest import _ensure_upload_dirs, _validate_json_content, _validate_ogg_content, _validate_size
 from src.core.config import settings
+from src.models.feedback_event import FeedbackEvent
 from src.models.ingest_job import IngestJob
 from src.models.knowledge_item import KnowledgeItem, KnowledgeStatus
 from src.models.source import IngestStatus, Source, SourceType
@@ -479,3 +481,84 @@ async def delete_user(user_id: int, db: Session = Depends(get_db_session)):
     settings.telegram_user_roles.pop(user_id, None)
 
     return HTMLResponse(content='<div class="bg-green-50 text-green-700 p-3 rounded">Пользователь удалён</div>')
+
+
+# --- Analytics dashboard (ADM-07) ---
+
+
+@router.get("/analytics", response_class=HTMLResponse)
+async def analytics_page(request: Request, db: Session = Depends(get_db_session)):
+    # Knowledge stats by status
+    knowledge_total = db.query(func.count(KnowledgeItem.id)).scalar() or 0
+    knowledge_published = db.query(func.count(KnowledgeItem.id)).filter(
+        KnowledgeItem.status == KnowledgeStatus.PUBLISHED
+    ).scalar() or 0
+    knowledge_pending = db.query(func.count(KnowledgeItem.id)).filter(
+        KnowledgeItem.status == KnowledgeStatus.PENDING
+    ).scalar() or 0
+    knowledge_rejected = db.query(func.count(KnowledgeItem.id)).filter(
+        KnowledgeItem.status == KnowledgeStatus.REJECTED
+    ).scalar() or 0
+
+    # Average answer rating from feedback (vote="up" => 1, vote="down" => 0)
+    avg_rating_row = db.query(
+        func.avg(
+            case(
+                (FeedbackEvent.vote == "up", 1),
+                (FeedbackEvent.vote == "down", 0),
+                else_=0,
+            )
+        )
+    ).scalar()
+    avg_rating = round(float(avg_rating_row), 2) if avg_rating_row is not None else None
+
+    total_feedback = db.query(func.count(FeedbackEvent.id)).scalar() or 0
+
+    # Active users (unique user_ids with feedback in last 7 days)
+    week_ago = datetime.utcnow() - timedelta(days=7)
+    active_users = db.query(
+        func.count(func.distinct(FeedbackEvent.user_id))
+    ).filter(FeedbackEvent.created_at >= week_ago).scalar() or 0
+
+    # Popular questions (top 10 thread_ids by frequency)
+    popular_questions = db.query(
+        FeedbackEvent.thread_id,
+        func.count(FeedbackEvent.id).label("count"),
+    ).group_by(FeedbackEvent.thread_id).order_by(desc("count")).limit(10).all()
+
+    # Ingest job stats
+    ingest_completed = db.query(func.count(IngestJob.id)).filter(
+        IngestJob.status == "SUCCESS"
+    ).scalar() or 0
+    ingest_failed = db.query(func.count(IngestJob.id)).filter(
+        IngestJob.status == "FAILURE"
+    ).scalar() or 0
+    ingest_total = db.query(func.count(IngestJob.id)).scalar() or 0
+
+    # Source counts by type
+    pdf_count = db.query(func.count(Source.id)).filter(
+        Source.type == SourceType.PDF
+    ).scalar() or 0
+    telegram_count = db.query(func.count(Source.id)).filter(
+        Source.type == SourceType.TELEGRAM
+    ).scalar() or 0
+
+    return templates.TemplateResponse(
+        request,
+        "analytics/dashboard.html",
+        {
+            "knowledge_total": knowledge_total,
+            "knowledge_published": knowledge_published,
+            "knowledge_pending": knowledge_pending,
+            "knowledge_rejected": knowledge_rejected,
+            "avg_rating": avg_rating,
+            "total_feedback": total_feedback,
+            "active_users": active_users,
+            "popular_questions": popular_questions,
+            "ingest_completed": ingest_completed,
+            "ingest_failed": ingest_failed,
+            "ingest_total": ingest_total,
+            "pdf_count": pdf_count,
+            "telegram_count": telegram_count,
+        },
+    )

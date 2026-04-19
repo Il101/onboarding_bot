@@ -518,19 +518,20 @@ def test_analytics_shows_knowledge_counts(admin_client, db_session):
 
 def test_analytics_shows_popular_questions(admin_client, db_session):
     """Popular questions list is rendered when data exists."""
-    db_session.query.return_value.scalar.return_value = 0
-    db_session.query.return_value.filter.return_value.scalar.return_value = 0
+    # The popular_questions query goes: db.query(...).group_by(...).order_by(...).limit(10).all()
+    # (no .filter() in between — it queries all feedback events)
+    mock_chain = MagicMock()
+    mock_chain.scalar.return_value = 0
+    mock_chain.filter.return_value.scalar.return_value = 0
+    mock_chain.filter.return_value.group_by.return_value.order_by.return_value.limit.return_value.all.return_value = []
 
-    mock_group = MagicMock()
-    mock_order = MagicMock()
-    mock_limit = MagicMock()
-    db_session.query.return_value.filter.return_value.group_by.return_value = mock_group
-    mock_group.order_by.return_value = mock_order
-    mock_order.limit.return_value = mock_limit
-    mock_limit.all.return_value = [
+    popular = [
         MagicMock(thread_id="tg:123:456", count=15),
         MagicMock(thread_id="tg:123:789", count=8),
     ]
+    mock_chain.group_by.return_value.order_by.return_value.limit.return_value.all.return_value = popular
+
+    db_session.query.return_value = mock_chain
 
     response = admin_client.get("/api/admin/analytics")
     assert response.status_code == 200

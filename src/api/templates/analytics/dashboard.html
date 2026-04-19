@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Аналитика - V-Brain Admin{% endblock %}
+{% block content %}
+<div>
+    <h2 class="display mb-6">Аналитика</h2>
+
+    <!-- Top metric cards -->
+    <div class="grid grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-sm text-gray-500 mb-1">Всего знаний</div>
+            <div class="text-3xl font-bold text-gray-900">{{ knowledge_total }}</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-sm text-gray-500 mb-1">Опубликовано</div>
+            <div class="text-3xl font-bold text-green-600">{{ knowledge_published }}</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-sm text-gray-500 mb-1">На проверке</div>
+            <div class="text-3xl font-bold text-yellow-600">{{ knowledge_pending }}</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-sm text-gray-500 mb-1">Отклонено</div>
+            <div class="text-3xl font-bold text-red-600">{{ knowledge_rejected }}</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-sm text-gray-500 mb-1">Активные пользователи</div>
+            <div class="text-3xl font-bold text-blue-600">{{ active_users }}</div>
+            <div class="text-xs text-gray-400 mt-1">за последние 7 дней</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Average Rating -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="mb-4">Средняя оценка ответов</h3>
+            <div class="flex items-center gap-4">
+                <div class="text-4xl font-bold text-gray-900">
+                    {% if avg_rating is not none %}{{ "%.1f"|format(avg_rating * 100) }}%{% else %}N/A{% endif %}
+                </div>
+                {% if avg_rating is not none %}
+                <div>
+                    <div class="w-32 bg-gray-200 rounded-full h-3">
+                        <div class="bg-blue-600 h-3 rounded-full" style="width: {{ (avg_rating * 100)|int }}%"></div>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1">{{ total_feedback }} оценок</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Ingest Stats -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="mb-4">Обработка источников</h3>
+            <div class="grid grid-cols-3 gap-4">
+                <div>
+                    <div class="text-2xl font-bold text-gray-900">{{ ingest_total }}</div>
+                    <div class="text-xs text-gray-500">Всего задач</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-green-600">{{ ingest_completed }}</div>
+                    <div class="text-xs text-gray-500">Завершено</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-red-600">{{ ingest_failed }}</div>
+                    <div class="text-xs text-gray-500">Ошибок</div>
+                </div>
+            </div>
+            {% if ingest_total > 0 %}
+            <div class="mt-3 flex items-center gap-2">
+                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                    <div class="bg-green-500 h-2 rounded-full" style="width: {{ ((ingest_completed / ingest_total) * 100)|int }}%"></div>
+                </div>
+                <span class="text-xs text-gray-500">{{ ((ingest_completed / ingest_total) * 100)|int }}%</span>
+            </div>
+            {% endif %}
+            <div class="mt-3 flex gap-4 text-xs text-gray-500">
+                <span>PDF: {{ pdf_count }}</span>
+                <span>Telegram: {{ telegram_count }}</span>
+            </div>
+        </div>
+
+        <!-- Popular Questions -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="mb-4">Популярные вопросы</h3>
+            {% if popular_questions %}
+            <div class="space-y-2">
+                {% for q in popular_questions %}
+                <div class="flex items-center justify-between py-2 border-b last:border-0">
+                    <span class="text-sm text-gray-600 truncate max-w-xs font-mono">{{ q.thread_id }}</span>
+                    <span class="text-sm font-medium text-gray-900 ml-4 flex-shrink-0">{{ q.count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-gray-500 text-sm">Нет данных о вопросах</p>
+            {% endif %}
+        </div>
+
+        <!-- Knowledge Distribution -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="mb-4">Распределение знаний</h3>
+            {% if knowledge_total > 0 %}
+            <div class="space-y-3">
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-gray-600">Опубликовано</span>
+                        <span class="font-medium text-green-700">{{ knowledge_published }} ({{ ((knowledge_published / knowledge_total) * 100)|int }}%)</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="bg-green-500 h-2.5 rounded-full" style="width: {{ ((knowledge_published / knowledge_total) * 100)|int }}%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-gray-600">На проверке</span>
+                        <span class="font-medium text-yellow-700">{{ knowledge_pending }} ({{ ((knowledge_pending / knowledge_total) * 100)|int }}%)</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="bg-yellow-500 h-2.5 rounded-full" style="width: {{ ((knowledge_pending / knowledge_total) * 100)|int }}%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-gray-600">Отклонено</span>
+                        <span class="font-medium text-red-700">{{ knowledge_rejected }} ({{ ((knowledge_rejected / knowledge_total) * 100)|int }}%)</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="bg-red-500 h-2.5 rounded-full" style="width: {{ ((knowledge_rejected / knowledge_total) * 100)|int }}%"></div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-gray-500 text-sm">Нет данных о знаниях</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
