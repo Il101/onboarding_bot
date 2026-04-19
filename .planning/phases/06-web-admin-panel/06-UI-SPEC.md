@@ -48,7 +48,6 @@ Exceptions: none (standard 8-point scale for admin panel)
 | Role | Size | Weight | Line Height |
 |------|------|--------|-------------|
 | Body | 14px | 400 | 1.5 |
-| Label | 12px | 600 | 1.4 |
 | Heading | 16px | 600 | 1.2 |
 | Display | 20px | 600 | 1.2 |
 
