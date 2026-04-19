@@ -12,6 +12,7 @@ from src.pipeline.indexer.qdrant_store import QdrantStore
 from src.pipeline.parsers.pdf import extract_pdf_text
 from src.pipeline.parsers.telegram import parse_telegram_export
 from src.pipeline.parsers.voice import transcribe_voice_messages
+from src.tasks.knowledge import extract_knowledge_task
 
 logger = get_logger(__name__)
 
@@ -56,6 +57,7 @@ def ingest_telegram(self, source_id: str, json_path: str, voice_dir: str):
             chunk["id"] = f"telegram:{source_id}:{i}"
 
         count = store.upsert_chunks(chunks)
+        extract_knowledge_task.delay(source_id=source_id, chunks=chunks)
         return {"status": "completed", "messages_processed": len(messages), "chunks_indexed": count}
     except Exception as exc:
         logger.error("Ingestion failed for source %s: %s", source_id, exc)
@@ -93,6 +95,7 @@ def ingest_pdf(self, source_id: str, file_path: str):
             chunk["id"] = f"pdf:{source_id}:{i}"
 
         count = store.upsert_chunks(chunks)
+        extract_knowledge_task.delay(source_id=source_id, chunks=chunks)
         return {"status": "completed", "chunks_indexed": count}
     except Exception as exc:
         logger.error("PDF ingestion failed for source %s: %s", source_id, exc)

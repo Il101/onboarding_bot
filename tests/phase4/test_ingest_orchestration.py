@@ -42,6 +42,7 @@ def test_successful_telegram_ingest_dispatches_extraction_with_source_chunks():
     fake_extract_delay = MagicMock(return_value=SimpleNamespace(id="extract-job-1"))
 
     with (
+        patch.object(ingest_telegram, "update_state", return_value=None),
         patch("src.tasks.ingest.parse_telegram_export", return_value=[message]),
         patch("src.tasks.ingest.transcribe_voice_messages", return_value=[message]),
         patch("src.tasks.ingest.create_analyzer", return_value=object()),
@@ -72,7 +73,10 @@ def test_extraction_completion_dispatches_sop_with_grouped_publishable_units():
     from src.tasks.knowledge import extract_knowledge_task
 
     sop_delay = MagicMock(return_value=SimpleNamespace(id="sop-job-1"))
-    with patch("src.tasks.knowledge.generate_sop_task.delay", sop_delay):
+    with (
+        patch("src.tasks.knowledge.generate_sop_task.delay", sop_delay),
+        patch.object(extract_knowledge_task, "update_state", return_value=None),
+    ):
         result = extract_knowledge_task.run(
             source_id="src1",
             chunks=[{"text": "chunk-1", "metadata": {"source_id": "src1"}}],

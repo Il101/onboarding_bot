@@ -35,6 +35,7 @@ def extract_knowledge_task(
         grouped = group_units_by_topic(publishable)
 
         indexed_count = index_writer(publishable)
+        generate_sop_task.delay(source_id=source_id, grouped_units=grouped)
 
         self.update_state(state="PROGRESS", meta={"stage": "completed", "progress": 100})
         return {
