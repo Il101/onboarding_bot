@@ -48,7 +48,7 @@ class AdminAuthMiddleware(BaseHTTPMiddleware):
 
 @router.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse(request, "login.html")
 
 
 @router.post("/login")
@@ -57,8 +57,9 @@ async def login_submit(request: Request, password: str = Form(...)):
         raise HTTPException(status_code=500, detail="Admin password not configured")
     if not _verify_password(password, settings.admin_password):
         return templates.TemplateResponse(
+            request,
             "login.html",
-            {"request": request, "error": "Неверный пароль"},
+            {"error": "Неверный пароль"},
             status_code=401,
         )
     session_id = str(uuid.uuid4())
@@ -88,7 +89,7 @@ async def logout(request: Request):
 
 @router.get("/", response_class=HTMLResponse)
 async def admin_index(request: Request):
-    return templates.TemplateResponse("sources/list.html", {"request": request})
+    return templates.TemplateResponse(request, "sources/list.html")
 
 
 @router.get("/sources", response_class=HTMLResponse)
@@ -97,11 +98,12 @@ async def sources_page(request: Request, db: Session = Depends(get_db_session)):
 
     sources = db.query(Source).order_by(Source.created_at.desc()).all()
     return templates.TemplateResponse(
+        request,
         "sources/list.html",
-        {"request": request, "sources": sources},
+        {"sources": sources},
     )
 
 
 @router.get("/sources/upload", response_class=HTMLResponse)
 async def sources_upload_page(request: Request):
-    return templates.TemplateResponse("sources/upload_form.html", {"request": request})
+    return templates.TemplateResponse(request, "sources/upload_form.html")
