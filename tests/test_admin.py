@@ -409,3 +409,173 @@ def test_knowledge_pagination_returns_limited_items(admin_client, db_session):
     _setup_knowledge_query(db_session, items, total=50, status_counts=[50, 5, 40, 5, 5])
     response = admin_client.get("/api/admin/knowledge?page=1&limit=5")
     assert response.status_code == 200
+
+
+# --- ADM-07: Analytics dashboard tests ---
+
+
+def _setup_analytics_mock(db_session, knowledge_total=0, knowledge_published=0,
+                           knowledge_pending=0, knowledge_rejected=0,
+                           avg_rating_row=None, total_feedback=0,
+                           active_users=0, popular_questions=None,
+                           ingest_completed=0, ingest_failed=0, ingest_total=0,
+                           pdf_count=0, telegram_count=0):
+    """Set up mock db_session for analytics endpoint with configurable return values."""
+    if popular_questions is None:
+        popular_questions = []
+
+    # Analytics runs many scalar queries in order:
+    # 1. knowledge total
+    # 2. knowledge published (filter)
+    # 3. knowledge pending (filter)
+    # 4. knowledge rejected (filter)
+    # 5. avg_rating (func.avg case expression)
+    # 6. total_feedback count
+    # 7. active_users (filter + distinct)
+    # 8. ingest_completed (filter)
+    # 9. ingest_failed (filter)
+    # 10. ingest_total
+    # 11. pdf_count (filter)
+    # 12. telegram_count (filter)
+
+    scalar_values = iter([
+        knowledge_total,
+        knowledge_published,
+        knowledge_pending,
+        knowledge_rejected,
+        avg_rating_row,
+        total_feedback,
+        active_users,
+        ingest_completed,
+        ingest_failed,
+        ingest_total,
+        pdf_count,
+        telegram_count,
+    ])
+
+    def next_scalar(*args, **kwargs):
+        try:
+            return next(scalar_values)
+        except StopIteration:
+            return 0
+
+    mock_query = MagicMock()
+    db_session.query.return_value = mock_query
+    mock_query.scalar.side_effect = next_scalar
+
+    # filter chain - also needs .scalar() and group_by chain
+    mock_filter = MagicMock()
+    mock_query.filter.return_value = mock_filter
+    mock_filter.scalar.side_effect = next_scalar
+
+    # group_by chain for popular_questions
+    mock_group = MagicMock()
+    mock_order = MagicMock()
+    mock_limit = MagicMock()
+    mock_filter.group_by.return_value = mock_group
+    mock_group.order_by.return_value = mock_order
+    mock_order.limit.return_value = mock_limit
+    mock_limit.all.return_value = popular_questions
+
+    return mock_query, mock_filter
+
+
+def test_analytics_page_renders(admin_client, db_session):
+    """Analytics page loads with 200 and contains expected metric labels."""
+    db_session.query.return_value.scalar.return_value = 0
+    db_session.query.return_value.filter.return_value.scalar.return_value = 0
+    db_session.query.return_value.filter.return_value.group_by.return_value \
+        .order_by.return_value.limit.return_value.all.return_value = []
+
+    response = admin_client.get("/api/admin/analytics")
+    assert response.status_code == 200
+    assert "Аналитика" in response.text
+    assert "Всего знаний" in response.text
+    assert "Средняя оценка" in response.text
+    assert "Популярные вопросы" in response.text
+
+
+def test_analytics_shows_knowledge_counts(admin_client, db_session):
+    """Knowledge stats (total=50) are displayed from query results."""
+    # Scalar returns: total=50, then 0 for everything else
+    scalar_values = iter([50, 0, 0, 0, None, 0, 0, 0, 0, 0, 0, 0])
+
+    def next_scalar(*args, **kwargs):
+        try:
+            return next(scalar_values)
+        except StopIteration:
+            return 0
+
+    db_session.query.return_value.scalar.side_effect = next_scalar
+    db_session.query.return_value.filter.return_value.scalar.return_value = 0
+    db_session.query.return_value.filter.return_value.group_by.return_value \
+        .order_by.return_value.limit.return_value.all.return_value = []
+
+    response = admin_client.get("/api/admin/analytics")
+    assert response.status_code == 200
+    assert "50" in response.text
+
+
+def test_analytics_shows_popular_questions(admin_client, db_session):
+    """Popular questions list is rendered when data exists."""
+    db_session.query.return_value.scalar.return_value = 0
+    db_session.query.return_value.filter.return_value.scalar.return_value = 0
+
+    mock_group = MagicMock()
+    mock_order = MagicMock()
+    mock_limit = MagicMock()
+    db_session.query.return_value.filter.return_value.group_by.return_value = mock_group
+    mock_group.order_by.return_value = mock_order
+    mock_order.limit.return_value = mock_limit
+    mock_limit.all.return_value = [
+        MagicMock(thread_id="tg:123:456", count=15),
+        MagicMock(thread_id="tg:123:789", count=8),
+    ]
+
+    response = admin_client.get("/api/admin/analytics")
+    assert response.status_code == 200
+    assert "15" in response.text
+    assert "8" in response.text
+
+
+def test_analytics_handles_empty_data_gracefully(admin_client, db_session):
+    """Dashboard renders without errors when all tables are empty (None from queries)."""
+    db_session.query.return_value.scalar.return_value = None
+    db_session.query.return_value.filter.return_value.scalar.return_value = None
+    db_session.query.return_value.filter.return_value.group_by.return_value \
+        .order_by.return_value.limit.return_value.all.return_value = []
+
+    response = admin_client.get("/api/admin/analytics")
+    assert response.status_code == 200
+    assert "N/A" in response.text
+
+
+def test_analytics_requires_auth(client):
+    """Analytics endpoint redirects unauthenticated requests."""
+    response = client.get("/api/admin/analytics")
+    assert response.status_code == 302
+    assert "/api/admin/login" in response.headers["location"]
+
+
+def test_analytics_shows_ingest_stats(admin_client, db_session):
+    """Ingest stats section is present in the dashboard."""
+    db_session.query.return_value.scalar.return_value = 0
+    db_session.query.return_value.filter.return_value.scalar.return_value = 0
+    db_session.query.return_value.filter.return_value.group_by.return_value \
+        .order_by.return_value.limit.return_value.all.return_value = []
+
+    response = admin_client.get("/api/admin/analytics")
+    assert response.status_code == 200
+    assert "Обработка источников" in response.text
+
+
+def test_analytics_shows_active_users_section(admin_client, db_session):
+    """Active users metric card is present in the dashboard."""
+    db_session.query.return_value.scalar.return_value = 0
+    db_session.query.return_value.filter.return_value.scalar.return_value = 0
+    db_session.query.return_value.filter.return_value.group_by.return_value \
+        .order_by.return_value.limit.return_value.all.return_value = []
+
+    response = admin_client.get("/api/admin/analytics")
+    assert response.status_code == 200
+    assert "Активные пользователи" in response.text
