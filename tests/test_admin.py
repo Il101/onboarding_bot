@@ -214,3 +214,128 @@ def test_admin_sources_list_returns_html(admin_client, db_session):
     response = admin_client.get("/api/admin/sources")
     assert response.status_code == 200
     assert "sources" in response.text.lower() or "Источники" in response.text
+
+
+# --- ADM-03, ADM-04, ADM-05: Knowledge review tests ---
+
+
+def _make_knowledge_item(item_id=1, fact="Test fact", topic="Test topic", confidence=0.8, status=None):
+    """Helper to create a mock KnowledgeItem for tests."""
+    from datetime import datetime
+    from src.models.knowledge_item import KnowledgeStatus as KS
+    item = MagicMock()
+    item.id = item_id
+    item.fact = fact
+    item.topic = topic
+    item.confidence = confidence
+    item.status = status if status is not None else KS.PENDING
+    item.source_refs = "[]"
+    item.created_at = datetime.utcnow()
+    item.updated_at = datetime.utcnow()
+    return item
+
+
+def _setup_knowledge_query(db_session, items, total=None, status_counts=None):
+    """Configure mock db_session to return items for the chained knowledge query."""
+    mock_query = MagicMock()
+    db_session.query.return_value = mock_query
+
+    # Chain: query().filter().order_by().offset().limit().all()
+    mock_filter = MagicMock()
+    mock_query.filter.return_value = mock_filter
+    mock_filter.filter.return_value = mock_filter
+    mock_filter.order_by.return_value = mock_filter
+    mock_filter.offset.return_value = mock_filter
+    mock_filter.limit.return_value = mock_filter
+    mock_filter.all.return_value = items
+    mock_filter.count.return_value = len(items)
+
+    # query().count() for total
+    mock_query.count.return_value = total if total is not None else len(items)
+
+    # query().distinct().all() for topics
+    mock_query.distinct.return_value = MagicMock()
+    mock_query.distinct.return_value.all.return_value = [(item.topic,) for item in items]
+
+    # query().filter().count() for status counts (called 3 times for published/pending/rejected)
+    if status_counts:
+        mock_filter.count.side_effect = status_counts
+    else:
+        mock_filter.count.side_effect = [len(items), len(items), 0, 0]
+
+    return mock_query, mock_filter
+
+
+def test_knowledge_page_renders_with_items(admin_client, db_session):
+    items = [_make_knowledge_item(1), _make_knowledge_item(2, topic="Other")]
+    _setup_knowledge_query(db_session, items, total=2, status_counts=[2, 2, 1, 1, 0])
+    response = admin_client.get("/api/admin/knowledge")
+    assert response.status_code == 200
+    assert "Test fact" in response.text or "Знания" in response.text or "знани" in response.text.lower()
+
+
+def test_knowledge_filter_by_status(admin_client, db_session):
+    from src.models.knowledge_item import KnowledgeStatus as KS
+    pending_item = _make_knowledge_item(1, status=KS.PENDING)
+    _setup_knowledge_query(db_session, [pending_item], total=1, status_counts=[1, 1, 1, 0, 0])
+    response = admin_client.get("/api/admin/knowledge?status=pending")
+    assert response.status_code == 200
+
+
+def test_knowledge_filter_by_topic(admin_client, db_session):
+    item = _make_knowledge_item(1, topic="Процессы")
+    _setup_knowledge_query(db_session, [item], total=1, status_counts=[1, 1, 1, 0, 0])
+    response = admin_client.get("/api/admin/knowledge?topic=Процессы")
+    assert response.status_code == 200
+
+
+def test_knowledge_approve_changes_status(admin_client, db_session):
+    from src.models.knowledge_item import KnowledgeStatus as KS
+    item = _make_knowledge_item(1, status=KS.PENDING)
+    db_session.query.return_value.filter.return_value.all.return_value = [item]
+    response = admin_client.post("/api/admin/knowledge/approve", data={"item_ids": [1]})
+    assert response.status_code == 200
+    assert "опубликовано" in response.text.lower()
+
+
+def test_knowledge_reject_changes_status(admin_client, db_session):
+    from src.models.knowledge_item import KnowledgeStatus as KS
+    item = _make_knowledge_item(1, status=KS.PENDING)
+    db_session.query.return_value.filter.return_value.all.return_value = [item]
+    response = admin_client.post("/api/admin/knowledge/reject", data={"item_ids": [1]})
+    assert response.status_code == 200
+    assert "отклонено" in response.text.lower()
+
+
+def test_knowledge_delete_removes_item(admin_client, db_session):
+    item = _make_knowledge_item(1)
+    db_session.query.return_value.filter.return_value.first.return_value = item
+    response = admin_client.delete("/api/admin/knowledge/1")
+    assert response.status_code == 200
+    assert "удалено" in response.text.lower()
+
+
+def test_knowledge_delete_not_found(admin_client, db_session):
+    db_session.query.return_value.filter.return_value.first.return_value = None
+    response = admin_client.delete("/api/admin/knowledge/999")
+    assert response.status_code == 404
+
+
+def test_knowledge_edit_updates_fact(admin_client, db_session):
+    item = _make_knowledge_item(1, fact="Old fact")
+    db_session.query.return_value.filter.return_value.first.return_value = item
+    response = admin_client.put("/api/admin/knowledge/1", data={"fact": "New fact text"})
+    assert response.status_code == 200
+
+
+def test_knowledge_edit_not_found(admin_client, db_session):
+    db_session.query.return_value.filter.return_value.first.return_value = None
+    response = admin_client.put("/api/admin/knowledge/999", data={"fact": "Some fact"})
+    assert response.status_code == 404
+
+
+def test_knowledge_pagination_returns_limited_items(admin_client, db_session):
+    items = [_make_knowledge_item(i, fact=f"Fact {i}") for i in range(1, 6)]
+    _setup_knowledge_query(db_session, items, total=50, status_counts=[50, 5, 40, 5, 5])
+    response = admin_client.get("/api/admin/knowledge?page=1&limit=5")
+    assert response.status_code == 200
