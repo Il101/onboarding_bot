@@ -139,7 +139,10 @@ def test_extract_task_reports_progress_stages():
         ]
     ]
 
-    with patch.object(extract_knowledge_task, "update_state", side_effect=_capture):
+    with (
+        patch.object(extract_knowledge_task, "update_state", side_effect=_capture),
+        patch("src.tasks.knowledge.generate_sop_task.delay", return_value=None),
+    ):
         extract_knowledge_task.run(
             source_id="src1",
             chunks=_chunks()[:1],
