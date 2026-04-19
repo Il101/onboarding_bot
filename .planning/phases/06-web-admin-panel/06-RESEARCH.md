@@ -154,13 +154,13 @@ src/
     <button @click="showFilters = !showFilters">
         Toggle Filters
     </button>
-    
+
     <div x-show="showFilters">
         <!-- Filter form -->
     </div>
-    
+
     <!-- Bulk actions with selected items -->
-    <button 
+    <button
         x-show="selectedItems.length > 0"
         @click="approveSelected()">
         Approve Selected
@@ -268,7 +268,7 @@ async def upload_pdf_source(file: UploadFile, db: Session = Depends(get_db_sessi
     # Same logic as ingest.py but wrapped for admin panel
     from src.models.source import Source, SourceType
     from src.tasks.ingest import ingest_pdf
-    
+
     # Validate and save file
     # Create source record
     # Queue Celery task
@@ -277,8 +277,8 @@ async def upload_pdf_source(file: UploadFile, db: Session = Depends(get_db_sessi
 
 ```html
 <!-- src/api/templates/sources/upload.html -->
-<form 
-    hx-post="/api/admin/sources/pdf" 
+<form
+    hx-post="/api/admin/sources/pdf"
     hx-target="#upload-status"
     hx-swap="outerHTML"
     hx-indicator="#upload-progress">
@@ -324,15 +324,15 @@ async def get_knowledge_items(filter: KnowledgeFilter = None, skip: int = 0, lim
 
 ```html
 <!-- src/api/templates/knowledge/review.html -->
-<div x-data="{ 
+<div x-data="{
     filter: { topic: '', source: '', status: '' },
     items: [],
     loading: false
 }">
     <!-- Filter form -->
     <div class="filters">
-        <input 
-            type="text" 
+        <input
+            type="text"
             x-model="filter.topic"
             placeholder="Filter by topic..."
             @input="debounceFilter()">
@@ -374,7 +374,7 @@ async def get_knowledge_items(filter: KnowledgeFilter = None, skip: int = 0, lim
     </table>
 
     <!-- Bulk approve -->
-    <button 
+    <button
         x-show="selectedItems.length > 0"
         @click="bulkApprove()">
         Approve Selected
@@ -389,16 +389,16 @@ async def get_knowledge_items(filter: KnowledgeFilter = None, skip: int = 0, lim
 async def get_dashboard_analytics(db: Session = Depends(get_db_session)):
     from sqlalchemy import func, desc
     from datetime import datetime, timedelta
-    
+
     # Popular questions from feedback
     popular_questions = db.query(
         FeedbackEvent.thread_id,
         func.count(FeedbackEvent.id).label('count')
     ).group_by(FeedbackEvent.thread_id).order_by(desc('count')).limit(10).all()
-    
+
     # Average rating
     avg_rating = db.query(func.avg(FeedbackEvent.vote.cast(Integer))).scalar()
-    
+
     # Knowledge stats
     knowledge_stats = db.query(
         func.count(KnowledgeItem.id).label('total'),
@@ -406,13 +406,13 @@ async def get_dashboard_analytics(db: Session = Depends(get_db_session)):
         func.sum(func.case([(KnowledgeItem.status == 'pending', 1)], else_=0)).label('pending'),
         func.sum(func.case([(KnowledgeItem.status == 'rejected', 1)], else_=0)).label('rejected')
     ).first()
-    
+
     # User activity (last 7 days)
     week_ago = datetime.utcnow() - timedelta(days=7)
     active_users = db.query(func.count(func.distinct(FeedbackEvent.user_id))).filter(
         FeedbackEvent.created_at >= week_ago
     ).scalar()
-    
+
     return {
         "popular_questions": popular_questions,
         "average_rating": avg_rating,
@@ -446,7 +446,7 @@ async def get_dashboard_analytics(db: Session = Depends(get_db_session)):
             <div x-text="analytics.active_users || 0"></div>
         </div>
     </div>
-    
+
     <div class="popular-questions">
         <h3>Popular Questions</h3>
         <ul>
@@ -485,33 +485,25 @@ async def get_dashboard_analytics(db: Session = Depends(get_db_session)):
 | A3 | Existing FastAPI application structure can be extended with admin routes | Standard Stack | Route conflicts or integration issues may arise |
 | A4 | PostgreSQL can handle the analytics queries efficiently | Code Examples | Dashboard may be slow with large datasets |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **How to handle real-time ingest status updates without WebSocket?**
-   - What we know: HTMX supports SSE for server-sent events
-   - What's unclear: Which approach is better - polling every 5s or SSE for status updates
-   - Recommendation: Start with polling for simplicity, add SSE later if needed
+1. **How to handle real-time ingest status updates without WebSocket?** (RESOLVED)
+   - Decision: Use polling for MVP. Real-time updates (WebSocket/SSE) explicitly deferred in CONTEXT.md deferred items. Polling every 5s is sufficient for a single-admin internal tool.
 
-2. **Should admin password be bcrypt hashed or plain text?**
-   - What we know: CLAUDE.md says "simple password auth"
-   - What's unclear: Whether to hash or plain text (both are simple)
-   - Recommendation: Use bcrypt hash for better security, still simple to implement
+2. **Should admin password be bcrypt hashed or SHA-256?** (RESOLVED)
+   - Decision: SHA-256 hash. Plan 01 implements `_hash_password` using `hashlib.sha256`. This is simpler than bcrypt (no extra dependency) while still not storing plaintext. Adequate for single-admin internal tool behind httponly cookie auth. bcrypt would be preferred for multi-user systems, but this MVP has exactly one admin password.
 
-3. **How to handle knowledge editing before approval?**
-   - What we know: Admin can edit facts before publishing
-   - What's unclear: Should editing create a new version or modify the pending item?
-   - Recommendation: Modify in-place - keep it simple for MVP
+3. **How to handle knowledge editing before approval?** (RESOLVED)
+   - Decision: Modify in-place. CONTEXT.md D-04 states "Admin can edit fact before publication" -- the pending KnowledgeItem is updated directly, no version history needed. This is the simplest approach for MVP.
 
-4. **Should dashboard use charts or just numbers?**
-   - What we know: Requirements mention "basic metrics"
-   - What's unclear: If charts are needed or just numbers
-   - Recommendation: Start with numbers, add charts only if explicitly requested
+4. **Should dashboard use charts or just numbers?** (RESOLVED)
+   - Decision: Numbers only (metric cards), no charts. CONTEXT.md D-07 specifies "basic metrics on one page" and the deferred items list explicitly defers charts (Chart.js). Plan 05 implements server-rendered metric cards with count/percentage displays.
 
 ## Environment Availability
 
 | Dependency | Required By | Available | Version | Fallback |
 |------------|------------|-----------|---------|----------|
-| FastAPI | Admin panel | ✓ | 0.115.6 | — |
+| FastAPI | Admin panel | Yes | 0.115.6 | -- |
 | PostgreSQL | Analytics data | ? | 16+ | SQLite (not for production) |
 | Celery | File processing | ? | latest | Sequential processing |
 | Redis | Celery broker | ? | latest | Local development without tasks |
@@ -532,16 +524,16 @@ async def get_dashboard_analytics(db: Session = Depends(get_db_session)):
 | Quick run command | `pytest tests/ -k "test_" -x` |
 | Full suite command | `pytest tests/` |
 
-### Phase Requirements → Test Map
+### Phase Requirements -> Test Map
 | Req ID | Behavior | Test Type | Automated Command | File Exists? |
 |--------|----------|-----------|-------------------|-------------|
-| ADM-01 | PDF upload endpoint works | integration | `pytest tests/test_admin.py::test_pdf_upload` | ❌ Wave 0 |
-| ADM-02 | Telegram upload endpoint works | integration | `pytest tests/test_admin.py::test_telegram_upload` | ❌ Wave 0 |
-| ADM-03 | Knowledge review table loads | integration | `pytest tests/test_admin.py::test_knowledge_list` | ❌ Wave 0 |
-| ADM-04 | Knowledge approval process | integration | `pytest tests/test_admin.py::test_approve_knowledge` | ❌ Wave 0 |
-| ADM-05 | Knowledge rejection process | integration | `pytest tests/test_admin.py::test_reject_knowledge` | ❌ Wave 0 |
-| ADM-06 | User management CRUD | integration | `pytest tests/test_admin.py::test_user_management` | ❌ Wave 0 |
-| ADM-07 | Analytics endpoints return data | integration | `pytest tests/test_admin.py::test_analytics` | ❌ Wave 0 |
+| ADM-01 | PDF upload endpoint works | integration | `pytest tests/test_admin.py::test_pdf_upload` | No - Wave 0 |
+| ADM-02 | Telegram upload endpoint works | integration | `pytest tests/test_admin.py::test_telegram_upload` | No - Wave 0 |
+| ADM-03 | Knowledge review table loads | integration | `pytest tests/test_admin.py::test_knowledge_list` | No - Wave 0 |
+| ADM-04 | Knowledge approval process | integration | `pytest tests/test_admin.py::test_approve_knowledge` | No - Wave 0 |
+| ADM-05 | Knowledge rejection process | integration | `pytest tests/test_admin.py::test_reject_knowledge` | No - Wave 0 |
+| ADM-06 | User management CRUD | integration | `pytest tests/test_admin.py::test_user_management` | No - Wave 0 |
+| ADM-07 | Analytics endpoints return data | integration | `pytest tests/test_admin.py::test_analytics` | No - Wave 0 |
 
 ### Sampling Rate
 - **Per task commit:** `pytest tests/test_admin.py -x`
@@ -563,7 +555,7 @@ async def get_dashboard_analytics(db: Session = Depends(get_db_session)):
 | V3 Session Management | yes | Session timeout and secure cookie flags |
 | V4 Access Control | yes | Role-based access for admin-only routes |
 | V5 Input Validation | yes | FastAPI + Pydantic validation on all endpoints |
-| V6 Cryptography | no | Password hashing (bcrypt) but no other cryptography |
+| V6 Cryptography | no | Password hashing (SHA-256) but no other cryptography |
 
 ### Known Threat Patterns for FastAPI
 
@@ -577,17 +569,17 @@ async def get_dashboard_analytics(db: Session = Depends(get_db_session)):
 ## Sources
 
 ### Primary (HIGH confidence)
-- Context7: `/fastapi/fastapi` — FastAPI router architecture, template rendering, dependency injection
-- Context7: `/jinja/jinja` — Template inheritance, macros, filters for admin UI
-- Existing codebase: `src/api/main.py`, `src/api/routes/ingest.py` — Current FastAPI structure to extend
+- Context7: `/fastapi/fastapi` -- FastAPI router architecture, template rendering, dependency injection
+- Context7: `/jinja/jinja` -- Template inheritance, macros, filters for admin UI
+- Existing codebase: `src/api/main.py`, `src/api/routes/ingest.py` -- Current FastAPI structure to extend
 
 ### Secondary (MEDIUM confidence)
-- HTMX documentation (from training data) — HTMX attributes, swap strategies, progress indicators
-- Alpine.js documentation (from training data) — Reactive patterns, x-data syntax, event handling
-- Tailwind CSS documentation (from training data) — Utility classes, responsive design patterns
+- HTMX documentation (from training data) -- HTMX attributes, swap strategies, progress indicators
+- Alpine.js documentation (from training data) -- Reactive patterns, x-data syntax, event handling
+- Tailwind CSS documentation (from training data) -- Utility classes, responsive design patterns
 
 ### Tertiary (LOW confidence)
-- Web search results (unavailable) — Latest HTMX + FastAPI patterns and best practices
+- Web search results (unavailable) -- Latest HTMX + FastAPI patterns and best practices
 
 ## Metadata
 
