@@ -1,5 +1,5 @@
 import enum
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy import DateTime, Enum, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -30,5 +30,5 @@ class Source(Base):
     messages_count: Mapped[int | None] = mapped_column(default=None)
     chunks_indexed: Mapped[int | None] = mapped_column(default=None)
     error_message: Mapped[str | None] = mapped_column(default=None)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(UTC))
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))

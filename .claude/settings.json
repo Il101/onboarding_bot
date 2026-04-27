@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node __TRACKED_VAR__/.claude/get-shit-done/bin/gsd-tools.cjs state record-metric --phase 06 --plan 03 --duration 4 --tasks 1 --files 5)",
+      "Bash(node __TRACKED_VAR__/.claude/get-shit-done/bin/gsd-tools.cjs state add-decision --phase 06 --summary 'Knowledge review _row.html included via Jinja2 loop include \\(not HTMX fragment\\) for initial render; HTMX swap targets row-{id} for per-row updates')",
+      "Bash(node __TRACKED_VAR__/.claude/get-shit-done/bin/gsd-tools.cjs state add-decision --phase 06 --summary 'Edit modal uses Alpine.js @submit.prevent + htmx.process\\(\\) to construct dynamic PUT URL from hidden item_id input')",
+      "Bash(node __TRACKED_VAR__/.claude/get-shit-done/bin/gsd-tools.cjs state record-session --stopped-at 'Completed 06-web-admin-panel-06-03-PLAN.md')",
+      "Bash(node __TRACKED_VAR__/.claude/get-shit-done/bin/gsd-tools.cjs requirements mark-complete ADM-03 ADM-04 ADM-05)",
+      "Bash(python -c \"from src.models.telegram_user import TelegramUser, UserRole; print\\('TelegramUser columns:', [c.key for c in TelegramUser.__table__.columns]\\); print\\('UserRole values:', list\\(UserRole\\)\\)\")",
+      "Bash(node __TRACKED_VAR__/.claude/get-shit-done/bin/gsd-tools.cjs state record-metric --phase 06 --plan 04 --duration 181 --tasks 1 --files 6)",
+      "Bash(node __TRACKED_VAR__/.claude/get-shit-done/bin/gsd-tools.cjs state record-metric --phase 06-web-admin-panel --plan 05 --duration 182 --tasks 1 --files 3)",
+      "Bash(node __TRACKED_VAR__/.claude/get-shit-done/bin/gsd-tools.cjs state add-decision --phase 06-web-admin-panel --summary 'Analytics avg_rating stored as 0-1 float ratio displayed as percentage; popular questions query uses direct group_by without filter for all-time ranking')",
+      "Bash(node __TRACKED_VAR__/.claude/get-shit-done/bin/gsd-tools.cjs state record-session --stopped-at 'Completed 06-web-admin-panel-06-05-PLAN.md')",
+      "Bash(node __TRACKED_VAR__/.claude/get-shit-done/bin/gsd-tools.cjs requirements mark-complete ADM-07)",
+      "Read(//Users/iliazarikov/.claude/get-shit-done/references/**)",
+      "Bash(node /Users/iliazarikov/.claude/get-shit-done/bin/gsd-tools.cjs roadmap get-phase 6 --raw)",
+      "Bash(node ~/.claude/get-shit-done/bin/gsd-tools.cjs state complete-phase 06-web-admin-panel)",
+      "Bash(node ~/.claude/get-shit-done/bin/gsd-tools.cjs roadmap list-phases)",
+      "Bash(git commit -m ' *)"
+    ]
+  }
+}

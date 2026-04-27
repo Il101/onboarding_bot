@@ -21,7 +21,7 @@ async def retrieve_phase2_payload(
     payload = {"query": str(state.get("query", "")), "top_k": bounded_top_k}
     owns_client = client is None
     local_client = client or httpx.AsyncClient(
-        base_url="http://localhost:8000",
+        base_url=settings.knowledge_api_base_url,
         timeout=httpx.Timeout(15.0),
     )
     attempts = max(1, settings.bot_retrieve_max_attempts)

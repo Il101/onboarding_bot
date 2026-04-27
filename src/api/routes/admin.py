@@ -1,6 +1,6 @@
-import hashlib
+import bcrypt
 import uuid
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, Response, UploadFile
@@ -14,12 +14,15 @@ from starlette.responses import RedirectResponse as StarletteRedirectResponse
 from src.api.deps import get_db_session
 from src.api.routes.ingest import _ensure_upload_dirs, _validate_json_content, _validate_ogg_content, _validate_size
 from src.core.config import settings
+from src.core.logging import get_logger
 from src.models.feedback_event import FeedbackEvent
 from src.models.ingest_job import IngestJob
 from src.models.knowledge_item import KnowledgeItem, KnowledgeStatus
 from src.models.source import IngestStatus, Source, SourceType
 from src.models.telegram_user import TelegramUser, UserRole
 from src.tasks.ingest import ingest_pdf, ingest_telegram
+
+logger = get_logger(__name__)
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -29,12 +32,12 @@ templates = Jinja2Templates(directory=str(Path(__file__).resolve().parent.parent
 _admin_sessions: dict[str, dict] = {}
 
 
-def _hash_password(password: str) -> str:
-    return hashlib.sha256(password.encode()).hexdigest()
-
-
 def _verify_password(password: str, password_hash: str) -> bool:
-    return _hash_password(password) == password_hash
+    try:
+        return bcrypt.checkpw(password.encode(), password_hash.encode())
+    except Exception as e:
+        logger.error("Password verification failed: %s", e)
+        return False
 
 
 class AdminAuthMiddleware(BaseHTTPMiddleware):
@@ -46,8 +49,9 @@ class AdminAuthMiddleware(BaseHTTPMiddleware):
             if not session_id or session_id not in _admin_sessions:
                 return StarletteRedirectResponse(url="/api/admin/login", status_code=302)
             session_data = _admin_sessions[session_id]
-            if datetime.utcnow() > session_data["expires"]:
-                del _admin_sessions[session_id]
+            if datetime.now(UTC) > session_data["expires"]:
+                if session_id in _admin_sessions:
+                    del _admin_sessions[session_id]
                 return StarletteRedirectResponse(url="/api/admin/login", status_code=302)
         response = await call_next(request)
         return response
@@ -71,7 +75,7 @@ async def login_submit(request: Request, password: str = Form(...)):
         )
     session_id = str(uuid.uuid4())
     _admin_sessions[session_id] = {
-        "expires": datetime.utcnow() + timedelta(seconds=settings.admin_session_timeout),
+        "expires": datetime.now(UTC) + timedelta(seconds=settings.admin_session_timeout),
     }
     response = RedirectResponse(url="/api/admin/", status_code=302)
     response.set_cookie(

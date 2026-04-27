@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from celery import Celery
-
 from src.ai.extraction.extractor import extract_knowledge_units, group_units_by_topic
 from src.ai.sop.generator import generate_sop_for_topic
 from src.core.config import settings
@@ -9,7 +7,9 @@ from src.core.logging import get_logger
 from src.pipeline.indexer.knowledge_writer import index_knowledge_units
 
 logger = get_logger(__name__)
-celery_app = Celery("vbrain", broker=settings.redis_url, backend=settings.redis_url)
+
+# Reuse the singleton Celery app
+from src.tasks.celery_app import celery_app
 
 
 @celery_app.task(bind=True, autoretry_for=(Exception,), max_retries=3)

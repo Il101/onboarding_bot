@@ -1,5 +1,5 @@
 import enum
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy import DateTime, Enum, Float, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
@@ -24,5 +24,5 @@ class KnowledgeItem(Base):
     status: Mapped[KnowledgeStatus] = mapped_column(
         Enum(KnowledgeStatus), default=KnowledgeStatus.PENDING
     )
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(UTC))
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))

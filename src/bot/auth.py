@@ -4,6 +4,9 @@ from pydantic import BaseModel, Field
 
 from src.ai.langgraph.state import BotAnswer, SourceRef
 from src.core.config import settings
+from src.core.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 class AuthDecision(BaseModel):
@@ -25,12 +28,18 @@ def authorize_telegram_user(user_id: int | str) -> AuthDecision:
     try:
         normalized_user_id = int(user_id)
     except (TypeError, ValueError):
+        logger.warning("Auth failed: invalid user_id format: %s", user_id)
         return AuthDecision(allowed=False, reason="not_whitelisted", role="")
 
     role = settings.telegram_user_roles.get(normalized_user_id)
     if role is None:
+        logger.warning("Auth failed: user %s not in whitelist (Settings.telegram_user_roles)", normalized_user_id)
         return AuthDecision(allowed=False, reason="not_whitelisted", role="")
-    return is_authorized_role(role)
+    
+    decision = is_authorized_role(role)
+    if not decision.allowed:
+        logger.warning("Auth failed: user %s has role %s which is not allowed", normalized_user_id, role)
+    return decision
 
 
 def build_access_denied_answer(reason: str) -> BotAnswer:

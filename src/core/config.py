@@ -10,6 +10,14 @@ class Settings(BaseSettings):
     app_name: str = "V-Brain"
     debug: bool = False
 
+    # LLM Provider (openai | groq | ollama)
+    llm_provider: str = "openai"
+    llm_model: str = "gpt-4o-mini"
+    llm_api_key: str = ""
+    llm_base_url: str = ""  # For Ollama: http://localhost:11434/v1
+
+    # Knowledge API self-call (LangGraph → FastAPI)
+    knowledge_api_base_url: str = "http://localhost:8000"
     qdrant_host: str = "localhost"
     qdrant_port: int = 6333
 

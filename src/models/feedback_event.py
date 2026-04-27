@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy import DateTime, Float, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
@@ -16,7 +16,7 @@ class FeedbackEvent(Base):
     chat_id: Mapped[int] = mapped_column(Integer, index=True)
     vote: Mapped[str] = mapped_column(String(8))
     answer_confidence: Mapped[float] = mapped_column(Float)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(UTC))
 
     __table_args__ = (
         UniqueConstraint(

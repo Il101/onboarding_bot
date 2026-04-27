@@ -151,3 +151,9 @@ def build_application(
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     app.add_handler(CallbackQueryHandler(handle_feedback_callback, pattern=r"^feedback:"))
     return app
+
+
+if __name__ == "__main__":
+    logger.info("Starting Telegram Bot...")
+    application = build_application()
+    application.run_polling()

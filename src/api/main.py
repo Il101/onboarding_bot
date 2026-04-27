@@ -8,6 +8,8 @@ from src.api.routes.knowledge import router as knowledge_router
 from src.core.logging import setup_logging
 
 
+from fastapi.responses import RedirectResponse
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     setup_logging()
@@ -24,3 +26,13 @@ app.add_middleware(AdminAuthMiddleware)
 app.include_router(ingest_router)
 app.include_router(knowledge_router)
 app.include_router(admin_router)
+
+
+@app.get("/")
+async def root():
+    return RedirectResponse(url="/admin")
+
+
+@app.get("/admin")
+async def admin_redirect():
+    return RedirectResponse(url="/api/admin/")

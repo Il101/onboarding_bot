@@ -1,4 +1,5 @@
-from celery import Celery
+from __future__ import annotations
+
 from qdrant_client import QdrantClient
 
 from src.core.config import settings
@@ -12,11 +13,10 @@ from src.pipeline.indexer.qdrant_store import QdrantStore
 from src.pipeline.parsers.pdf import extract_pdf_text
 from src.pipeline.parsers.telegram import parse_telegram_export
 from src.pipeline.parsers.voice import transcribe_voice_messages
+from src.tasks.celery_app import celery_app
 from src.tasks.knowledge import extract_knowledge_task
 
 logger = get_logger(__name__)
-
-celery_app = Celery("vbrain", broker=settings.redis_url, backend=settings.redis_url)
 
 
 def _validate_source_id(source_id: str) -> str:
