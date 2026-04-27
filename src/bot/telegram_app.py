@@ -28,7 +28,12 @@ logger = get_logger(__name__)
 
 def _feedback_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
-        [[InlineKeyboardButton("👍", callback_data="feedback:up"), InlineKeyboardButton("👎", callback_data="feedback:down")]]
+        [
+            [
+                InlineKeyboardButton("👍", callback_data="feedback:up"),
+                InlineKeyboardButton("👎", callback_data="feedback:down"),
+            ]
+        ]
     )
 
 

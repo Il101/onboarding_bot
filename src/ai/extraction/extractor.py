@@ -114,7 +114,9 @@ def extract_knowledge_units(
 
     logger.info(
         "Extraction complete: total=%d publishable=%d review_needed=%d",
-        len(all_units), len(publishable), len(review_needed),
+        len(all_units),
+        len(publishable),
+        len(review_needed),
     )
 
     return {

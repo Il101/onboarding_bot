@@ -101,7 +101,9 @@ def ingest_pdf(self, source_id: str, file_path: str):
         text_chunks = chunk_text(markdown)
         chunks = []
         for idx, chunk in enumerate(text_chunks):
-            chunks.append({"text": chunk, "metadata": {"source_type": "pdf", "source_id": source_id, "chunk_index": idx}})
+            chunks.append(
+                {"text": chunk, "metadata": {"source_type": "pdf", "source_id": source_id, "chunk_index": idx}}
+            )
 
         self.update_state(state="PROGRESS", meta={"stage": "indexing", "progress": 75})
         embedder = Embedder()

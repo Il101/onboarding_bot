@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+from src.ai.extraction.publish_policy import should_answer_for_relevance
 from src.ai.llm_client import llm_chat
 from src.ai.rag.attribution import format_attribution
 from src.ai.rag.contracts import RagAnswer
 from src.ai.rag.reranker import rerank_candidates
-from src.ai.extraction.publish_policy import should_answer_for_relevance
 from src.core.config import settings
 from src.core.logging import get_logger
 
@@ -59,7 +59,10 @@ def synthesize_answer(query: str, candidates: list[dict]) -> RagAnswer:
         answer = llm_chat(
             messages=[
                 {"role": "system", "content": _SYSTEM_PROMPT},
-                {"role": "user", "content": f"Контекст из базы знаний:\n\n{context}\n\n---\n\nВопрос сотрудника: {query}"},
+                {
+                    "role": "user",
+                    "content": f"Контекст из базы знаний:\n\n{context}\n\n---\n\nВопрос сотрудника: {query}",
+                },
             ],
             temperature=0.2,
             max_tokens=1500,

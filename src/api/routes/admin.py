@@ -1,9 +1,12 @@
-import bcrypt
+import hashlib
+import secrets
+import string
 import uuid
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, Response, UploadFile
+import bcrypt
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import case, desc, func
@@ -33,11 +36,25 @@ _admin_sessions: dict[str, dict] = {}
 
 
 def _verify_password(password: str, password_hash: str) -> bool:
-    try:
-        return bcrypt.checkpw(password.encode(), password_hash.encode())
-    except Exception as e:
-        logger.error("Password verification failed: %s", e)
+    normalized_hash = (password_hash or "").strip()
+    if not normalized_hash:
         return False
+
+    # Preferred format: bcrypt hash.
+    if normalized_hash.startswith("$2"):
+        try:
+            return bcrypt.checkpw(password.encode(), normalized_hash.encode())
+        except Exception as exc:  # noqa: BLE001
+            logger.error("Password verification failed: %s", exc)
+            return False
+
+    # Backward compatibility: sha256 hex digest in ADMIN_PASSWORD.
+    if len(normalized_hash) == 64 and all(ch in string.hexdigits for ch in normalized_hash):
+        digest = hashlib.sha256(password.encode()).hexdigest()
+        return secrets.compare_digest(digest, normalized_hash.lower())
+
+    # Legacy/dev fallback: raw password in ADMIN_PASSWORD.
+    return secrets.compare_digest(password, normalized_hash)
 
 
 class AdminAuthMiddleware(BaseHTTPMiddleware):
@@ -331,13 +348,13 @@ async def approve_knowledge(
         db.commit()
         return HTMLResponse(
             content=f'<div class="bg-green-50 text-green-700 px-4 py-3 rounded-lg text-sm">'
-                    f'<i class="ti ti-check mr-1"></i> {count} знаний опубликовано</div>',
+            f'<i class="ti ti-check mr-1"></i> {count} знаний опубликовано</div>',
         )
     except Exception:
         db.rollback()
         return HTMLResponse(
             content='<div class="bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm">'
-                    '<i class="ti ti-alert-circle mr-1"></i> Ошибка при публикации</div>',
+            '<i class="ti ti-alert-circle mr-1"></i> Ошибка при публикации</div>',
             status_code=500,
         )
 
@@ -357,13 +374,13 @@ async def reject_knowledge(
         db.commit()
         return HTMLResponse(
             content=f'<div class="bg-yellow-50 text-yellow-700 px-4 py-3 rounded-lg text-sm">'
-                    f'<i class="ti ti-x mr-1"></i> {count} знаний отклонено</div>',
+            f'<i class="ti ti-x mr-1"></i> {count} знаний отклонено</div>',
         )
     except Exception:
         db.rollback()
         return HTMLResponse(
             content='<div class="bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm">'
-                    '<i class="ti ti-alert-circle mr-1"></i> Ошибка при отклонении</div>',
+            '<i class="ti ti-alert-circle mr-1"></i> Ошибка при отклонении</div>',
             status_code=500,
         )
 
@@ -494,15 +511,15 @@ async def delete_user(user_id: int, db: Session = Depends(get_db_session)):
 async def analytics_page(request: Request, db: Session = Depends(get_db_session)):
     # Knowledge stats by status
     knowledge_total = db.query(func.count(KnowledgeItem.id)).scalar() or 0
-    knowledge_published = db.query(func.count(KnowledgeItem.id)).filter(
-        KnowledgeItem.status == KnowledgeStatus.PUBLISHED
-    ).scalar() or 0
-    knowledge_pending = db.query(func.count(KnowledgeItem.id)).filter(
-        KnowledgeItem.status == KnowledgeStatus.PENDING
-    ).scalar() or 0
-    knowledge_rejected = db.query(func.count(KnowledgeItem.id)).filter(
-        KnowledgeItem.status == KnowledgeStatus.REJECTED
-    ).scalar() or 0
+    knowledge_published = (
+        db.query(func.count(KnowledgeItem.id)).filter(KnowledgeItem.status == KnowledgeStatus.PUBLISHED).scalar() or 0
+    )
+    knowledge_pending = (
+        db.query(func.count(KnowledgeItem.id)).filter(KnowledgeItem.status == KnowledgeStatus.PENDING).scalar() or 0
+    )
+    knowledge_rejected = (
+        db.query(func.count(KnowledgeItem.id)).filter(KnowledgeItem.status == KnowledgeStatus.REJECTED).scalar() or 0
+    )
 
     # Average answer rating from feedback (vote="up" => 1, vote="down" => 0)
     avg_rating_row = db.query(
@@ -520,32 +537,31 @@ async def analytics_page(request: Request, db: Session = Depends(get_db_session)
 
     # Active users (unique user_ids with feedback in last 7 days)
     week_ago = datetime.utcnow() - timedelta(days=7)
-    active_users = db.query(
-        func.count(func.distinct(FeedbackEvent.user_id))
-    ).filter(FeedbackEvent.created_at >= week_ago).scalar() or 0
+    active_users = (
+        db.query(func.count(func.distinct(FeedbackEvent.user_id))).filter(FeedbackEvent.created_at >= week_ago).scalar()
+        or 0
+    )
 
     # Popular questions (top 10 thread_ids by frequency)
-    popular_questions = db.query(
-        FeedbackEvent.thread_id,
-        func.count(FeedbackEvent.id).label("count"),
-    ).group_by(FeedbackEvent.thread_id).order_by(desc("count")).limit(10).all()
+    popular_questions = (
+        db.query(
+            FeedbackEvent.thread_id,
+            func.count(FeedbackEvent.id).label("count"),
+        )
+        .group_by(FeedbackEvent.thread_id)
+        .order_by(desc("count"))
+        .limit(10)
+        .all()
+    )
 
     # Ingest job stats
-    ingest_completed = db.query(func.count(IngestJob.id)).filter(
-        IngestJob.status == "SUCCESS"
-    ).scalar() or 0
-    ingest_failed = db.query(func.count(IngestJob.id)).filter(
-        IngestJob.status == "FAILURE"
-    ).scalar() or 0
+    ingest_completed = db.query(func.count(IngestJob.id)).filter(IngestJob.status == "SUCCESS").scalar() or 0
+    ingest_failed = db.query(func.count(IngestJob.id)).filter(IngestJob.status == "FAILURE").scalar() or 0
     ingest_total = db.query(func.count(IngestJob.id)).scalar() or 0
 
     # Source counts by type
-    pdf_count = db.query(func.count(Source.id)).filter(
-        Source.type == SourceType.PDF
-    ).scalar() or 0
-    telegram_count = db.query(func.count(Source.id)).filter(
-        Source.type == SourceType.TELEGRAM
-    ).scalar() or 0
+    pdf_count = db.query(func.count(Source.id)).filter(Source.type == SourceType.PDF).scalar() or 0
+    telegram_count = db.query(func.count(Source.id)).filter(Source.type == SourceType.TELEGRAM).scalar() or 0
 
     return templates.TemplateResponse(
         request,

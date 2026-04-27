@@ -1,14 +1,14 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 
-from src.api.routes.admin import AdminAuthMiddleware, router as admin_router
+from src.api.routes.admin import AdminAuthMiddleware
+from src.api.routes.admin import router as admin_router
 from src.api.routes.ingest import router as ingest_router
 from src.api.routes.knowledge import router as knowledge_router
 from src.core.logging import setup_logging
 
-
-from fastapi.responses import RedirectResponse
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

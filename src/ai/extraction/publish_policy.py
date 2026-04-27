@@ -15,10 +15,7 @@ def should_publish_knowledge(unit: KnowledgeUnit) -> PublishDecision:
     if unit.confidence < settings.knowledge_confidence_threshold:
         return PublishDecision(
             publish=False,
-            reason=(
-                f"low_confidence: {unit.confidence:.3f} < "
-                f"{settings.knowledge_confidence_threshold:.3f}"
-            ),
+            reason=(f"low_confidence: {unit.confidence:.3f} < {settings.knowledge_confidence_threshold:.3f}"),
         )
     return PublishDecision(publish=True, reason="publishable")
 

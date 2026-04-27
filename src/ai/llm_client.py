@@ -14,6 +14,7 @@ Providers are selected via env vars:
     LLM_PROVIDER=groq     LLM_MODEL=llama-3.3-70b-versatile  LLM_API_KEY=gsk_...  LLM_BASE_URL=https://api.groq.com/openai/v1
     LLM_PROVIDER=ollama   LLM_MODEL=gemma3:27b       LLM_API_KEY=ollama   LLM_BASE_URL=http://localhost:11434/v1
 """
+
 from __future__ import annotations
 
 from openai import OpenAI
@@ -98,12 +99,12 @@ def llm_chat(
 
     message = response.choices[0].message
     content = message.content or ""
-    
+
     # Handle deep-thinking/reasoning content if returned by the provider (e.g. DeepSeek, NVIDIA, OpenAI o1)
     reasoning = getattr(message, "reasoning_content", None)
     if reasoning:
         logger.info("Retrieved reasoning content from %s", effective_model)
         # We log it but usually keep it separate from the final answer in RAG
         # Unless we want to prepend it: content = f"<think>\n{reasoning}\n</think>\n\n{content}"
-    
+
     return content

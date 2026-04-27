@@ -82,6 +82,8 @@ def compose_grounded_answer(state: dict[str, Any]) -> BotAnswer:
         confidence=confidence,
         fallback_used=fallback_used,
         needs_clarification=decision == "clarify",
-        clarification_question="Уточните, пожалуйста, по какому процессу нужен ответ?" if decision == "clarify" else None,
+        clarification_question="Уточните, пожалуйста, по какому процессу нужен ответ?"
+        if decision == "clarify"
+        else None,
         sources=sources,
     )

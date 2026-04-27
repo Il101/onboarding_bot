@@ -128,6 +128,7 @@ def test_users_page_requires_auth(client):
 
 def test_users_page_renders(admin_client, db_session):
     from datetime import datetime
+
     users = [MagicMock(user_id=12345, role="employee", created_at=datetime.utcnow())]
     db_session.query.return_value.order_by.return_value.all.return_value = users
 
@@ -187,6 +188,7 @@ def test_delete_user_not_found(admin_client, db_session):
 
 def test_telegram_user_model_importable():
     from src.models.telegram_user import TelegramUser, UserRole
+
     assert hasattr(TelegramUser, "user_id")
     assert hasattr(TelegramUser, "role")
     assert hasattr(UserRole, "ADMIN")
@@ -292,7 +294,9 @@ def test_admin_sources_list_returns_html(admin_client, db_session):
 def _make_knowledge_item(item_id=1, fact="Test fact", topic="Test topic", confidence=0.8, status=None):
     """Helper to create a mock KnowledgeItem for tests."""
     from datetime import datetime
+
     from src.models.knowledge_item import KnowledgeStatus as KS
+
     item = MagicMock()
     item.id = item_id
     item.fact = fact
@@ -346,6 +350,7 @@ def test_knowledge_page_renders_with_items(admin_client, db_session):
 
 def test_knowledge_filter_by_status(admin_client, db_session):
     from src.models.knowledge_item import KnowledgeStatus as KS
+
     pending_item = _make_knowledge_item(1, status=KS.PENDING)
     _setup_knowledge_query(db_session, [pending_item], total=1, status_counts=[1, 1, 1, 0, 0])
     response = admin_client.get("/api/admin/knowledge?status=pending")
@@ -361,6 +366,7 @@ def test_knowledge_filter_by_topic(admin_client, db_session):
 
 def test_knowledge_approve_changes_status(admin_client, db_session):
     from src.models.knowledge_item import KnowledgeStatus as KS
+
     item = _make_knowledge_item(1, status=KS.PENDING)
     db_session.query.return_value.filter.return_value.all.return_value = [item]
     response = admin_client.post("/api/admin/knowledge/approve", data={"item_ids": [1]})
@@ -370,6 +376,7 @@ def test_knowledge_approve_changes_status(admin_client, db_session):
 
 def test_knowledge_reject_changes_status(admin_client, db_session):
     from src.models.knowledge_item import KnowledgeStatus as KS
+
     item = _make_knowledge_item(1, status=KS.PENDING)
     db_session.query.return_value.filter.return_value.all.return_value = [item]
     response = admin_client.post("/api/admin/knowledge/reject", data={"item_ids": [1]})
@@ -414,12 +421,22 @@ def test_knowledge_pagination_returns_limited_items(admin_client, db_session):
 # --- ADM-07: Analytics dashboard tests ---
 
 
-def _setup_analytics_mock(db_session, knowledge_total=0, knowledge_published=0,
-                           knowledge_pending=0, knowledge_rejected=0,
-                           avg_rating_row=None, total_feedback=0,
-                           active_users=0, popular_questions=None,
-                           ingest_completed=0, ingest_failed=0, ingest_total=0,
-                           pdf_count=0, telegram_count=0):
+def _setup_analytics_mock(
+    db_session,
+    knowledge_total=0,
+    knowledge_published=0,
+    knowledge_pending=0,
+    knowledge_rejected=0,
+    avg_rating_row=None,
+    total_feedback=0,
+    active_users=0,
+    popular_questions=None,
+    ingest_completed=0,
+    ingest_failed=0,
+    ingest_total=0,
+    pdf_count=0,
+    telegram_count=0,
+):
     """Set up mock db_session for analytics endpoint with configurable return values."""
     if popular_questions is None:
         popular_questions = []
@@ -438,20 +455,22 @@ def _setup_analytics_mock(db_session, knowledge_total=0, knowledge_published=0,
     # 11. pdf_count (filter)
     # 12. telegram_count (filter)
 
-    scalar_values = iter([
-        knowledge_total,
-        knowledge_published,
-        knowledge_pending,
-        knowledge_rejected,
-        avg_rating_row,
-        total_feedback,
-        active_users,
-        ingest_completed,
-        ingest_failed,
-        ingest_total,
-        pdf_count,
-        telegram_count,
-    ])
+    scalar_values = iter(
+        [
+            knowledge_total,
+            knowledge_published,
+            knowledge_pending,
+            knowledge_rejected,
+            avg_rating_row,
+            total_feedback,
+            active_users,
+            ingest_completed,
+            ingest_failed,
+            ingest_total,
+            pdf_count,
+            telegram_count,
+        ]
+    )
 
     def next_scalar(*args, **kwargs):
         try:
@@ -484,8 +503,7 @@ def test_analytics_page_renders(admin_client, db_session):
     """Analytics page loads with 200 and contains expected metric labels."""
     db_session.query.return_value.scalar.return_value = 0
     db_session.query.return_value.filter.return_value.scalar.return_value = 0
-    db_session.query.return_value.filter.return_value.group_by.return_value \
-        .order_by.return_value.limit.return_value.all.return_value = []
+    db_session.query.return_value.filter.return_value.group_by.return_value.order_by.return_value.limit.return_value.all.return_value = []
 
     response = admin_client.get("/api/admin/analytics")
     assert response.status_code == 200
@@ -508,8 +526,7 @@ def test_analytics_shows_knowledge_counts(admin_client, db_session):
 
     db_session.query.return_value.scalar.side_effect = next_scalar
     db_session.query.return_value.filter.return_value.scalar.return_value = 0
-    db_session.query.return_value.filter.return_value.group_by.return_value \
-        .order_by.return_value.limit.return_value.all.return_value = []
+    db_session.query.return_value.filter.return_value.group_by.return_value.order_by.return_value.limit.return_value.all.return_value = []
 
     response = admin_client.get("/api/admin/analytics")
     assert response.status_code == 200
@@ -543,8 +560,7 @@ def test_analytics_handles_empty_data_gracefully(admin_client, db_session):
     """Dashboard renders without errors when all tables are empty (None from queries)."""
     db_session.query.return_value.scalar.return_value = None
     db_session.query.return_value.filter.return_value.scalar.return_value = None
-    db_session.query.return_value.filter.return_value.group_by.return_value \
-        .order_by.return_value.limit.return_value.all.return_value = []
+    db_session.query.return_value.filter.return_value.group_by.return_value.order_by.return_value.limit.return_value.all.return_value = []
 
     response = admin_client.get("/api/admin/analytics")
     assert response.status_code == 200
@@ -562,8 +578,7 @@ def test_analytics_shows_ingest_stats(admin_client, db_session):
     """Ingest stats section is present in the dashboard."""
     db_session.query.return_value.scalar.return_value = 0
     db_session.query.return_value.filter.return_value.scalar.return_value = 0
-    db_session.query.return_value.filter.return_value.group_by.return_value \
-        .order_by.return_value.limit.return_value.all.return_value = []
+    db_session.query.return_value.filter.return_value.group_by.return_value.order_by.return_value.limit.return_value.all.return_value = []
 
     response = admin_client.get("/api/admin/analytics")
     assert response.status_code == 200
@@ -574,8 +589,7 @@ def test_analytics_shows_active_users_section(admin_client, db_session):
     """Active users metric card is present in the dashboard."""
     db_session.query.return_value.scalar.return_value = 0
     db_session.query.return_value.filter.return_value.scalar.return_value = 0
-    db_session.query.return_value.filter.return_value.group_by.return_value \
-        .order_by.return_value.limit.return_value.all.return_value = []
+    db_session.query.return_value.filter.return_value.group_by.return_value.order_by.return_value.limit.return_value.all.return_value = []
 
     response = admin_client.get("/api/admin/analytics")
     assert response.status_code == 200

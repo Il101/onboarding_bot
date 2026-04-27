@@ -1,4 +1,5 @@
 from celery import Celery
+
 from src.core.config import settings
 
 celery_app = Celery("vbrain", broker=settings.redis_url, backend=settings.redis_url)
@@ -10,5 +11,5 @@ celery_app.conf.update(
     result_serializer="json",
     timezone="UTC",
     enable_utc=True,
-    task_always_eager=False, # We use Docker Redis
+    task_always_eager=False,  # We use Docker Redis
 )

@@ -34,13 +34,20 @@ def test_ingest_telegram_pipeline_order(
     mock_filter.return_value = [msg]
     mock_chunk.return_value = [{"text": "чанк", "metadata": {"source_type": "telegram"}}]
     mock_embedder = MagicMock()
-    mock_embedder.embed_batch.return_value = ([SimpleNamespace(tolist=lambda: [0.1] * 1024)], [SimpleNamespace(indices=[1], values=[0.5])])
+    mock_embedder.embed_batch.return_value = (
+        [SimpleNamespace(tolist=lambda: [0.1] * 1024)],
+        [SimpleNamespace(indices=[1], values=[0.5])],
+    )
     mock_embedder_cls.return_value = mock_embedder
     mock_store = MagicMock()
     mock_store.upsert_chunks.return_value = 1
     mock_store_cls.return_value = mock_store
 
-    with patch.object(ingest_telegram, "update_state", return_value=None):
+    with (
+        patch("src.tasks.ingest.extract_knowledge_task") as mock_extract_task,
+        patch.object(ingest_telegram, "update_state", return_value=None),
+    ):
+        mock_extract_task.delay.return_value = MagicMock()
         result = ingest_telegram.run(source_id="test", json_path="/tmp/test.json", voice_dir="/tmp/voices")
     assert result["status"] == "completed"
     mock_parse.assert_called_once()
@@ -53,7 +60,9 @@ def test_ingest_telegram_pipeline_order(
 @patch("src.tasks.ingest.Embedder")
 @patch("src.tasks.ingest.QdrantStore")
 @patch("src.tasks.ingest.QdrantClient")
-def test_ingest_pdf_pipeline(mock_qdrant_client, mock_store_cls, mock_embedder_cls, mock_chunk, mock_anonymize, mock_parse):
+def test_ingest_pdf_pipeline(
+    mock_qdrant_client, mock_store_cls, mock_embedder_cls, mock_chunk, mock_anonymize, mock_parse
+):
     from src.tasks.ingest import ingest_pdf
 
     mock_parse.return_value = "# PDF Content"
@@ -69,7 +78,11 @@ def test_ingest_pdf_pipeline(mock_qdrant_client, mock_store_cls, mock_embedder_c
     mock_store.upsert_chunks.return_value = 2
     mock_store_cls.return_value = mock_store
 
-    with patch.object(ingest_pdf, "update_state", return_value=None):
+    with (
+        patch("src.tasks.ingest.extract_knowledge_task") as mock_extract_task,
+        patch.object(ingest_pdf, "update_state", return_value=None),
+    ):
+        mock_extract_task.delay.return_value = MagicMock()
         result = ingest_pdf.run(source_id="test", file_path="/tmp/test.pdf")
     assert result["status"] == "completed"
 
@@ -111,13 +124,20 @@ def test_pii_before_filter_enforced(
     mock_transcribe.side_effect = lambda m, d, c=None: m
     mock_chunk.return_value = [{"text": "x", "metadata": {"source_type": "telegram"}}]
     mock_embedder = MagicMock()
-    mock_embedder.embed_batch.return_value = ([SimpleNamespace(tolist=lambda: [0.1] * 1024)], [SimpleNamespace(indices=[1], values=[0.5])])
+    mock_embedder.embed_batch.return_value = (
+        [SimpleNamespace(tolist=lambda: [0.1] * 1024)],
+        [SimpleNamespace(indices=[1], values=[0.5])],
+    )
     mock_embedder_cls.return_value = mock_embedder
     mock_store = MagicMock()
     mock_store.upsert_chunks.return_value = 1
     mock_store_cls.return_value = mock_store
 
-    with patch.object(ingest_telegram, "update_state", return_value=None):
+    with (
+        patch("src.tasks.ingest.extract_knowledge_task") as mock_extract_task,
+        patch.object(ingest_telegram, "update_state", return_value=None),
+    ):
+        mock_extract_task.delay.return_value = MagicMock()
         ingest_telegram.run(source_id="s1", json_path="/tmp/a.json", voice_dir="/tmp")
     assert calls.index("anonymize") < calls.index("filter")
 

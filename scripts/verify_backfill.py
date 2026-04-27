@@ -9,7 +9,6 @@ from datetime import date
 from pathlib import Path
 from typing import Iterable
 
-
 REQUIRED_FRONTMATTER_KEYS = {
     "phase",
     "status",
@@ -251,9 +250,7 @@ def validate_phase(
     if strict_schema:
         missing_keys = sorted(REQUIRED_FRONTMATTER_KEYS - set(frontmatter))
         if missing_keys:
-            errors.append(
-                f"{verification_file}: Missing required frontmatter keys: {', '.join(missing_keys)}"
-            )
+            errors.append(f"{verification_file}: Missing required frontmatter keys: {', '.join(missing_keys)}")
         if header != REQUIRED_TABLE_COLUMNS:
             errors.append(f"{verification_file}: Missing strict requirements table with required columns")
         if not rows:
@@ -277,9 +274,7 @@ def validate_phase(
         if assert_resolvable_anchors and row.summary_ref != "-":
             parsed = parse_summary_ref(row.summary_ref)
             if parsed is None:
-                errors.append(
-                    f"{verification_file}: summary_ref for {row.requirement_id} must use path#anchor format"
-                )
+                errors.append(f"{verification_file}: summary_ref for {row.requirement_id} must use path#anchor format")
             else:
                 summary_path_str, anchor = parsed
                 summary_path = root / summary_path_str

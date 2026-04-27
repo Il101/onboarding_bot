@@ -21,8 +21,8 @@ class KnowledgeItem(Base):
     topic: Mapped[str] = mapped_column(String(256))
     confidence: Mapped[float] = mapped_column(Float)
     source_refs: Mapped[str] = mapped_column(Text, default="[]")  # JSON string of SourceRef[]
-    status: Mapped[KnowledgeStatus] = mapped_column(
-        Enum(KnowledgeStatus), default=KnowledgeStatus.PENDING
-    )
+    status: Mapped[KnowledgeStatus] = mapped_column(Enum(KnowledgeStatus), default=KnowledgeStatus.PENDING)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(UTC))
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC)
+    )

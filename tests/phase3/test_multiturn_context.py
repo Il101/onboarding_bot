@@ -1,5 +1,5 @@
-import pytest
 import httpx
+import pytest
 
 
 @pytest.mark.asyncio
@@ -87,10 +87,7 @@ def test_summarize_never_removes_latest_user_message():
         ],
     }
     updated = summarize_history_if_needed(state, max_messages=2, max_tokens=10)
-    assert any(
-        msg["role"] == "user" and msg["content"] == "А что с доступом сегодня?"
-        for msg in updated["messages"]
-    )
+    assert any(msg["role"] == "user" and msg["content"] == "А что с доступом сегодня?" for msg in updated["messages"])
 
 
 @pytest.mark.asyncio

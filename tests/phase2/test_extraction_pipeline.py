@@ -1,7 +1,5 @@
 from unittest.mock import patch
 
-import pytest
-
 
 def _chunks():
     return [
@@ -60,9 +58,7 @@ def test_single_fact_invariant_one_unit_per_atomic_fact():
                 "fact": "Откройте CRM",
                 "topic": "CRM",
                 "confidence": 0.91,
-                "source_refs": [
-                    {"source_id": "src1", "excerpt": "Откройте CRM", "timestamp": "2026-04-12T11:00:00"}
-                ],
+                "source_refs": [{"source_id": "src1", "excerpt": "Откройте CRM", "timestamp": "2026-04-12T11:00:00"}],
             }
         ]
     ]

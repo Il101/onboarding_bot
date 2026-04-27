@@ -17,10 +17,7 @@ def test_long_text_multiple_chunks():
 
 
 def test_overlap_between_chunks():
-    text = (
-        "Первое предложение. Второе. Третье. Четвёртое. Пятое. "
-        "Шестое. Седьмое. Восьмое. Девятое. Десятое. "
-    ) * 15
+    text = ("Первое предложение. Второе. Третье. Четвёртое. Пятое. Шестое. Седьмое. Восьмое. Девятое. Десятое. ") * 15
     chunks = chunk_text(text, overlap_sentences=1)
     if len(chunks) > 1:
         tail_sentence = chunks[0].split(".")[-2].strip()

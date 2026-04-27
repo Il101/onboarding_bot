@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
 from fastapi import APIRouter
+from pydantic import BaseModel, Field
 
 from src.ai.rag.retriever import HybridRetriever
 from src.ai.rag.synthesizer import synthesize_answer

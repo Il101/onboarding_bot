@@ -4,7 +4,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -45,10 +44,10 @@ def test_roadmap_progress_reconciled_for_completed_phases() -> None:
 def test_milestone_audit_no_longer_reports_phase_1_to_4_orphaned_requirements() -> None:
     audit = (ROOT / ".planning" / "v1-MILESTONE-AUDIT.md").read_text(encoding="utf-8")
 
-    assert "id: \"ING-01..ING-06, KNW-01..KNW-04, BOT-01..BOT-04\"" not in audit
-    assert "| VERIFICATION.md per phase | Present for phases 1-4 |" in audit
-    assert "No-orphaned assertion for phases 1-4 passes" in audit
-    assert "requirements: 14/22" in audit
+    assert 'id: "ING-01..ING-06, KNW-01..KNW-04, BOT-01..BOT-04"' not in audit
+    assert "| VERIFICATION.md per phase | Present for phases 1-5 |" in audit
+    assert "No-orphaned assertion for phases 1-5 passes" in audit
+    assert "requirements: 15/22" in audit
 
 
 def test_verify_backfill_no_orphaned_assertion_for_phases_1_to_4_passes() -> None:

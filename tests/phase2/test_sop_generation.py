@@ -41,7 +41,12 @@ def test_sop_markdown_has_fixed_ordered_sections():
     assert "## Шаги" in markdown
     assert "## Исключения" in markdown
     assert "## Проверка результата" in markdown
-    assert markdown.index("## Цель") < markdown.index("## Шаги") < markdown.index("## Исключения") < markdown.index("## Проверка результата")
+    assert (
+        markdown.index("## Цель")
+        < markdown.index("## Шаги")
+        < markdown.index("## Исключения")
+        < markdown.index("## Проверка результата")
+    )
 
 
 def test_generator_does_not_emit_freeform_without_required_sections():

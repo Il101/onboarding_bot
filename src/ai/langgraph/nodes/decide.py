@@ -29,7 +29,9 @@ def _has_source_conflict(sources: list[dict[str, Any]]) -> bool:
     return bool(first_excerpt and second_excerpt and first_excerpt != second_excerpt and first_ts != second_ts)
 
 
-def decide_next_action(state: dict[str, Any]) -> Literal["deny", "offtopic", "fallback", "clarify", "conflict", "answer"]:
+def decide_next_action(
+    state: dict[str, Any],
+) -> Literal["deny", "offtopic", "fallback", "clarify", "conflict", "answer"]:
     if not bool(state.get("authorized", False)):
         return "deny"
 

@@ -1,4 +1,3 @@
-
 def test_retriever_defaults_to_hybrid_mode():
     from src.ai.rag.retriever import HybridRetriever
 

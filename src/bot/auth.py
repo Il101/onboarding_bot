@@ -35,7 +35,7 @@ def authorize_telegram_user(user_id: int | str) -> AuthDecision:
     if role is None:
         logger.warning("Auth failed: user %s not in whitelist (Settings.telegram_user_roles)", normalized_user_id)
         return AuthDecision(allowed=False, reason="not_whitelisted", role="")
-    
+
     decision = is_authorized_role(role)
     if not decision.allowed:
         logger.warning("Auth failed: user %s has role %s which is not allowed", normalized_user_id, role)

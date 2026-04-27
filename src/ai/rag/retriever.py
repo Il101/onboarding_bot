@@ -11,11 +11,16 @@ from src.pipeline.indexer.qdrant_store import QdrantStore
 class HybridRetriever:
     def __init__(self, index=None, *, embedder: Embedder | None = None):
         self.index = index or QdrantStore(QdrantClient(host=settings.qdrant_host, port=settings.qdrant_port))
-        self.embedder = embedder or Embedder(
-            dense_model=settings.dense_model_name,
-            sparse_model=settings.sparse_model_name,
-        )
+        self.embedder = embedder
         self.query_mode = "hybrid"
+
+    def _get_embedder(self) -> Embedder:
+        if self.embedder is None:
+            self.embedder = Embedder(
+                dense_model=settings.dense_model_name,
+                sparse_model=settings.sparse_model_name,
+            )
+        return self.embedder
 
     def retrieve(self, query: str, *, candidates: list[dict] | None = None) -> list[dict]:
         if candidates is not None:
@@ -25,7 +30,7 @@ class HybridRetriever:
             return []
 
         try:
-            dense_vectors, _ = self.embedder.embed_batch([query])
+            dense_vectors, _ = self._get_embedder().embed_batch([query])
             query_vector = dense_vectors[0].tolist()
             result = self.index.client.query_points(
                 collection_name=self.index.COLLECTION_NAME,

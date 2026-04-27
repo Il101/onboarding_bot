@@ -11,7 +11,7 @@ from src.ai.langgraph.nodes.decide import LOCKED_FALLBACK_TEXT, decide_next_acti
 from src.ai.langgraph.nodes.retrieve_phase2 import retrieve_phase2_payload
 from src.ai.langgraph.nodes.summarize import summarize_history_if_needed
 from src.ai.langgraph.state import BotAnswer, SourceRef
-from src.bot.auth import authorize_telegram_user
+from src.bot.auth import authorize_telegram_user, is_authorized_role
 from src.core.config import settings
 from src.core.logging import get_logger
 
@@ -96,8 +96,15 @@ def build_graph():
     workflow = StateGraph(GraphState)
 
     def auth_node(state: GraphState) -> dict[str, Any]:
+        if "authorized" in state:
+            return {"authorized": bool(state.get("authorized")), "role": str(state.get("role", ""))}
+
+        role_decision = is_authorized_role(str(state.get("role", "")))
+        if role_decision.allowed:
+            return {"authorized": True, "role": role_decision.role}
+
         decision = authorize_telegram_user(state.get("user_id", ""))
-        return {"authorized": decision.allowed, "role": decision.role}
+        return {"authorized": decision.allowed, "role": decision.role or role_decision.role}
 
     async def retrieve_node(state: GraphState) -> dict[str, Any]:
         try:
@@ -129,7 +136,11 @@ def build_graph():
 
     def clarify_node(state: GraphState) -> dict[str, Any]:
         result = compose_grounded_answer({"decision": "clarify", "rag_payload": state.get("rag_payload", {})})
-        return {"decision": "clarify", "result": result, "clarify_turns_used": int(state.get("clarify_turns_used", 0)) + 1}
+        return {
+            "decision": "clarify",
+            "result": result,
+            "clarify_turns_used": int(state.get("clarify_turns_used", 0)) + 1,
+        }
 
     def answer_node(state: GraphState) -> dict[str, Any]:
         result = compose_grounded_answer({"decision": "answer", "rag_payload": state.get("rag_payload", {})})

@@ -117,7 +117,11 @@ def test_extract_task_indexes_only_publishable_units():
 
     from unittest.mock import patch
 
-    with patch.object(extract_knowledge_task, "update_state", return_value=None):
+    with (
+        patch("src.tasks.knowledge.generate_sop_task") as mock_sop_task,
+        patch.object(extract_knowledge_task, "update_state", return_value=None),
+    ):
+        mock_sop_task.delay.return_value = None
         result = extract_knowledge_task.run(
             source_id="src1",
             chunks=chunks,
