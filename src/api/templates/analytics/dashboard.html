@@ -32,7 +32,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Average Rating -->
         <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="mb-4">Average answer rating</h3>
+            <h3 class="mb-4">Average rating</h3>
             <div class="flex items-center gap-4">
                 <div class="text-4xl font-bold text-gray-900">
                     {% if avg_rating is not none %}{{ "%.1f"|format(avg_rating * 100) }}%{% else %}N/A{% endif %}

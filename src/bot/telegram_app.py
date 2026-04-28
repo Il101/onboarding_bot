@@ -39,7 +39,7 @@ def _feedback_keyboard() -> InlineKeyboardMarkup:
 
 def _safe_error_answer() -> BotAnswer:
     return BotAnswer(
-        answer="Unable to process your request. Please try again or ask a colleague.",
+        answer="Unable to process the request. Please try again or ask a colleague.",
         confidence=0.0,
         fallback_used=True,
         sources=[

@@ -56,7 +56,12 @@ def anonymize_text(text: str, analyzer: AnalyzerEngine, anonymizer: AnonymizerEn
     }
     prioritized = sorted(
         results,
-        key=lambda r: (r.start, -(r.end - r.start), -entity_priority.get(r.entity_type, 0), -r.score),
+        key=lambda r: (
+            -entity_priority.get(r.entity_type, 0),
+            -r.score,
+            (r.end - r.start),
+            r.start,
+        ),
     )
     selected = []
     occupied = []

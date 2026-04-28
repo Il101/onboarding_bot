@@ -61,7 +61,7 @@ def compose_grounded_answer(state: dict[str, Any]) -> BotAnswer:
         answer_core = "Access restricted: this bot is available only to company employees."
         fallback_used = True
     elif decision == "offtopic":
-        answer_core = "I can help only with work-related questions. Please provide a work task."
+        answer_core = "I answer only work-related questions. Please provide a work task."
         fallback_used = True
     elif decision == "clarify":
         answer_core = "Please clarify which process you need help with."
