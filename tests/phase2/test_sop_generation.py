@@ -5,16 +5,16 @@ def _grouped_units():
     from src.ai.extraction.schemas import KnowledgeUnit
 
     return {
-        "Оплаты": [
+        "Payments": [
             KnowledgeUnit.model_validate(
                 {
-                    "fact": "Проверить статус оплаты в CRM",
-                    "topic": "Оплаты",
+                    "fact": "Check payment status in CRM",
+                    "topic": "Payments",
                     "confidence": 0.9,
                     "source_refs": [
                         {
                             "source_id": "telegram:ops",
-                            "excerpt": "Проверь статус оплаты в CRM",
+                            "excerpt": "Check payment status in CRM",
                             "timestamp": "2026-04-12T11:00:00",
                         }
                     ],
@@ -22,10 +22,10 @@ def _grouped_units():
             ),
             KnowledgeUnit.model_validate(
                 {
-                    "fact": "Если статус pending > 24ч, эскалировать в финансы",
-                    "topic": "Оплаты",
+                    "fact": "If status is pending >24h, escalate to finance",
+                    "topic": "Payments",
                     "confidence": 0.82,
-                    "source_refs": [{"source_id": "pdf:guide", "excerpt": "эскалировать", "page": 4}],
+                    "source_refs": [{"source_id": "pdf:guide", "excerpt": "escalate", "page": 4}],
                 }
             ),
         ]
@@ -35,33 +35,33 @@ def _grouped_units():
 def test_sop_markdown_has_fixed_ordered_sections():
     from src.ai.sop.generator import generate_sop_for_topic
 
-    result = generate_sop_for_topic("Оплаты", _grouped_units()["Оплаты"])
+    result = generate_sop_for_topic("Payments", _grouped_units()["Payments"])
     markdown = result["markdown"]
-    assert "## Цель" in markdown
-    assert "## Шаги" in markdown
-    assert "## Исключения" in markdown
-    assert "## Проверка результата" in markdown
+    assert "## Goal" in markdown
+    assert "## Steps" in markdown
+    assert "## Exceptions" in markdown
+    assert "## Verification" in markdown
     assert (
-        markdown.index("## Цель")
-        < markdown.index("## Шаги")
-        < markdown.index("## Исключения")
-        < markdown.index("## Проверка результата")
+        markdown.index("## Goal")
+        < markdown.index("## Steps")
+        < markdown.index("## Exceptions")
+        < markdown.index("## Verification")
     )
 
 
 def test_generator_does_not_emit_freeform_without_required_sections():
     from src.ai.sop.generator import generate_sop_for_topic
 
-    result = generate_sop_for_topic("Оплаты", _grouped_units()["Оплаты"])
+    result = generate_sop_for_topic("Payments", _grouped_units()["Payments"])
     markdown = result["markdown"]
-    for header in ["## Цель", "## Шаги", "## Исключения", "## Проверка результата"]:
+    for header in ["## Goal", "## Steps", "## Exceptions", "## Verification"]:
         assert header in markdown
 
 
 def test_sop_includes_attribution_source_excerpt_and_locator():
     from src.ai.sop.generator import generate_sop_for_topic
 
-    result = generate_sop_for_topic("Оплаты", _grouped_units()["Оплаты"])
+    result = generate_sop_for_topic("Payments", _grouped_units()["Payments"])
     sources = result["sources"]
     assert len(sources) == 2
     assert all(source.source_id for source in sources)
@@ -72,7 +72,7 @@ def test_sop_includes_attribution_source_excerpt_and_locator():
 def test_insufficient_input_returns_non_generation_result():
     from src.ai.sop.generator import generate_sop_for_topic
 
-    result = generate_sop_for_topic("Оплаты", [])
+    result = generate_sop_for_topic("Payments", [])
     assert result["generated"] is False
     assert result["markdown"] is None
 

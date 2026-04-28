@@ -54,8 +54,8 @@ async def test_start_unauthorized_returns_deny_and_skips_graph(monkeypatch):
     graph.ainvoke.assert_not_awaited()
     upd.message.reply_text.assert_awaited()
     sent_text = upd.message.reply_text.await_args.kwargs["text"]
-    assert "Доступ ограничен" in sent_text
-    assert "Источники" in sent_text
+    assert "Access restricted" in sent_text
+    assert "Sources" in sent_text
 
 
 @pytest.mark.asyncio
@@ -65,16 +65,16 @@ async def test_authorized_message_invokes_graph_with_thread_id_and_sends_formatt
 
     graph_result = {
         "result": BotAnswer(
-            answer="1. Откройте CRM",
+            answer="1. Open CRM",
             confidence=0.84,
             fallback_used=False,
-            sources=[SourceRef(source_id="doc:crm", excerpt="CRM инструкция", timestamp="2026-04-10T00:00:00")],
+            sources=[SourceRef(source_id="doc:crm", excerpt="CRM instructions", timestamp="2026-04-10T00:00:00")],
         )
     }
     graph = SimpleNamespace(ainvoke=AsyncMock(return_value=graph_result))
     ctx = SimpleNamespace(application=SimpleNamespace(bot_data={"graph": graph}))
     upd = _update(user_id=200)
-    upd.message.text = "Как оформить доступ?"
+    upd.message.text = "How do I request access?"
 
     monkeypatch.setattr(
         "src.bot.telegram_app.authorize_telegram_user",
@@ -96,7 +96,7 @@ async def test_authorized_message_invokes_graph_with_thread_id_and_sends_formatt
     assert kwargs["config"]["configurable"]["thread_id"] == "tg:100:200"
     sent_kwargs = upd.message.reply_text.await_args.kwargs
     sent_text = sent_kwargs["text"]
-    assert "Источники" in sent_text
+    assert "Sources" in sent_text
     reply_markup = sent_kwargs["reply_markup"]
     rows = getattr(reply_markup, "inline_keyboard", [])
     callback_data = [btn.callback_data for row in rows for btn in row]
@@ -121,7 +121,7 @@ async def test_unauthorized_role_short_circuits_before_retrieve(monkeypatch):
     )
     graph = build_graph()
     result = await graph.ainvoke(
-        {"role": derived_role, "query": "Как оформить доступ?", "user_id": unauthorized_user_id, "chat_id": "11"},
+        {"role": derived_role, "query": "How do I request access?", "user_id": unauthorized_user_id, "chat_id": "11"},
         config={"configurable": {"thread_id": f"tg:11:{unauthorized_user_id}"}},
     )
     assert result["decision"] == "deny"
@@ -134,7 +134,7 @@ async def test_handler_error_path_returns_safe_russian_message(monkeypatch):
     graph = SimpleNamespace(ainvoke=AsyncMock(side_effect=RuntimeError("traceback internal secret")))
     ctx = SimpleNamespace(application=SimpleNamespace(bot_data={"graph": graph}))
     upd = _update()
-    upd.message.text = "Как оформить доступ?"
+    upd.message.text = "How do I request access?"
     monkeypatch.setattr(
         "src.bot.telegram_app.authorize_telegram_user",
         lambda _user_id: SimpleNamespace(allowed=True, reason="allowed", role="employee"),
@@ -143,5 +143,5 @@ async def test_handler_error_path_returns_safe_russian_message(monkeypatch):
     await handle_message(upd, ctx)
 
     sent_text = upd.message.reply_text.await_args.kwargs["text"]
-    assert "Не удалось обработать запрос" in sent_text
+    assert "Unable to process the request" in sent_text
     assert "traceback" not in sent_text.lower()

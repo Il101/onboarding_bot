@@ -21,7 +21,7 @@ def _coerce_sources(raw_sources: list[dict[str, Any]] | None, *, fallback_source
     return [
         SourceRef(
             source_id=fallback_source_id,
-            excerpt="Источник недоступен, ответ ограничен политикой.",
+            excerpt="Source unavailable; response constrained by policy.",
             timestamp=datetime.now(UTC).isoformat(timespec="seconds"),
         )
     ]
@@ -29,17 +29,17 @@ def _coerce_sources(raw_sources: list[dict[str, Any]] | None, *, fallback_source
 
 def _render_sources_block(sources: list[SourceRef]) -> str:
     rows = "\n".join(f"- {item.source_id}: {item.excerpt}" for item in sources)
-    return f"Источники:\n{rows}"
+    return f"Sources:\n{rows}"
 
 
 def _format_step_answer(base_text: str) -> str:
-    base = base_text.strip() or "Действуйте по регламенту команды."
+    base = base_text.strip() or "Follow the team playbook."
     return "\n".join(
         [
-            "1. Уточните цель обращения и ожидаемый результат.",
-            "2. Откройте внутренний регламент и найдите нужный раздел.",
-            "3. Выполните шаги регламента последовательно без пропусков.",
-            f"4. Сверьте результат с инструкцией: {base}",
+            "1. Clarify the request goal and expected outcome.",
+            "2. Open the internal playbook and locate the relevant section.",
+            "3. Execute the steps sequentially without skipping.",
+            f"4. Validate the outcome against the guidance: {base}",
         ]
     )
 
@@ -58,19 +58,17 @@ def compose_grounded_answer(state: dict[str, Any]) -> BotAnswer:
         answer_core = LOCKED_FALLBACK_TEXT
         fallback_used = True
     elif decision == "deny":
-        answer_core = "Доступ ограничен: бот доступен только сотрудникам компании."
+        answer_core = "Access restricted: this bot is available only to company employees."
         fallback_used = True
     elif decision == "offtopic":
-        answer_core = "Я помогаю только по рабочим вопросам. Сформулируйте рабочую задачу, и я помогу по шагам."
+        answer_core = "I can help only with work-related questions. Please provide a work task."
         fallback_used = True
     elif decision == "clarify":
-        answer_core = "Уточните, пожалуйста, по какому процессу нужен ответ?"
+        answer_core = "Please clarify which process you need help with."
         fallback_used = False
     elif decision == "conflict":
         sources = _sort_sources_freshest_first(sources)
-        answer_core = (
-            "Обнаружен конфликт источников. Используйте более свежую инструкцию и согласуйте шаги с ответственным."
-        )
+        answer_core = "Source conflict detected. Use the newest instruction and confirm with the process owner."
         fallback_used = False
     else:
         answer_core = _format_step_answer(str(rag_payload.get("answer", "")))
@@ -82,7 +80,7 @@ def compose_grounded_answer(state: dict[str, Any]) -> BotAnswer:
         confidence=confidence,
         fallback_used=fallback_used,
         needs_clarification=decision == "clarify",
-        clarification_question="Уточните, пожалуйста, по какому процессу нужен ответ?"
+        clarification_question="Please clarify which process you need help with."
         if decision == "clarify"
         else None,
         sources=sources,

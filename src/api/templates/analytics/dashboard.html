@@ -1,38 +1,38 @@
 {% extends "base.html" %}
-{% block title %}Аналитика - V-Brain Admin{% endblock %}
+{% block title %}Analytics - V-Brain Admin{% endblock %}
 {% block content %}
 <div>
-    <h2 class="display mb-6">Аналитика</h2>
+    <h2 class="display mb-6">Analytics</h2>
 
     <!-- Top metric cards -->
     <div class="grid grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
         <div class="bg-white rounded-lg shadow p-6">
-            <div class="text-sm text-gray-500 mb-1">Всего знаний</div>
+            <div class="text-sm text-gray-500 mb-1">Total knowledge</div>
             <div class="text-3xl font-bold text-gray-900">{{ knowledge_total }}</div>
         </div>
         <div class="bg-white rounded-lg shadow p-6">
-            <div class="text-sm text-gray-500 mb-1">Опубликовано</div>
+            <div class="text-sm text-gray-500 mb-1">Published</div>
             <div class="text-3xl font-bold text-green-600">{{ knowledge_published }}</div>
         </div>
         <div class="bg-white rounded-lg shadow p-6">
-            <div class="text-sm text-gray-500 mb-1">На проверке</div>
+            <div class="text-sm text-gray-500 mb-1">Pending review</div>
             <div class="text-3xl font-bold text-yellow-600">{{ knowledge_pending }}</div>
         </div>
         <div class="bg-white rounded-lg shadow p-6">
-            <div class="text-sm text-gray-500 mb-1">Отклонено</div>
+            <div class="text-sm text-gray-500 mb-1">Rejected</div>
             <div class="text-3xl font-bold text-red-600">{{ knowledge_rejected }}</div>
         </div>
         <div class="bg-white rounded-lg shadow p-6">
-            <div class="text-sm text-gray-500 mb-1">Активные пользователи</div>
+            <div class="text-sm text-gray-500 mb-1">Active users</div>
             <div class="text-3xl font-bold text-blue-600">{{ active_users }}</div>
-            <div class="text-xs text-gray-400 mt-1">за последние 7 дней</div>
+            <div class="text-xs text-gray-400 mt-1">last 7 days</div>
         </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Average Rating -->
         <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="mb-4">Средняя оценка ответов</h3>
+            <h3 class="mb-4">Average answer rating</h3>
             <div class="flex items-center gap-4">
                 <div class="text-4xl font-bold text-gray-900">
                     {% if avg_rating is not none %}{{ "%.1f"|format(avg_rating * 100) }}%{% else %}N/A{% endif %}
@@ -42,7 +42,7 @@
                     <div class="w-32 bg-gray-200 rounded-full h-3">
                         <div class="bg-blue-600 h-3 rounded-full" style="width: {{ (avg_rating * 100)|int }}%"></div>
                     </div>
-                    <div class="text-xs text-gray-500 mt-1">{{ total_feedback }} оценок</div>
+                    <div class="text-xs text-gray-500 mt-1">{{ total_feedback }} ratings</div>
                 </div>
                 {% endif %}
             </div>
@@ -50,19 +50,19 @@
 
         <!-- Ingest Stats -->
         <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="mb-4">Обработка источников</h3>
+            <h3 class="mb-4">Source processing</h3>
             <div class="grid grid-cols-3 gap-4">
                 <div>
                     <div class="text-2xl font-bold text-gray-900">{{ ingest_total }}</div>
-                    <div class="text-xs text-gray-500">Всего задач</div>
+                    <div class="text-xs text-gray-500">Total jobs</div>
                 </div>
                 <div>
                     <div class="text-2xl font-bold text-green-600">{{ ingest_completed }}</div>
-                    <div class="text-xs text-gray-500">Завершено</div>
+                    <div class="text-xs text-gray-500">Completed</div>
                 </div>
                 <div>
                     <div class="text-2xl font-bold text-red-600">{{ ingest_failed }}</div>
-                    <div class="text-xs text-gray-500">Ошибок</div>
+                    <div class="text-xs text-gray-500">Failed</div>
                 </div>
             </div>
             {% if ingest_total > 0 %}
@@ -81,7 +81,7 @@
 
         <!-- Popular Questions -->
         <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="mb-4">Популярные вопросы</h3>
+            <h3 class="mb-4">Popular questions</h3>
             {% if popular_questions %}
             <div class="space-y-2">
                 {% for q in popular_questions %}
@@ -92,18 +92,18 @@
                 {% endfor %}
             </div>
             {% else %}
-            <p class="text-gray-500 text-sm">Нет данных о вопросах</p>
+            <p class="text-gray-500 text-sm">No question data available</p>
             {% endif %}
         </div>
 
         <!-- Knowledge Distribution -->
         <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="mb-4">Распределение знаний</h3>
+            <h3 class="mb-4">Knowledge distribution</h3>
             {% if knowledge_total > 0 %}
             <div class="space-y-3">
                 <div>
                     <div class="flex justify-between text-sm mb-1">
-                        <span class="text-gray-600">Опубликовано</span>
+                        <span class="text-gray-600">Published</span>
                         <span class="font-medium text-green-700">{{ knowledge_published }} ({{ ((knowledge_published / knowledge_total) * 100)|int }}%)</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2.5">
@@ -112,7 +112,7 @@
                 </div>
                 <div>
                     <div class="flex justify-between text-sm mb-1">
-                        <span class="text-gray-600">На проверке</span>
+                        <span class="text-gray-600">Pending review</span>
                         <span class="font-medium text-yellow-700">{{ knowledge_pending }} ({{ ((knowledge_pending / knowledge_total) * 100)|int }}%)</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2.5">
@@ -121,7 +121,7 @@
                 </div>
                 <div>
                     <div class="flex justify-between text-sm mb-1">
-                        <span class="text-gray-600">Отклонено</span>
+                        <span class="text-gray-600">Rejected</span>
                         <span class="font-medium text-red-700">{{ knowledge_rejected }} ({{ ((knowledge_rejected / knowledge_total) * 100)|int }}%)</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2.5">
@@ -130,7 +130,7 @@
                 </div>
             </div>
             {% else %}
-            <p class="text-gray-500 text-sm">Нет данных о знаниях</p>
+            <p class="text-gray-500 text-sm">No knowledge data available</p>
             {% endif %}
         </div>
     </div>

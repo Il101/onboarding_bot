@@ -29,9 +29,9 @@
             {% if item.status.value == 'published' %}bg-green-100 text-green-800
             {% elif item.status.value == 'pending' %}bg-yellow-100 text-yellow-800
             {% else %}bg-red-100 text-red-800{% endif %}">
-            {% if item.status.value == 'published' %}Опубликовано
-            {% elif item.status.value == 'pending' %}На проверке
-            {% else %}Отклонено{% endif %}
+            {% if item.status.value == 'published' %}Published
+            {% elif item.status.value == 'pending' %}Pending review
+            {% else %}Rejected{% endif %}
         </span>
     </td>
     <td class="py-3 px-4">
@@ -42,7 +42,7 @@
                     hx-target="#row-{{ item.id }}"
                     hx-swap="outerHTML"
                     class="p-1.5 text-green-600 hover:bg-green-50 rounded"
-                    title="Одобрить">
+                    title="Approve">
                 <i class="ti ti-check"></i>
             </button>
             <button hx-post="/api/admin/knowledge/reject"
@@ -50,7 +50,7 @@
                     hx-target="#row-{{ item.id }}"
                     hx-swap="outerHTML"
                     class="p-1.5 text-yellow-600 hover:bg-yellow-50 rounded"
-                    title="Отклонить">
+                    title="Reject">
                 <i class="ti ti-x"></i>
             </button>
             {% endif %}
@@ -60,15 +60,15 @@
                         document.getElementById('edit-item-id').value = {{ item.id }};
                     "
                     class="p-1.5 text-blue-600 hover:bg-blue-50 rounded"
-                    title="Редактировать">
+                    title="Edit">
                 <i class="ti ti-edit"></i>
             </button>
             <button hx-delete="/api/admin/knowledge/{{ item.id }}"
                     hx-target="#row-{{ item.id }}"
                     hx-swap="outerHTML"
-                    hx-confirm="Удалить это знание безвозвратно?"
+                    hx-confirm="Delete this knowledge item permanently?"
                     class="p-1.5 text-red-600 hover:bg-red-50 rounded"
-                    title="Удалить">
+                    title="Delete">
                 <i class="ti ti-trash"></i>
             </button>
         </div>

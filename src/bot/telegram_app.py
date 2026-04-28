@@ -39,13 +39,13 @@ def _feedback_keyboard() -> InlineKeyboardMarkup:
 
 def _safe_error_answer() -> BotAnswer:
     return BotAnswer(
-        answer="Не удалось обработать запрос. Попробуйте снова или обратитесь к коллеге.",
+        answer="Unable to process your request. Please try again or ask a colleague.",
         confidence=0.0,
         fallback_used=True,
         sources=[
             SourceRef(
                 source_id="policy:error",
-                excerpt="Внутренняя ошибка обработана безопасным ответом.",
+                excerpt="Internal error handled by safe response policy.",
                 timestamp="1970-01-01T00:00:00",
             )
         ],
@@ -73,7 +73,7 @@ async def handle_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         denied = build_access_denied_answer(reason=decision.reason)
         await update.message.reply_text(text=render_bot_message(denied))
         return
-    await update.message.reply_text(text="Бот готов. Задайте рабочий вопрос.")
+    await update.message.reply_text(text="Bot is ready. Ask a work-related question.")
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -130,15 +130,15 @@ async def handle_feedback_callback(update: Update, context: ContextTypes.DEFAULT
                 chat_id=chat_id,
                 answer_confidence=float(confidence),
             )
-        await query.answer(text="Спасибо за оценку!")
+        await query.answer(text="Thanks for your feedback!")
     except ValueError as exc:
         if str(exc) == "duplicate_feedback_callback":
-            await query.answer(text="Оценка уже учтена.")
+            await query.answer(text="Feedback already recorded.")
             return
-        await query.answer(text="Некорректный формат оценки.")
+        await query.answer(text="Invalid feedback format.")
     except Exception as exc:  # noqa: BLE001
         logger.error("telegram feedback handler failed: %s", exc)
-        await query.answer(text="Не удалось сохранить оценку.")
+        await query.answer(text="Unable to save feedback.")
 
 
 def build_application(

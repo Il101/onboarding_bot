@@ -44,7 +44,7 @@ def authorize_telegram_user(user_id: int | str) -> AuthDecision:
 
 def build_access_denied_answer(reason: str) -> BotAnswer:
     return BotAnswer(
-        answer="Доступ ограничен: бот доступен только сотрудникам компании.",
+        answer="Access restricted: this bot is available only to company employees.",
         confidence=1.0,
         fallback_used=True,
         sources=[

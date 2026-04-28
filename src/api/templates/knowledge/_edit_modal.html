@@ -4,7 +4,7 @@
      class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50"
      @click.self="$el.classList.add('hidden')">
     <div class="bg-white rounded-lg shadow-xl p-6 w-[500px]">
-        <h3 class="mb-4 font-semibold">Редактировать знание</h3>
+        <h3 class="mb-4 font-semibold">Edit knowledge item</h3>
         <form id="edit-form"
               @submit.prevent="
                   const id = document.getElementById('edit-item-id').value;
@@ -23,11 +23,11 @@
                 <button type="button"
                         @click="document.getElementById('edit-modal').classList.add('hidden')"
                         class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
-                    Отмена
+                    Cancel
                 </button>
                 <button type="submit"
                         class="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
-                    Сохранить
+                    Save
                 </button>
             </div>
         </form>

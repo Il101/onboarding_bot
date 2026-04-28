@@ -31,10 +31,10 @@ def generate_sop_for_topic(topic: str, units: list[KnowledgeUnit]) -> dict:
             "reason": "insufficient_publishable_units",
         }
 
-    goal = f"Выполнить процесс по теме '{topic}' на основе подтвержденных знаний."
+    goal = f"Execute the process for topic '{topic}' using validated knowledge."
     steps = [unit.fact for unit in units]
-    exceptions = [f"Если confidence < 0.7, отправить на ревью ({unit.fact})" for unit in units if unit.confidence < 0.7]
-    verification = ["Все шаги выполнены последовательно", "Результат подтвержден по источникам"]
+    exceptions = [f"If confidence < 0.7, send to review ({unit.fact})" for unit in units if unit.confidence < 0.7]
+    verification = ["All steps completed sequentially", "Outcome confirmed by sources"]
 
     markdown = render_sop(
         topic=topic,

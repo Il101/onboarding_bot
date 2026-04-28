@@ -6,7 +6,7 @@ NOISE_PATTERNS = [
     re.compile(r"^[+\-]$", re.IGNORECASE),
 ]
 
-NOISE_EXACT = {"ok", "oki", "ok!", "ok.", "ок", "спасибо", "spasibo", "thanks", "thx", "да", "привет", "+"}
+NOISE_EXACT = {"ok", "oki", "ok!", "ok.", "thanks", "thx", "yes", "hello", "+"}
 
 
 def is_noise(message_text: str, is_service: bool, is_bot: bool, author: str) -> bool:

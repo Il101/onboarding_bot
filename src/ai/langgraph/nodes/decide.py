@@ -4,18 +4,18 @@ from typing import Any, Literal
 
 from src.core.config import settings
 
-LOCKED_FALLBACK_TEXT = "Я не знаю — обратитесь к коллеге"
+LOCKED_FALLBACK_TEXT = "I don't know - please ask a colleague."
 
 
 def _is_offtopic(query: str) -> bool:
     normalized = query.strip().lower()
-    markers = {"анекдот", "погода", "фильм", "рецепт", "музык", "гороскоп"}
+    markers = {"joke", "weather", "movie", "recipe", "music", "horoscope"}
     return any(marker in normalized for marker in markers)
 
 
 def _is_ambiguous(query: str) -> bool:
     normalized = query.strip().lower()
-    return normalized.startswith("что делать") or len(normalized.split()) <= 2
+    return normalized.startswith("what should i do") or len(normalized.split()) <= 2
 
 
 def _has_source_conflict(sources: list[dict[str, Any]]) -> bool:

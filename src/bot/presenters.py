@@ -35,7 +35,7 @@ def render_sources_block(sources: list[Any], *, excerpt_max_len: int = 180) -> s
             {
                 "source_id": str(item.get("source_id", "")).strip() or "policy:source-empty",
                 "excerpt": _truncate_excerpt(
-                    str(item.get("excerpt", "")).strip() or "Источник не указан.",
+                    str(item.get("excerpt", "")).strip() or "Source not provided.",
                     max_len=excerpt_max_len,
                 ),
                 "score": float(item.get("score", 0.0) or 0.0),
@@ -46,12 +46,12 @@ def render_sources_block(sources: list[Any], *, excerpt_max_len: int = 180) -> s
     normalized.sort(key=lambda item: (item["score"], _parse_timestamp(item["timestamp"])), reverse=True)
     lines = [f"- {item['source_id']}: {item['excerpt']}" for item in normalized]
     if not lines:
-        lines = ["- policy:source-empty: Источник не указан."]
-    return "Источники:\n" + "\n".join(lines)
+        lines = ["- policy:source-empty: Source not provided."]
+    return "Sources:\n" + "\n".join(lines)
 
 
 def render_bot_message(answer: BotAnswer, *, excerpt_max_len: int = 180) -> str:
     body = str(answer.answer).strip()
-    if "\n\nИсточники:" in body:
-        body = body.split("\n\nИсточники:", 1)[0].strip()
+    if "\n\nSources:" in body:
+        body = body.split("\n\nSources:", 1)[0].strip()
     return f"{body}\n\n{render_sources_block(answer.sources, excerpt_max_len=excerpt_max_len)}"

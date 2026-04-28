@@ -25,7 +25,7 @@ def _msg(
 
 
 def test_service_is_noise():
-    assert is_noise("привет", is_service=True, is_bot=False, author="user")
+    assert is_noise("hello", is_service=True, is_bot=False, author="user")
 
 
 def test_bot_is_noise():
@@ -33,14 +33,14 @@ def test_bot_is_noise():
 
 
 def test_exact_noise_words():
-    assert is_noise("ок", is_service=False, is_bot=False, author="user")
-    assert is_noise("спасибо", is_service=False, is_bot=False, author="user")
+    assert is_noise("ok", is_service=False, is_bot=False, author="user")
+    assert is_noise("thanks", is_service=False, is_bot=False, author="user")
     assert is_noise("+", is_service=False, is_bot=False, author="user")
 
 
 def test_short_valuable_not_noise():
-    assert not is_noise("звони Ивану", is_service=False, is_bot=False, author="user")
-    assert not is_noise("проверь накладную", is_service=False, is_bot=False, author="user")
+    assert not is_noise("call Ivan", is_service=False, is_bot=False, author="user")
+    assert not is_noise("check the invoice", is_service=False, is_bot=False, author="user")
 
 
 def test_empty_is_noise():
@@ -49,14 +49,14 @@ def test_empty_is_noise():
 
 def test_filter_messages_removes_noise():
     messages = [
-        _msg("спасибо"),
-        _msg("звони Ивану"),
+        _msg("thanks"),
+        _msg("call Ivan"),
         _msg("ok"),
-        _msg("важное сообщение"),
+        _msg("important message"),
         _msg("x", is_bot=True),
     ]
     filtered = filter_messages(messages)
-    assert [m.text for m in filtered] == ["звони Ивану", "важное сообщение"]
+    assert [m.text for m in filtered] == ["call Ivan", "important message"]
 
 
 def test_grouping_within_window():

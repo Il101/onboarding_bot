@@ -22,7 +22,7 @@ async def test_retrieve_calls_knowledge_query_with_bounded_top_k():
                 "sources": [
                     {
                         "source_id": "seed:knowledge",
-                        "excerpt": "Ближайший найденный фрагмент по запросу",
+                        "excerpt": "Closest matching snippet for the query",
                         "timestamp": "2026-04-01T00:00:00",
                     }
                 ],
@@ -33,7 +33,7 @@ async def test_retrieve_calls_knowledge_query_with_bounded_top_k():
     transport = httpx.MockTransport(handler)
     async with httpx.AsyncClient(base_url="http://test", transport=transport) as client:
         result = await retrieve_phase2_payload(
-            {"query": "как оформить заявку"},
+            {"query": "how to submit a request"},
             top_k=settings.rag_hybrid_top_k + 100,
             client=client,
         )
@@ -49,17 +49,17 @@ def test_summarize_trims_old_turns_and_updates_summary():
     state = {
         "summary": "",
         "messages": [
-            {"role": "user", "content": "Нужно настроить доступ к CRM"},
-            {"role": "assistant", "content": "Откройте портал доступов"},
-            {"role": "user", "content": "Где искать форму?"},
-            {"role": "assistant", "content": "В разделе ИТ сервисы"},
-            {"role": "user", "content": "А срок рассмотрения?"},
+            {"role": "user", "content": "Need to configure CRM access"},
+            {"role": "assistant", "content": "Open the access portal"},
+            {"role": "user", "content": "Where can I find the form?"},
+            {"role": "assistant", "content": "In the IT services section"},
+            {"role": "user", "content": "What is the review timeline?"},
         ],
     }
     updated = summarize_history_if_needed(state, max_messages=3, max_tokens=20)
     assert updated["summary"]
     assert len(updated["messages"]) <= 3
-    assert updated["messages"][-1]["content"] == "А срок рассмотрения?"
+    assert updated["messages"][-1]["content"] == "What is the review timeline?"
 
 
 def test_thread_id_isolation_same_pair_shared_other_pair_isolated():
@@ -77,17 +77,17 @@ def test_summarize_never_removes_latest_user_message():
     from src.ai.langgraph.nodes.summarize import summarize_history_if_needed
 
     state = {
-        "summary": "Ранее обсуждали доступы.",
+        "summary": "Previously discussed access setup.",
         "messages": [
-            {"role": "user", "content": "Старый вопрос 1"},
-            {"role": "assistant", "content": "Старый ответ 1"},
-            {"role": "user", "content": "Старый вопрос 2"},
-            {"role": "assistant", "content": "Старый ответ 2"},
-            {"role": "user", "content": "А что с доступом сегодня?"},
+            {"role": "user", "content": "Old question 1"},
+            {"role": "assistant", "content": "Old answer 1"},
+            {"role": "user", "content": "Old question 2"},
+            {"role": "assistant", "content": "Old answer 2"},
+            {"role": "user", "content": "Any access update today?"},
         ],
     }
     updated = summarize_history_if_needed(state, max_messages=2, max_tokens=10)
-    assert any(msg["role"] == "user" and msg["content"] == "А что с доступом сегодня?" for msg in updated["messages"])
+    assert any(msg["role"] == "user" and msg["content"] == "Any access update today?" for msg in updated["messages"])
 
 
 @pytest.mark.asyncio
@@ -97,10 +97,10 @@ async def test_graph_allows_single_clarify_then_forces_final_branch(monkeypatch)
     async def _fake_retrieve(*args, **kwargs):
         return {
             "rag_payload": {
-                "answer": "Оформление доступа CRM",
+                "answer": "CRM access process",
                 "confidence": 0.9,
                 "fallback_used": False,
-                "sources": [{"source_id": "doc:crm", "excerpt": "Инструкция CRM", "timestamp": "2026-04-10T10:00:00"}],
+                "sources": [{"source_id": "doc:crm", "excerpt": "CRM instruction", "timestamp": "2026-04-10T10:00:00"}],
             }
         }
 
@@ -109,11 +109,11 @@ async def test_graph_allows_single_clarify_then_forces_final_branch(monkeypatch)
     config = {"configurable": {"thread_id": "tg:111:222"}}
 
     first = await graph.ainvoke(
-        {"role": "employee", "query": "Что делать с отчетом?", "user_id": "222", "chat_id": "111"},
+        {"role": "employee", "query": "What should I do with the report?", "user_id": "222", "chat_id": "111"},
         config=config,
     )
     second = await graph.ainvoke(
-        {"role": "employee", "query": "Что делать с отчетом?", "user_id": "222", "chat_id": "111"},
+        {"role": "employee", "query": "What should I do with the report?", "user_id": "222", "chat_id": "111"},
         config=config,
     )
 
@@ -128,18 +128,18 @@ async def test_graph_conflict_prefers_newest_source(monkeypatch):
     async def _fake_retrieve(*args, **kwargs):
         return {
             "rag_payload": {
-                "answer": "Найдены противоречия",
+                "answer": "Conflicts found",
                 "confidence": 0.9,
                 "fallback_used": False,
                 "sources": [
                     {
                         "source_id": "doc:old",
-                        "excerpt": "Старое правило",
+                        "excerpt": "Old rule",
                         "timestamp": "2026-03-01T00:00:00",
                     },
                     {
                         "source_id": "doc:new",
-                        "excerpt": "Новое правило",
+                        "excerpt": "New rule",
                         "timestamp": "2026-04-10T00:00:00",
                     },
                 ],
@@ -149,7 +149,7 @@ async def test_graph_conflict_prefers_newest_source(monkeypatch):
     monkeypatch.setattr("src.ai.langgraph.graph.retrieve_phase2_payload", _fake_retrieve)
     graph = build_graph()
     result = await graph.ainvoke(
-        {"role": "employee", "query": "Какой регламент верный?", "user_id": "222", "chat_id": "111"},
+        {"role": "employee", "query": "Which policy is valid?", "user_id": "222", "chat_id": "111"},
         config={"configurable": {"thread_id": "tg:111:222"}},
     )
     sources = result["result"].sources

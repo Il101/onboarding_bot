@@ -16,7 +16,7 @@ def test_embed_batch_returns_tuple():
                 SimpleNamespace(indices=[2], values=[0.2]),
             ]
             embedder = Embedder()
-            dense, sparse = embedder.embed_batch(["текст 1", "текст 2"])
+            dense, sparse = embedder.embed_batch(["text 1", "text 2"])
             assert len(dense) == 2
             assert len(sparse) == 2
 
@@ -27,7 +27,7 @@ def test_dense_vector_dimensionality():
             dense_cls.return_value.embed.return_value = [np.zeros(1024)]
             sparse_cls.return_value.embed.return_value = [SimpleNamespace(indices=[1], values=[0.1])]
             embedder = Embedder()
-            dense, _ = embedder.embed_batch(["текст"])
+            dense, _ = embedder.embed_batch(["text"])
             assert dense[0].shape[0] == 1024
 
 
@@ -46,7 +46,7 @@ def test_upsert_chunks_correct_format(mock_qdrant_client):
     chunks = [
         {
             "id": "telegram:src1:0",
-            "text": "текст",
+            "text": "text",
             "dense_vector": [0.1] * 1024,
             "sparse_vector": SimpleNamespace(indices=[1, 2], values=[0.5, 0.3]),
             "metadata": {"source_type": "telegram", "source_id": "src1", "date_range": "..."},
@@ -84,7 +84,7 @@ def test_payload_includes_text_and_metadata(mock_qdrant_client):
     chunks = [
         {
             "id": "t:1:0",
-            "text": "текст",
+            "text": "text",
             "dense_vector": [0.1] * 1024,
             "sparse_vector": SimpleNamespace(indices=[], values=[]),
             "metadata": {"source_type": "pdf", "source_id": "1"},
@@ -92,5 +92,5 @@ def test_payload_includes_text_and_metadata(mock_qdrant_client):
     ]
     store.upsert_chunks(chunks)
     points = mock_qdrant_client.upsert.call_args.kwargs["points"]
-    assert points[0].payload["text"] == "текст"
+    assert points[0].payload["text"] == "text"
     assert points[0].payload["source_type"] == "pdf"

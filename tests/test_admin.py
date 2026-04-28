@@ -46,7 +46,7 @@ def test_login_page_renders(client):
 def test_login_wrong_password_returns_error(client):
     response = client.post("/api/admin/login", data={"password": "wrong"})
     assert response.status_code == 401
-    assert "Неверный пароль" in response.text
+    assert "Invalid password" in response.text
 
 
 def test_login_correct_password_sets_cookie_and_redirects(client):
@@ -134,7 +134,7 @@ def test_users_page_renders(admin_client, db_session):
 
     response = admin_client.get("/api/admin/users")
     assert response.status_code == 200
-    assert "Пользователи" in response.text
+    assert "Users" in response.text
 
 
 def test_create_user_success(admin_client, db_session):
@@ -145,7 +145,7 @@ def test_create_user_success(admin_client, db_session):
         data={"user_id": "123456", "role": "employee"},
     )
     assert response.status_code == 200
-    assert "добавлен" in response.text.lower()
+    assert "added" in response.text.lower()
     db_session.add.assert_called_once()
 
 
@@ -158,7 +158,7 @@ def test_create_user_duplicate_returns_error(admin_client, db_session):
         data={"user_id": "123456", "role": "employee"},
     )
     assert response.status_code == 200
-    assert "уже существует" in response.text.lower()
+    assert "already exists" in response.text.lower()
 
 
 def test_create_user_invalid_role_returns_error(admin_client, db_session):
@@ -167,7 +167,7 @@ def test_create_user_invalid_role_returns_error(admin_client, db_session):
         data={"user_id": "123456", "role": "superadmin"},
     )
     assert response.status_code == 200
-    assert "Неверная роль" in response.text
+    assert "Invalid role" in response.text
 
 
 def test_delete_user_success(admin_client, db_session):
@@ -176,7 +176,7 @@ def test_delete_user_success(admin_client, db_session):
 
     response = admin_client.delete("/api/admin/users/123456")
     assert response.status_code == 200
-    assert "удалён" in response.text.lower() or "deleted" in response.text.lower()
+    assert "deleted" in response.text.lower() or "deleted" in response.text.lower()
 
 
 def test_delete_user_not_found(admin_client, db_session):
@@ -223,7 +223,7 @@ def test_admin_pdf_upload_invalid_extension_returns_error(admin_client):
         files={"file": ("image.png", b"\x89PNG", "image/png")},
     )
     assert response.status_code == 200
-    assert "Неверный тип" in response.text or "Invalid" in response.text
+    assert "Invalid type" in response.text or "Invalid" in response.text
 
 
 def test_admin_pdf_upload_invalid_content_returns_error(admin_client):
@@ -232,7 +232,7 @@ def test_admin_pdf_upload_invalid_content_returns_error(admin_client):
         files={"file": ("fake.pdf", b"not real pdf content", "application/pdf")},
     )
     assert response.status_code == 200
-    assert "Неверное содержимое" in response.text or "Invalid" in response.text
+    assert "Invalid content" in response.text or "Invalid" in response.text
 
 
 # --- ADM-02: Telegram upload via admin (upload endpoints) ---
@@ -255,7 +255,7 @@ def test_admin_telegram_upload_invalid_extension_returns_error(admin_client):
         files=[("json_file", ("result.txt", b'{"name":"Test","messages":[]}', "text/plain"))],
     )
     assert response.status_code == 200
-    assert "Неверный тип" in response.text or "Invalid" in response.text
+    assert "Invalid type" in response.text or "Invalid" in response.text
 
 
 def test_admin_telegram_upload_invalid_json_returns_error(admin_client):
@@ -264,7 +264,7 @@ def test_admin_telegram_upload_invalid_json_returns_error(admin_client):
         files=[("json_file", ("result.json", b"not json", "application/json"))],
     )
     assert response.status_code == 200
-    assert "Неверный" in response.text or "Invalid" in response.text
+    assert "Invalid" in response.text or "Invalid" in response.text
 
 
 @patch("src.api.routes.admin.ingest_telegram")
@@ -285,7 +285,7 @@ def test_admin_sources_list_returns_html(admin_client, db_session):
     db_session.query.return_value.order_by.return_value.all.return_value = []
     response = admin_client.get("/api/admin/sources")
     assert response.status_code == 200
-    assert "sources" in response.text.lower() or "Источники" in response.text
+    assert "sources" in response.text.lower() or "Sources" in response.text
 
 
 # --- ADM-03, ADM-04, ADM-05: Knowledge review tests ---
@@ -345,7 +345,7 @@ def test_knowledge_page_renders_with_items(admin_client, db_session):
     _setup_knowledge_query(db_session, items, total=2, status_counts=[2, 2, 1, 1, 0])
     response = admin_client.get("/api/admin/knowledge")
     assert response.status_code == 200
-    assert "Test fact" in response.text or "Знания" in response.text or "знани" in response.text.lower()
+    assert "Test fact" in response.text or "Knowledge" in response.text
 
 
 def test_knowledge_filter_by_status(admin_client, db_session):
@@ -358,9 +358,9 @@ def test_knowledge_filter_by_status(admin_client, db_session):
 
 
 def test_knowledge_filter_by_topic(admin_client, db_session):
-    item = _make_knowledge_item(1, topic="Процессы")
+    item = _make_knowledge_item(1, topic="Processes")
     _setup_knowledge_query(db_session, [item], total=1, status_counts=[1, 1, 1, 0, 0])
-    response = admin_client.get("/api/admin/knowledge?topic=Процессы")
+    response = admin_client.get("/api/admin/knowledge?topic=Processes")
     assert response.status_code == 200
 
 
@@ -371,7 +371,7 @@ def test_knowledge_approve_changes_status(admin_client, db_session):
     db_session.query.return_value.filter.return_value.all.return_value = [item]
     response = admin_client.post("/api/admin/knowledge/approve", data={"item_ids": [1]})
     assert response.status_code == 200
-    assert "опубликовано" in response.text.lower()
+    assert "published" in response.text.lower()
 
 
 def test_knowledge_reject_changes_status(admin_client, db_session):
@@ -381,7 +381,7 @@ def test_knowledge_reject_changes_status(admin_client, db_session):
     db_session.query.return_value.filter.return_value.all.return_value = [item]
     response = admin_client.post("/api/admin/knowledge/reject", data={"item_ids": [1]})
     assert response.status_code == 200
-    assert "отклонено" in response.text.lower()
+    assert "rejected" in response.text.lower()
 
 
 def test_knowledge_delete_removes_item(admin_client, db_session):
@@ -389,7 +389,7 @@ def test_knowledge_delete_removes_item(admin_client, db_session):
     db_session.query.return_value.filter.return_value.first.return_value = item
     response = admin_client.delete("/api/admin/knowledge/1")
     assert response.status_code == 200
-    assert "удалено" in response.text.lower()
+    assert "deleted" in response.text.lower()
 
 
 def test_knowledge_delete_not_found(admin_client, db_session):
@@ -507,10 +507,10 @@ def test_analytics_page_renders(admin_client, db_session):
 
     response = admin_client.get("/api/admin/analytics")
     assert response.status_code == 200
-    assert "Аналитика" in response.text
-    assert "Всего знаний" in response.text
-    assert "Средняя оценка" in response.text
-    assert "Популярные вопросы" in response.text
+    assert "Analytics" in response.text
+    assert "Total knowledge" in response.text
+    assert "Average rating" in response.text
+    assert "Popular questions" in response.text
 
 
 def test_analytics_shows_knowledge_counts(admin_client, db_session):
@@ -582,7 +582,7 @@ def test_analytics_shows_ingest_stats(admin_client, db_session):
 
     response = admin_client.get("/api/admin/analytics")
     assert response.status_code == 200
-    assert "Обработка источников" in response.text
+    assert "Source processing" in response.text
 
 
 def test_analytics_shows_active_users_section(admin_client, db_session):
@@ -593,4 +593,4 @@ def test_analytics_shows_active_users_section(admin_client, db_session):
 
     response = admin_client.get("/api/admin/analytics")
     assert response.status_code == 200
-    assert "Активные пользователи" in response.text
+    assert "Active users" in response.text

@@ -87,7 +87,7 @@ async def login_submit(request: Request, password: str = Form(...)):
         return templates.TemplateResponse(
             request,
             "login.html",
-            {"error": "Неверный пароль"},
+            {"error": "Invalid password"},
             status_code=401,
         )
     session_id = str(uuid.uuid4())
@@ -148,7 +148,7 @@ async def admin_upload_pdf(
         return templates.TemplateResponse(
             request,
             "sources/_upload_status.html",
-            {"success": False, "message": "Неверный тип файла. Ожидается .pdf"},
+            {"success": False, "message": "Invalid file type. Expected .pdf"},
         )
 
     try:
@@ -158,7 +158,7 @@ async def admin_upload_pdf(
             return templates.TemplateResponse(
                 request,
                 "sources/_upload_status.html",
-                {"success": False, "message": "Неверное содержимое PDF файла"},
+                {"success": False, "message": "Invalid PDF content"},
             )
 
         base = _ensure_upload_dirs()
@@ -191,7 +191,7 @@ async def admin_upload_pdf(
         return templates.TemplateResponse(
             request,
             "sources/_upload_status.html",
-            {"success": True, "message": f"PDF загружен. Job ID: {task.id}", "job_id": task.id},
+            {"success": True, "message": f"PDF uploaded. Job ID: {task.id}", "job_id": task.id},
         )
     except HTTPException as exc:
         return templates.TemplateResponse(
@@ -203,7 +203,7 @@ async def admin_upload_pdf(
         return templates.TemplateResponse(
             request,
             "sources/_upload_status.html",
-            {"success": False, "message": f"Ошибка загрузки: {str(e)}"},
+            {"success": False, "message": f"Upload error: {str(e)}"},
         )
 
 
@@ -218,7 +218,7 @@ async def admin_upload_telegram(
         return templates.TemplateResponse(
             request,
             "sources/_upload_status.html",
-            {"success": False, "message": "Неверный тип файла. Ожидается .json"},
+            {"success": False, "message": "Invalid file type. Expected .json"},
         )
 
     try:
@@ -238,7 +238,7 @@ async def admin_upload_telegram(
                 return templates.TemplateResponse(
                     request,
                     "sources/_upload_status.html",
-                    {"success": False, "message": "Неверный тип голосового файла. Ожидается .ogg"},
+                    {"success": False, "message": "Invalid voice file type. Expected .ogg"},
                 )
             content = await vf.read()
             _validate_size(content)
@@ -270,7 +270,7 @@ async def admin_upload_telegram(
         return templates.TemplateResponse(
             request,
             "sources/_upload_status.html",
-            {"success": True, "message": f"Telegram логи загружены. Job ID: {task.id}", "job_id": task.id},
+            {"success": True, "message": f"Telegram logs uploaded. Job ID: {task.id}", "job_id": task.id},
         )
     except HTTPException as exc:
         return templates.TemplateResponse(
@@ -282,7 +282,7 @@ async def admin_upload_telegram(
         return templates.TemplateResponse(
             request,
             "sources/_upload_status.html",
-            {"success": False, "message": f"Ошибка загрузки: {str(e)}"},
+            {"success": False, "message": f"Upload error: {str(e)}"},
         )
 
 
@@ -348,13 +348,13 @@ async def approve_knowledge(
         db.commit()
         return HTMLResponse(
             content=f'<div class="bg-green-50 text-green-700 px-4 py-3 rounded-lg text-sm">'
-            f'<i class="ti ti-check mr-1"></i> {count} знаний опубликовано</div>',
+            f'<i class="ti ti-check mr-1"></i> {count} knowledge items published</div>',
         )
     except Exception:
         db.rollback()
         return HTMLResponse(
             content='<div class="bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm">'
-            '<i class="ti ti-alert-circle mr-1"></i> Ошибка при публикации</div>',
+            '<i class="ti ti-alert-circle mr-1"></i> Publish failed</div>',
             status_code=500,
         )
 
@@ -374,13 +374,13 @@ async def reject_knowledge(
         db.commit()
         return HTMLResponse(
             content=f'<div class="bg-yellow-50 text-yellow-700 px-4 py-3 rounded-lg text-sm">'
-            f'<i class="ti ti-x mr-1"></i> {count} знаний отклонено</div>',
+            f'<i class="ti ti-x mr-1"></i> {count} knowledge items rejected</div>',
         )
     except Exception:
         db.rollback()
         return HTMLResponse(
             content='<div class="bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm">'
-            '<i class="ti ti-alert-circle mr-1"></i> Ошибка при отклонении</div>',
+            '<i class="ti ti-alert-circle mr-1"></i> Reject failed</div>',
             status_code=500,
         )
 
@@ -390,12 +390,12 @@ async def delete_knowledge(item_id: int, db: Session = Depends(get_db_session)):
     item = db.query(KnowledgeItem).filter(KnowledgeItem.id == item_id).first()
     if not item:
         return HTMLResponse(
-            content='<div class="bg-red-50 text-red-700 p-3 rounded">Знание не найдено</div>',
+            content='<div class="bg-red-50 text-red-700 p-3 rounded">Knowledge item not found</div>',
             status_code=404,
         )
     db.delete(item)
     db.commit()
-    return HTMLResponse(content='<div class="bg-green-50 text-green-700 p-3 rounded">Знание удалено</div>')
+    return HTMLResponse(content='<div class="bg-green-50 text-green-700 p-3 rounded">Knowledge item deleted</div>')
 
 
 @router.put("/knowledge/{item_id}", response_class=HTMLResponse)
@@ -408,7 +408,7 @@ async def edit_knowledge(
     item = db.query(KnowledgeItem).filter(KnowledgeItem.id == item_id).first()
     if not item:
         return HTMLResponse(
-            content='<div class="bg-red-50 text-red-700 p-3 rounded">Знание не найдено</div>',
+            content='<div class="bg-red-50 text-red-700 p-3 rounded">Knowledge item not found</div>',
             status_code=404,
         )
     item.fact = fact
@@ -426,12 +426,12 @@ async def delete_source(source_id: str, db: Session = Depends(get_db_session)):
     source = db.query(Source).filter(Source.id == source_id).first()
     if not source:
         return HTMLResponse(
-            content='<div class="bg-red-50 text-red-700 p-3 rounded">Источник не найден</div>',
+            content='<div class="bg-red-50 text-red-700 p-3 rounded">Source not found</div>',
             status_code=404,
         )
     db.delete(source)
     db.commit()
-    return HTMLResponse(content='<div class="bg-green-50 text-green-700 p-3 rounded">Источник удалён</div>')
+    return HTMLResponse(content='<div class="bg-green-50 text-green-700 p-3 rounded">Source deleted</div>')
 
 
 # --- User management endpoints (ADM-06) ---
@@ -461,7 +461,7 @@ async def create_user(
         return templates.TemplateResponse(
             request,
             "users/_add_result.html",
-            {"success": False, "message": "Неверная роль. Допустимые: admin, employee"},
+            {"success": False, "message": "Invalid role. Allowed values: admin, employee"},
         )
 
     # Check if user already exists
@@ -470,7 +470,7 @@ async def create_user(
         return templates.TemplateResponse(
             request,
             "users/_add_result.html",
-            {"success": False, "message": "Пользователь с таким ID уже существует"},
+            {"success": False, "message": "User with this ID already exists"},
         )
 
     user = TelegramUser(user_id=user_id, role=user_role)
@@ -483,7 +483,7 @@ async def create_user(
     return templates.TemplateResponse(
         request,
         "users/_add_result.html",
-        {"success": True, "message": f"Пользователь {user_id} добавлен"},
+        {"success": True, "message": f"User {user_id} added"},
     )
 
 
@@ -492,7 +492,7 @@ async def delete_user(user_id: int, db: Session = Depends(get_db_session)):
     user = db.query(TelegramUser).filter(TelegramUser.user_id == user_id).first()
     if not user:
         return HTMLResponse(
-            content='<div class="bg-red-50 text-red-700 p-3 rounded">Пользователь не найден</div>',
+            content='<div class="bg-red-50 text-red-700 p-3 rounded">User not found</div>',
             status_code=404,
         )
     db.delete(user)
@@ -501,7 +501,7 @@ async def delete_user(user_id: int, db: Session = Depends(get_db_session)):
     # Remove from runtime config
     settings.telegram_user_roles.pop(user_id, None)
 
-    return HTMLResponse(content='<div class="bg-green-50 text-green-700 p-3 rounded">Пользователь удалён</div>')
+    return HTMLResponse(content='<div class="bg-green-50 text-green-700 p-3 rounded">User deleted</div>')
 
 
 # --- Analytics dashboard (ADM-07) ---

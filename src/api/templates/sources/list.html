@@ -1,32 +1,32 @@
 {% extends "base.html" %}
-{% block title %}Источники - V-Brain Admin{% endblock %}
+{% block title %}Sources - V-Brain Admin{% endblock %}
 {% block content %}
 <div>
     <div class="flex justify-between items-center mb-6">
-        <h2 class="display">Источники</h2>
+        <h2 class="display">Sources</h2>
         <a href="/api/admin/sources/upload"
            class="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition-colors">
-            Загрузить документ
+            Upload document
         </a>
     </div>
     <div id="sources-table-wrapper">
     {% if not sources %}
     <div class="bg-white rounded-lg shadow p-8 text-center text-gray-500">
-        <p class="text-lg mb-2">Источники не найдены</p>
-        <p class="text-sm">Загрузите PDF или экспорт Telegram для начала извлечения знаний</p>
+        <p class="text-lg mb-2">No sources found</p>
+        <p class="text-sm">Upload a PDF or Telegram export to start knowledge extraction</p>
     </div>
     {% else %}
     <div class="bg-white rounded-lg shadow overflow-hidden">
         <table class="w-full">
             <thead>
                 <tr class="border-b bg-gray-50">
-                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Имя</th>
-                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Тип</th>
-                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Статус</th>
-                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Сообщений</th>
-                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Чанков</th>
-                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Дата</th>
-                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Действия</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Name</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Type</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Status</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Messages</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Chunks</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Date</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -52,9 +52,9 @@
                         <button hx-delete="/api/admin/sources/{{ source.id }}"
                                 hx-target="closest tr"
                                 hx-swap="outerHTML"
-                                hx-confirm="Удалить источник?"
+                                hx-confirm="Delete source?"
                                 class="text-red-600 hover:text-red-800 text-xs">
-                            Удалить
+                            Delete
                         </button>
                     </td>
                 </tr>

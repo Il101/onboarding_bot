@@ -6,13 +6,13 @@ def test_knowledge_unit_contract():
     from src.ai.extraction.schemas import KnowledgeUnit
 
     valid_payload = {
-        "fact": "Перед запуском отчета нужно выбрать текущий филиал.",
-        "topic": "Отчетность",
+        "fact": "Before running the report, select the current branch.",
+        "topic": "Reporting",
         "confidence": 0.82,
         "source_refs": [
             {
                 "source_id": "telegram:ops",
-                "excerpt": "Сначала выберите филиал, иначе отчет пустой",
+                "excerpt": "Select branch first, otherwise the report is empty",
                 "timestamp": "2026-04-10T10:00:00",
             }
         ],
@@ -41,7 +41,7 @@ def test_knowledge_unit_contract():
     no_locator["source_refs"] = [
         {
             "source_id": "telegram:ops",
-            "excerpt": "Без локатора",
+            "excerpt": "Without locator",
         }
     ]
     with pytest.raises(ValidationError):
@@ -52,13 +52,13 @@ def test_rag_answer_contract():
     from src.ai.rag.contracts import RagAnswer
 
     valid = {
-        "answer": "Нужно проверить статус заказа в CRM и открыть карточку клиента.",
+        "answer": "Check order status in CRM and open the client card.",
         "confidence": 0.77,
         "fallback_used": False,
         "sources": [
             {
                 "source_id": "pdf:onboarding-guide",
-                "excerpt": "Шаг 1: открыть CRM. Шаг 2: найти клиента по номеру.",
+                "excerpt": "Step 1: open CRM. Step 2: find client by number.",
                 "score": 0.77,
                 "page": 3,
             }
@@ -80,13 +80,13 @@ def test_publish_policy_threshold():
 
     blocked_unit = KnowledgeUnit.model_validate(
         {
-            "fact": "Если заказ не найден, эскалировать руководителю смены.",
-            "topic": "Эскалация",
+            "fact": "If order is not found, escalate to shift lead.",
+            "topic": "Escalation",
             "confidence": 0.2,
             "source_refs": [
                 {
                     "source_id": "telegram:ops",
-                    "excerpt": "Если заказ не находится — пиши руководителю смены.",
+                    "excerpt": "If order is not found, contact shift lead.",
                     "timestamp": "2026-04-11T12:00:00",
                 }
             ],

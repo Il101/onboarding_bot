@@ -18,13 +18,13 @@ def _raw_publishable():
     return [
         [
             {
-                "fact": "Перед запуском отчета нужно выбрать филиал",
-                "topic": "Отчетность",
+                "fact": "Before running the report, select branch",
+                "topic": "Reporting",
                 "confidence": 0.91,
                 "source_refs": [
                     {
                         "source_id": "src1",
-                        "excerpt": "нужно выбрать филиал",
+                        "excerpt": "need to select branch",
                         "timestamp": "2026-04-12T11:00:00",
                     }
                 ],
@@ -36,7 +36,7 @@ def _raw_publishable():
 def test_successful_telegram_ingest_dispatches_extraction_with_source_chunks():
     from src.tasks.ingest import ingest_telegram
 
-    message = SimpleNamespace(text="Исходное сообщение")
+    message = SimpleNamespace(text="Original message")
     fake_store = MagicMock()
     fake_store.upsert_chunks.return_value = 1
     fake_extract_delay = MagicMock(return_value=SimpleNamespace(id="extract-job-1"))
@@ -87,7 +87,7 @@ def test_extraction_completion_dispatches_sop_with_grouped_publishable_units():
     sop_delay.assert_called_once()
     _, kwargs = sop_delay.call_args
     assert kwargs["source_id"] == "src1"
-    assert "Отчетность" in kwargs["grouped_units"]
+    assert "Reporting" in kwargs["grouped_units"]
     assert result["status"] == "completed"
     assert result["publishable_count"] == 1
 

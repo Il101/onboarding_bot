@@ -27,12 +27,12 @@ def test_ingest_telegram_pipeline_order(
 ):
     from src.tasks.ingest import ingest_telegram
 
-    msg = TelegramMessage(1, "2024-01-15T10:00:00", "A", "u1", "текст", False, False, None, None)
+    msg = TelegramMessage(1, "2024-01-15T10:00:00", "A", "u1", "text", False, False, None, None)
     mock_parse.return_value = [msg]
     mock_transcribe.side_effect = lambda msgs, d, c=None: msgs
     mock_anonymize.side_effect = lambda text, analyzer, anonymizer: text
     mock_filter.return_value = [msg]
-    mock_chunk.return_value = [{"text": "чанк", "metadata": {"source_type": "telegram"}}]
+    mock_chunk.return_value = [{"text": "chunk", "metadata": {"source_type": "telegram"}}]
     mock_embedder = MagicMock()
     mock_embedder.embed_batch.return_value = (
         [SimpleNamespace(tolist=lambda: [0.1] * 1024)],
@@ -67,7 +67,7 @@ def test_ingest_pdf_pipeline(
 
     mock_parse.return_value = "# PDF Content"
     mock_anonymize.return_value = "# Anonymized"
-    mock_chunk.return_value = ["чанк 1", "чанк 2"]
+    mock_chunk.return_value = ["chunk 1", "chunk 2"]
     mock_embedder = MagicMock()
     mock_embedder.embed_batch.return_value = (
         [SimpleNamespace(tolist=lambda: [0.1] * 1024), SimpleNamespace(tolist=lambda: [0.2] * 1024)],

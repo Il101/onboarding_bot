@@ -21,8 +21,8 @@ def test_transcribe_returns_text(tmp_path):
     audio_path = tmp_path / "voice.ogg"
     audio_path.write_bytes(b"audio")
     client = MagicMock()
-    client.audio.transcriptions.create.return_value = SimpleNamespace(text="Транскрибированный текст")
-    assert transcribe_audio(client, str(audio_path)) == "Транскрибированный текст"
+    client.audio.transcriptions.create.return_value = SimpleNamespace(text="Transcribed text")
+    assert transcribe_audio(client, str(audio_path)) == "Transcribed text"
 
 
 def test_large_file_chunked(tmp_path):

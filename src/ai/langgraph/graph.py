@@ -57,12 +57,15 @@ def _safe_error_answer() -> BotAnswer:
     sources = [
         SourceRef(
             source_id="policy:error",
-            excerpt="Внутренняя ошибка обработана безопасным ответом.",
+            excerpt="Internal error handled by safe response policy.",
             timestamp="1970-01-01T00:00:00",
         )
     ]
     return BotAnswer(
-        answer="Не удалось обработать запрос. Попробуйте снова или обратитесь к коллеге.\n\nИсточники:\n- policy:error: Внутренняя ошибка обработана безопасным ответом.",
+        answer=(
+            "Unable to process the request. Please try again or ask a colleague.\n\n"
+            "Sources:\n- policy:error: Internal error handled by safe response policy."
+        ),
         confidence=0.0,
         fallback_used=True,
         sources=sources,
@@ -80,12 +83,12 @@ def _fallback_answer(state: dict[str, Any]) -> BotAnswer:
         sources = [
             SourceRef(
                 source_id="policy:fallback",
-                excerpt="Недостаточно релевантных данных для уверенного ответа.",
+                excerpt="Insufficient relevant data for a reliable answer.",
                 timestamp="1970-01-01T00:00:00",
             )
         ]
     return BotAnswer(
-        answer=f"{LOCKED_FALLBACK_TEXT}\n\nИсточники:\n" + "\n".join(f"- {s.source_id}: {s.excerpt}" for s in sources),
+        answer=f"{LOCKED_FALLBACK_TEXT}\n\nSources:\n" + "\n".join(f"- {s.source_id}: {s.excerpt}" for s in sources),
         confidence=float(rag_payload.get("confidence", 0.0)),
         fallback_used=True,
         sources=sources,

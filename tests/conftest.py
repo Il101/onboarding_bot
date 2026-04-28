@@ -11,17 +11,17 @@ def sample_telegram_messages():
             "id": 1,
             "type": "message",
             "date": "2024-01-15T10:00:00",
-            "from": "Иван Иванов",
+            "from": "John Doe",
             "from_id": "user123",
-            "text": "Позвони Александру по номеру +7(903)123-45-67",
+            "text": "Call Alex at +7(903)123-45-67",
         },
         {
             "id": 2,
             "type": "service",
             "date": "2024-01-15T10:01:00",
-            "from": "Иван Иванов",
+            "from": "John Doe",
             "from_id": "user123",
-            "text": "Иван Иванов joined the group",
+            "text": "John Doe joined the group",
         },
         {
             "id": 3,
@@ -44,7 +44,7 @@ def sample_telegram_json(tmp_path, sample_telegram_messages):
 
 @pytest.fixture
 def sample_pii_text():
-    return "Позвони Иванову Ивану Ивановичу по номеру +7(903)123-45-67, его email ivan@company.ru. ИНН: 7707083893."
+    return "Call John Doe at +7(903)123-45-67, email ivan@company.ru. Tax ID: 7707083893."
 
 
 @pytest.fixture
@@ -58,7 +58,7 @@ def mock_qdrant_client():
 def mock_groq_client():
     client = MagicMock()
     mock_result = MagicMock()
-    mock_result.text = "Транскрибированный текст голосового сообщения"
+    mock_result.text = "Transcribed voice message text"
     client.audio.transcriptions.create.return_value = mock_result
     return client
 

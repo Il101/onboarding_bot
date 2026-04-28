@@ -9,13 +9,13 @@ def test_publishable_runtime_flow_reaches_index_writer_and_grouped_sop_path():
     extraction_outputs = [
         [
             {
-                "fact": "Откройте CRM и проверьте карточку клиента",
+                "fact": "Open CRM and check the client card",
                 "topic": "CRM",
                 "confidence": 0.9,
                 "source_refs": [
                     {
                         "source_id": "src-crm",
-                        "excerpt": "Откройте CRM",
+                        "excerpt": "Open CRM",
                         "timestamp": "2026-04-12T11:00:00",
                     }
                 ],
@@ -51,13 +51,13 @@ def test_low_confidence_units_stay_review_only_not_indexed_or_sop_dispatched():
     extraction_outputs = [
         [
             {
-                "fact": "Непроверенное правило из чата",
-                "topic": "Операции",
+                "fact": "Unverified rule from chat",
+                "topic": "Operations",
                 "confidence": 0.2,
                 "source_refs": [
                     {
                         "source_id": "src-ops",
-                        "excerpt": "непроверенное правило",
+                        "excerpt": "unverified rule",
                         "timestamp": "2026-04-12T12:00:00",
                     }
                 ],

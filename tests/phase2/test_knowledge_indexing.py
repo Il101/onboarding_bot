@@ -18,13 +18,13 @@ def _publishable_units():
     return [
         KnowledgeUnit.model_validate(
             {
-                "fact": "Откройте CRM перед поиском клиента",
+                "fact": "Open CRM before searching for the client",
                 "topic": "CRM",
                 "confidence": 0.9,
                 "source_refs": [
                     {
                         "source_id": "telegram:src1",
-                        "excerpt": "Сначала CRM",
+                        "excerpt": "Start with CRM",
                         "timestamp": "2026-04-12T11:00:00",
                     }
                 ],
@@ -93,7 +93,7 @@ def test_extract_task_indexes_only_publishable_units():
     extraction_outputs = [
         [
             {
-                "fact": "Публикуемое",
+                "fact": "Publishable item",
                 "topic": "CRM",
                 "confidence": 0.9,
                 "source_refs": [{"source_id": "src1", "excerpt": "ok", "timestamp": "2026-04-12T11:00:00"}],
@@ -101,7 +101,7 @@ def test_extract_task_indexes_only_publishable_units():
         ],
         [
             {
-                "fact": "На ревью",
+                "fact": "Needs review",
                 "topic": "CRM",
                 "confidence": 0.1,
                 "source_refs": [{"source_id": "src1", "excerpt": "low", "timestamp": "2026-04-12T11:01:00"}],

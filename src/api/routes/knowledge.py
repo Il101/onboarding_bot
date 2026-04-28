@@ -33,12 +33,12 @@ async def query_knowledge(payload: KnowledgeQueryRequest):
         }
     except Exception:
         return {
-            "answer": "Недостаточно данных для уверенного ответа. Проверьте ближайшие источники.",
+            "answer": "Not enough data for a reliable answer. Please review the nearest sources.",
             "confidence": 0.0,
             "sources": [
                 {
                     "source_id": "policy:error",
-                    "excerpt": "Временная ошибка retrieval path, возвращен безопасный fallback.",
+                    "excerpt": "Temporary retrieval-path error; safe fallback returned.",
                     "score": 0.0,
                     "timestamp": "1970-01-01T00:00:00",
                     "page": None,

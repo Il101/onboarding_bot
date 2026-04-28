@@ -11,7 +11,7 @@ def test_route_returns_bot_adapter_envelope_keys_unchanged():
 
     client = TestClient(app)
     with patch("src.api.routes.knowledge.HybridRetriever.retrieve", return_value=[]):
-        response = client.post("/api/knowledge/query", json={"query": "как оформить доступ"})
+        response = client.post("/api/knowledge/query", json={"query": "how to request access"})
 
     assert response.status_code == 200
     payload = response.json()
@@ -25,12 +25,12 @@ def test_route_sources_include_required_attribution_fields():
     candidates = [
         {
             "score": 0.9,
-            "text": "Откройте портал доступов",
+            "text": "Open the access portal",
             "metadata": {"source_id": "doc:portal", "timestamp": "2026-04-12T11:00:00"},
         }
     ]
     with patch("src.api.routes.knowledge.HybridRetriever.retrieve", return_value=candidates):
-        response = client.post("/api/knowledge/query", json={"query": "где портал"})
+        response = client.post("/api/knowledge/query", json={"query": "where is the portal"})
 
     assert response.status_code == 200
     source = response.json()["sources"][0]
@@ -49,12 +49,12 @@ async def test_phase3_retrieve_adapter_consumes_migrated_query_output():
         return httpx.Response(
             200,
             json={
-                "answer": "Откройте портал доступов",
+                "answer": "Open the access portal",
                 "confidence": 0.86,
                 "sources": [
                     {
                         "source_id": "doc:portal",
-                        "excerpt": "Инструкция по доступам",
+                        "excerpt": "Access instructions",
                         "timestamp": "2026-04-12T11:00:00",
                     }
                 ],
@@ -64,6 +64,6 @@ async def test_phase3_retrieve_adapter_consumes_migrated_query_output():
 
     transport = httpx.MockTransport(handler)
     async with httpx.AsyncClient(base_url="http://test", transport=transport) as client:
-        result = await retrieve_phase2_payload({"query": "как оформить доступ"}, client=client)
+        result = await retrieve_phase2_payload({"query": "how to request access"}, client=client)
 
     assert set(result["rag_payload"].keys()) == {"answer", "confidence", "sources", "fallback_used"}

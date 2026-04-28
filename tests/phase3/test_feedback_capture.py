@@ -79,6 +79,6 @@ async def test_callback_handler_replay_is_idempotent_and_not_duplicated(db_sessi
 
     assert query.answer.await_count == 2
     second_call = query.answer.await_args_list[1]
-    assert second_call.kwargs.get("text") == "Оценка уже учтена."
+    assert second_call.kwargs.get("text") == "Feedback already recorded."
     count = db_session.scalar(select(func.count()).select_from(FeedbackEvent))
     assert count == 1

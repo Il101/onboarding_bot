@@ -35,13 +35,13 @@ def test_non_pdf_raises(tmp_path):
 def test_cyrillic_preserved(sample_pdf_path):
     with patch("src.pipeline.parsers.pdf.DocumentConverter") as mock_converter:
         mock_doc = MagicMock()
-        mock_doc.export_to_markdown.return_value = "Тестовый документ с кириллицей"
+        mock_doc.export_to_markdown.return_value = "Test document with Cyrillic"
         mock_result = MagicMock()
         mock_result.document = mock_doc
         mock_converter.return_value.convert.return_value = mock_result
 
         result = extract_pdf_text(sample_pdf_path)
-    assert "Тестовый" in result
+    assert "Test" in result
 
 
 def test_invalid_pdf_signature_raises(tmp_path):

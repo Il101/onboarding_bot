@@ -10,15 +10,15 @@ from src.core.logging import get_logger
 
 logger = get_logger(__name__)
 
-FALLBACK_MESSAGE = "Недостаточно данных для уверенного ответа. Проверьте ближайшие источники."
+FALLBACK_MESSAGE = "Not enough data for a reliable answer. Please review the nearest sources."
 
 _SYSTEM_PROMPT = (
-    "Ты — AI-ментор компании. Твоя задача — отвечать на вопросы новых сотрудников.\n"
-    "Правила:\n"
-    "1. Отвечай ТОЛЬКО на основе предоставленного контекста из внутренней базы знаний.\n"
-    "2. Если в контексте нет ответа — честно скажи 'Я не знаю — обратитесь к коллеге'.\n"
-    "3. Отвечай на русском языке, чётко и по шагам.\n"
-    "4. Не придумывай информацию, которой нет в контексте."
+    "You are the company's AI mentor. Your task is to answer employee questions.\n"
+    "Rules:\n"
+    "1. Answer ONLY using the provided internal knowledge context.\n"
+    "2. If context is insufficient, say: 'I don't know - please ask a colleague.'\n"
+    "3. Answer in English clearly and step-by-step.\n"
+    "4. Do not invent information that is not present in context."
 )
 
 
@@ -29,7 +29,7 @@ def _build_context(candidates: list[dict]) -> str:
         source_id = c.get("metadata", {}).get("source_id", "unknown")
         text = c.get("text", "").strip()
         if text:
-            parts.append(f"[{i}] Источник: {source_id}\n{text}")
+            parts.append(f"[{i}] Source: {source_id}\n{text}")
     return "\n\n---\n\n".join(parts) if parts else ""
 
 
@@ -61,7 +61,7 @@ def synthesize_answer(query: str, candidates: list[dict]) -> RagAnswer:
                 {"role": "system", "content": _SYSTEM_PROMPT},
                 {
                     "role": "user",
-                    "content": f"Контекст из базы знаний:\n\n{context}\n\n---\n\nВопрос сотрудника: {query}",
+                    "content": f"Knowledge base context:\n\n{context}\n\n---\n\nEmployee question: {query}",
                 },
             ],
             temperature=0.2,

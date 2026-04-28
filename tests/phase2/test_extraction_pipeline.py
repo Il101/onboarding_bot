@@ -5,12 +5,12 @@ def _chunks():
     return [
         {
             "id": "telegram:src1:0",
-            "text": "Перед запуском отчета нужно выбрать филиал",
+            "text": "Before running the report, select branch",
             "metadata": {"source_id": "src1", "timestamp": "2026-04-12T11:00:00"},
         },
         {
             "id": "pdf:src2:0",
-            "text": "При ошибке оплаты эскалируйте финансовому менеджеру",
+            "text": "On payment error, escalate to finance manager",
             "metadata": {"source_id": "src2", "page": 2},
         },
     ]
@@ -22,13 +22,13 @@ def test_extract_returns_schema_valid_units():
     raw = [
         [
             {
-                "fact": "Выберите филиал перед запуском отчета",
-                "topic": "Отчетность",
+                "fact": "Select branch before running the report",
+                "topic": "Reporting",
                 "confidence": 0.9,
                 "source_refs": [
                     {
                         "source_id": "src1",
-                        "excerpt": "нужно выбрать филиал",
+                        "excerpt": "need to select branch",
                         "timestamp": "2026-04-12T11:00:00",
                     }
                 ],
@@ -36,10 +36,10 @@ def test_extract_returns_schema_valid_units():
         ],
         [
             {
-                "fact": "При ошибке оплаты эскалируйте менеджеру",
-                "topic": "Эскалация",
+                "fact": "On payment error, escalate to manager",
+                "topic": "Escalation",
                 "confidence": 0.85,
-                "source_refs": [{"source_id": "src2", "excerpt": "эскалируйте", "page": 2}],
+                "source_refs": [{"source_id": "src2", "excerpt": "escalate", "page": 2}],
             }
         ],
     ]
@@ -55,17 +55,17 @@ def test_single_fact_invariant_one_unit_per_atomic_fact():
     raw = [
         [
             {
-                "fact": "Откройте CRM",
+                "fact": "Open CRM",
                 "topic": "CRM",
                 "confidence": 0.91,
-                "source_refs": [{"source_id": "src1", "excerpt": "Откройте CRM", "timestamp": "2026-04-12T11:00:00"}],
+                "source_refs": [{"source_id": "src1", "excerpt": "Open CRM", "timestamp": "2026-04-12T11:00:00"}],
             }
         ]
     ]
 
     result = extract_knowledge_units(_chunks()[:1], extraction_outputs=raw)
     assert len(result["all_units"]) == 1
-    assert result["all_units"][0].fact == "Откройте CRM"
+    assert result["all_units"][0].fact == "Open CRM"
 
 
 def test_low_confidence_units_go_to_review_queue():
@@ -74,8 +74,8 @@ def test_low_confidence_units_go_to_review_queue():
     raw = [
         [
             {
-                "fact": "Непроверенное правило",
-                "topic": "Операции",
+                "fact": "Unverified rule",
+                "topic": "Operations",
                 "confidence": 0.2,
                 "source_refs": [{"source_id": "src1", "excerpt": "...", "timestamp": "2026-04-12T11:00:00"}],
             }
@@ -93,24 +93,24 @@ def test_grouping_clusters_publishable_by_topic():
     raw = [
         [
             {
-                "fact": "Шаг 1",
-                "topic": "Оплаты",
+                "fact": "Step 1",
+                "topic": "Payments",
                 "confidence": 0.9,
-                "source_refs": [{"source_id": "src1", "excerpt": "Шаг 1", "timestamp": "2026-04-12T11:00:00"}],
+                "source_refs": [{"source_id": "src1", "excerpt": "Step 1", "timestamp": "2026-04-12T11:00:00"}],
             },
             {
-                "fact": "Шаг 2",
-                "topic": "Оплаты",
+                "fact": "Step 2",
+                "topic": "Payments",
                 "confidence": 0.8,
-                "source_refs": [{"source_id": "src1", "excerpt": "Шаг 2", "timestamp": "2026-04-12T11:01:00"}],
+                "source_refs": [{"source_id": "src1", "excerpt": "Step 2", "timestamp": "2026-04-12T11:01:00"}],
             },
         ]
     ]
 
     result = extract_knowledge_units(_chunks()[:1], extraction_outputs=raw)
     grouped = group_units_by_topic(result["publishable"])
-    assert list(grouped.keys()) == ["Оплаты"]
-    assert len(grouped["Оплаты"]) == 2
+    assert list(grouped.keys()) == ["Payments"]
+    assert len(grouped["Payments"]) == 2
 
 
 def test_extract_task_reports_progress_stages():
@@ -125,11 +125,11 @@ def test_extract_task_reports_progress_stages():
     raw = [
         [
             {
-                "fact": "Выберите филиал",
-                "topic": "Отчетность",
+                "fact": "Select branch",
+                "topic": "Reporting",
                 "confidence": 0.9,
                 "source_refs": [
-                    {"source_id": "src1", "excerpt": "выберите филиал", "timestamp": "2026-04-12T11:00:00"}
+                    {"source_id": "src1", "excerpt": "select branch", "timestamp": "2026-04-12T11:00:00"}
                 ],
             }
         ]

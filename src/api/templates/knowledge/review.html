@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Знания - V-Brain Admin{% endblock %}
+{% block title %}Knowledge - V-Brain Admin{% endblock %}
 {% block content %}
 <div x-data="{ selectedItems: [] }">
     <div class="flex justify-between items-center mb-6">
-        <h2 class="display">Проверка знаний</h2>
+        <h2 class="display">Knowledge review</h2>
         <div class="flex gap-2 items-center">
             <template x-if="selectedItems.length > 0">
-                <span class="text-sm text-gray-500" x-text="`${selectedItems.length} выбрано`"></span>
+                <span class="text-sm text-gray-500" x-text="`${selectedItems.length} selected`"></span>
             </template>
             <form id="bulk-approve-form"
                   hx-post="/api/admin/knowledge/approve"
@@ -19,7 +19,7 @@
                 </template>
                 <button type="submit"
                         class="bg-green-600 text-white px-3 py-1.5 rounded hover:bg-green-700 text-sm">
-                    Одобрить
+                    Approve
                 </button>
             </form>
             <form id="bulk-reject-form"
@@ -33,7 +33,7 @@
                 </template>
                 <button type="submit"
                         class="bg-yellow-500 text-white px-3 py-1.5 rounded hover:bg-yellow-600 text-sm">
-                    Отклонить
+                    Reject
                 </button>
             </form>
         </div>
@@ -43,19 +43,19 @@
     <!-- Status summary cards -->
     <div class="grid grid-cols-4 gap-4 mb-6">
         <div class="bg-white rounded-lg shadow p-4">
-            <div class="text-sm text-gray-500">Всего</div>
+            <div class="text-sm text-gray-500">Total</div>
             <div class="text-2xl font-bold">{{ status_counts.total }}</div>
         </div>
         <div class="bg-white rounded-lg shadow p-4">
-            <div class="text-sm text-gray-500">Опубликовано</div>
+            <div class="text-sm text-gray-500">Published</div>
             <div class="text-2xl font-bold text-green-600">{{ status_counts.published }}</div>
         </div>
         <div class="bg-white rounded-lg shadow p-4">
-            <div class="text-sm text-gray-500">На проверке</div>
+            <div class="text-sm text-gray-500">Pending review</div>
             <div class="text-2xl font-bold text-yellow-600">{{ status_counts.pending }}</div>
         </div>
         <div class="bg-white rounded-lg shadow p-4">
-            <div class="text-sm text-gray-500">Отклонено</div>
+            <div class="text-sm text-gray-500">Rejected</div>
             <div class="text-2xl font-bold text-red-600">{{ status_counts.rejected }}</div>
         </div>
     </div>
@@ -64,24 +64,24 @@
     <div class="flex gap-3 mb-4 flex-wrap">
         <a href="/api/admin/knowledge"
            class="px-3 py-1.5 rounded text-sm {% if not current_status %}bg-blue-600 text-white{% else %}bg-white text-gray-700 hover:bg-gray-100{% endif %}">
-            Все
+            All
         </a>
         <a href="/api/admin/knowledge?status=pending"
            class="px-3 py-1.5 rounded text-sm {% if current_status == 'pending' %}bg-blue-600 text-white{% else %}bg-white text-gray-700 hover:bg-gray-100{% endif %}">
-            На проверке
+            Pending review
         </a>
         <a href="/api/admin/knowledge?status=published"
            class="px-3 py-1.5 rounded text-sm {% if current_status == 'published' %}bg-blue-600 text-white{% else %}bg-white text-gray-700 hover:bg-gray-100{% endif %}">
-            Опубликовано
+            Published
         </a>
         <a href="/api/admin/knowledge?status=rejected"
            class="px-3 py-1.5 rounded text-sm {% if current_status == 'rejected' %}bg-blue-600 text-white{% else %}bg-white text-gray-700 hover:bg-gray-100{% endif %}">
-            Отклонено
+            Rejected
         </a>
         {% if topics %}
         <select onchange="window.location.href = '/api/admin/knowledge?{% if current_status %}status={{ current_status }}&{% endif %}topic=' + this.value"
                 class="px-3 py-1.5 rounded text-sm bg-white border border-gray-300">
-            <option value="">Все темы</option>
+            <option value="">All topics</option>
             {% for topic in topics %}
             <option value="{{ topic }}" {% if current_topic == topic %}selected{% endif %}>{{ topic }}</option>
             {% endfor %}
@@ -93,7 +93,7 @@
     {% if not items %}
     <div class="bg-white rounded-lg shadow p-8 text-center text-gray-500">
         <i class="ti ti-database-off text-3xl mb-2 block"></i>
-        <p>Нет знаний для отображения</p>
+        <p>No knowledge items to display</p>
     </div>
     {% else %}
     <div class="bg-white rounded-lg shadow overflow-hidden" id="knowledge-table-wrapper">
@@ -108,11 +108,11 @@
                                        : []
                                ">
                     </th>
-                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Факт</th>
-                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Тема</th>
-                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600 w-28">Достоверность</th>
-                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600 w-28">Статус</th>
-                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600 w-32">Действия</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Fact</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Topic</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600 w-28">Confidence</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600 w-28">Status</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600 w-32">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -128,12 +128,12 @@
     <div class="flex justify-center gap-2 mt-4">
         {% if current_page > 1 %}
         <a href="/api/admin/knowledge?{% if current_status %}status={{ current_status }}&{% endif %}{% if current_topic %}topic={{ current_topic }}&{% endif %}page={{ current_page - 1 }}"
-           class="px-3 py-1.5 rounded text-sm bg-white hover:bg-gray-100">&larr; Назад</a>
+           class="px-3 py-1.5 rounded text-sm bg-white hover:bg-gray-100">&larr; Previous</a>
         {% endif %}
-        <span class="px-3 py-1.5 text-sm text-gray-500">Страница {{ current_page }} из {{ total_pages }}</span>
+        <span class="px-3 py-1.5 text-sm text-gray-500">Page {{ current_page }} of {{ total_pages }}</span>
         {% if current_page < total_pages %}
         <a href="/api/admin/knowledge?{% if current_status %}status={{ current_status }}&{% endif %}{% if current_topic %}topic={{ current_topic }}&{% endif %}page={{ current_page + 1 }}"
-           class="px-3 py-1.5 rounded text-sm bg-white hover:bg-gray-100">Далее &rarr;</a>
+           class="px-3 py-1.5 rounded text-sm bg-white hover:bg-gray-100">Next &rarr;</a>
         {% endif %}
     </div>
     {% endif %}
@@ -144,7 +144,7 @@
          class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50"
          @click.self="$el.classList.add('hidden')">
         <div class="bg-white rounded-lg shadow-xl p-6 w-[500px]">
-            <h3 class="mb-4 font-semibold">Редактировать знание</h3>
+            <h3 class="mb-4 font-semibold">Edit knowledge item</h3>
             <form id="edit-form"
                   @submit.prevent="
                       const id = document.getElementById('edit-item-id').value;
@@ -163,11 +163,11 @@
                     <button type="button"
                             @click="document.getElementById('edit-modal').classList.add('hidden')"
                             class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
-                        Отмена
+                        Cancel
                     </button>
                     <button type="submit"
                             class="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
-                        Сохранить
+                        Save
                     </button>
                 </div>
             </form>

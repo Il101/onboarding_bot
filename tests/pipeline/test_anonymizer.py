@@ -24,53 +24,53 @@ def _build_analyzer() -> AnalyzerEngine:
 
 def test_russian_phone_intl_format():
     analyzer = _build_analyzer()
-    results = analyzer.analyze(text="Позвони +7(903)123-45-67", language="ru")
+    results = analyzer.analyze(text="Call +7(903)123-45-67", language="ru")
     assert any(r.entity_type == "PHONE_NUMBER" for r in results)
 
 
 def test_russian_phone_8_format():
     analyzer = _build_analyzer()
-    results = analyzer.analyze(text="Номер 89031234567", language="ru")
+    results = analyzer.analyze(text="Number 89031234567", language="ru")
     assert any(r.entity_type == "PHONE_NUMBER" for r in results)
 
 
 def test_inn_detected():
     analyzer = _build_analyzer()
-    results = analyzer.analyze(text="ИНН 7707083893", language="ru")
+    results = analyzer.analyze(text="Tax ID 7707083893", language="ru")
     assert any(r.entity_type == "RUSSIAN_INN" for r in results)
 
 
 def test_snils_detected():
     analyzer = _build_analyzer()
-    results = analyzer.analyze(text="СНИЛС 123-456-789 01", language="ru")
+    results = analyzer.analyze(text="SNILS 123-456-789 01", language="ru")
     assert any(r.entity_type == "RUSSIAN_SNILS" for r in results)
 
 
 def test_same_value_same_token():
     mapper = TokenMapper()
-    t1 = mapper.get_or_create_token("PERSON", "Иванов")
-    t2 = mapper.get_or_create_token("PERSON", "Иванов")
+    t1 = mapper.get_or_create_token("PERSON", "Ivanov")
+    t2 = mapper.get_or_create_token("PERSON", "Ivanov")
     assert t1 == t2 == "<PERSON_1>"
 
 
 def test_different_values_different_tokens():
     mapper = TokenMapper()
-    t1 = mapper.get_or_create_token("PERSON", "Иванов")
-    t2 = mapper.get_or_create_token("PERSON", "Петров")
+    t1 = mapper.get_or_create_token("PERSON", "Ivanov")
+    t2 = mapper.get_or_create_token("PERSON", "Petrov")
     assert t1 == "<PERSON_1>" and t2 == "<PERSON_2>"
 
 
 def test_separate_counters_per_type():
     mapper = TokenMapper()
-    t1 = mapper.get_or_create_token("PERSON", "Иванов")
+    t1 = mapper.get_or_create_token("PERSON", "Ivanov")
     t2 = mapper.get_or_create_token("PHONE_NUMBER", "+79031234567")
     assert t1 == "<PERSON_1>" and t2 == "<PHONE_NUMBER_1>"
 
 
 def test_resolve_valid_token():
     mapper = TokenMapper()
-    mapper.get_or_create_token("PERSON", "Иванов")
-    assert mapper.resolve("<PERSON_1>") == "Иванов"
+    mapper.get_or_create_token("PERSON", "Ivanov")
+    assert mapper.resolve("<PERSON_1>") == "Ivanov"
 
 
 def test_resolve_unknown_returns_none():
@@ -81,7 +81,7 @@ def test_resolve_unknown_returns_none():
 def test_phone_anonymized():
     analyzer = create_analyzer()
     anonymizer = create_anonymizer()
-    text = "Позвони по +7(903)123-45-67"
+    text = "Call +7(903)123-45-67"
     result = anonymize_text(text, analyzer, anonymizer)
     assert "+7(903)123-45-67" not in result
     assert "<PHONE_NUMBER_" in result
@@ -98,7 +98,7 @@ def test_email_anonymized():
 def test_inn_anonymized():
     analyzer = create_analyzer()
     anonymizer = create_anonymizer()
-    text = "ИНН 7707083893"
+    text = "Tax ID 7707083893"
     result = anonymize_text(text, analyzer, anonymizer)
     assert "<RUSSIAN_INN_" in result
 
@@ -106,7 +106,7 @@ def test_inn_anonymized():
 def test_no_pii_unchanged():
     analyzer = create_analyzer()
     anonymizer = create_anonymizer()
-    text = "Обычный текст без персональных данных"
+    text = "Regular text without personal data"
     result = anonymize_text(text, analyzer, anonymizer)
     assert result == text
 
@@ -114,7 +114,7 @@ def test_no_pii_unchanged():
 def test_multiple_pii_sequential_tokens():
     analyzer = create_analyzer()
     anonymizer = create_anonymizer()
-    text = "Телефоны +7(903)123-45-67 и 89031234567"
+    text = "Phones +7(903)123-45-67 and 89031234567"
     result = anonymize_text(text, analyzer, anonymizer)
     assert "<PHONE_NUMBER_1>" in result
     assert "<PHONE_NUMBER_2>" in result

@@ -13,7 +13,7 @@ def test_query_route_no_longer_uses_static_seed_candidates():
     retriever.retrieve.return_value = [
         {
             "score": 0.8,
-            "text": "Откройте CRM и проверьте карточку клиента",
+            "text": "Open CRM and check the client card",
             "metadata": {"source_id": "doc:crm", "timestamp": "2026-04-10T10:00:00"},
         }
     ]
@@ -28,10 +28,10 @@ def test_query_route_no_longer_uses_static_seed_candidates():
             sources=[],
             fallback_used=False,
         )
-        response = client.post("/api/knowledge/query", json={"query": "как оформить заявку"})
+        response = client.post("/api/knowledge/query", json={"query": "how to submit a request"})
 
     assert response.status_code == 200
-    retriever.retrieve.assert_called_once_with("как оформить заявку")
+    retriever.retrieve.assert_called_once_with("how to submit a request")
     _, kwargs = synth.call_args
     assert kwargs["candidates"][0]["metadata"]["source_id"] == "doc:crm"
 
@@ -44,14 +44,14 @@ def test_query_route_passes_retrieval_candidates_to_synthesizer():
     candidates = [
         {
             "score": 0.9,
-            "text": "Реальный документ",
+            "text": "Real document",
             "metadata": {"source_id": "doc:1", "timestamp": "2026-04-11T10:00:00"},
         }
     ]
     retriever.retrieve.return_value = candidates
 
     with patch("src.api.routes.knowledge.HybridRetriever", return_value=retriever):
-        response = client.post("/api/knowledge/query", json={"query": "где инструкция", "top_k": 1})
+        response = client.post("/api/knowledge/query", json={"query": "where is the instruction", "top_k": 1})
 
     assert response.status_code == 200
     data = response.json()
@@ -66,13 +66,13 @@ def test_low_relevance_fallback_stays_active_and_returns_sources():
     retriever.retrieve.return_value = [
         {
             "score": 0.1,
-            "text": "Слабосвязанный фрагмент",
+            "text": "Weakly related fragment",
             "metadata": {"source_id": "doc:low", "timestamp": "2026-04-11T10:00:00"},
         }
     ]
 
     with patch("src.api.routes.knowledge.HybridRetriever", return_value=retriever):
-        response = client.post("/api/knowledge/query", json={"query": "редкий вопрос"})
+        response = client.post("/api/knowledge/query", json={"query": "rare question"})
 
     assert response.status_code == 200
     payload = response.json()

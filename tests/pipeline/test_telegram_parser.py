@@ -13,9 +13,9 @@ def test_parse_regular_messages(tmp_path):
                 "id": 1,
                 "type": "message",
                 "date": "2024-01-15T10:00:00",
-                "from": "Иван Иванов",
+                "from": "John Doe",
                 "from_id": "user123",
-                "text": "Привет",
+                "text": "Hello",
             }
         ]
     }
@@ -25,7 +25,7 @@ def test_parse_regular_messages(tmp_path):
     parsed = parse_telegram_export(str(path))
     assert len(parsed) == 1
     assert parsed[0].id == 1
-    assert parsed[0].author == "Иван Иванов"
+    assert parsed[0].author == "John Doe"
     assert parsed[0].author_id == "user123"
 
 

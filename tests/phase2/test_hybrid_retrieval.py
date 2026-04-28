@@ -24,7 +24,7 @@ def test_attribution_formatter_emits_required_fields():
     nodes = [
         {
             "score": 0.88,
-            "text": "Откройте CRM и проверьте статус",
+            "text": "Open CRM and check status",
             "metadata": {"source_id": "src1", "timestamp": "2026-04-12T11:00:00"},
         }
     ]

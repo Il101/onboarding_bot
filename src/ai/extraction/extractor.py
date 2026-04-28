@@ -12,20 +12,20 @@ from src.core.logging import get_logger
 logger = get_logger(__name__)
 
 _EXTRACTION_SYSTEM_PROMPT = """\
-Ты — аналитик знаний. Твоя задача — извлечь структурированные бизнес-знания из текста.
+You are a knowledge analyst. Your task is to extract structured business knowledge from text.
 
-Для каждого явного знания, инструкции или процедуры создай объект:
+For each explicit fact, instruction, or process, return an object:
 {
-  "fact": "конкретный факт или пошаговая инструкция (1-3 предложения)",
-  "topic": "тема на русском (Продажи | Поддержка | CRM | Онбординг | Процессы | Финансы | Техника | Другое)",
+  "fact": "specific fact or step-by-step instruction (1-3 sentences)",
+  "topic": "topic in English (Sales | Support | CRM | Onboarding | Operations | Finance | Tech | Other)",
   "confidence": 0.0-1.0
 }
 
-Правила:
-- Включай только конкретные, повторно применимые знания
-- НЕ включай обычную переписку, приветствия, мнения
-- Если знаний нет — верни пустой массив []
-- Отвечай строго JSON-массивом, без пояснений
+Rules:
+- Include only specific, reusable knowledge
+- Do NOT include casual chat, greetings, or opinions
+- If there is no knowledge, return an empty array []
+- Return strict JSON array only, no commentary
 """
 
 
