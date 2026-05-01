@@ -193,96 +193,128 @@ def create_realistic_telegram_export() -> str:
 
 def create_test_knowledge_items(db: Session, source_id: str) -> int:
     """Create test knowledge items directly in the database."""
-    items_data = [
+    # Published items (English for screenshots)
+    published_items = [
         {
-            "topic": "Онбординг",
-            "fact": "Онбординг новых сотрудников проходит каждый понедельник в 10:00 в офисе. Необходимо принести паспорт, СНИЛС и ИНН.",
+            "topic": "Onboarding",
+            "fact": "New employee onboarding takes place every Monday at 10:00 AM in the office. Please bring passport, SNILS, and INN.",
             "confidence": 0.95,
         },
         {
-            "topic": "IT Поддержка",
-            "fact": "Для доступа к системам напишите на support@company.com. Выдадут логин и пароль для почты, Jira и Confluence.",
+            "topic": "IT Support",
+            "fact": "For system access, email support@company.com. You will receive login credentials for email, Jira, and Confluence.",
             "confidence": 0.90,
         },
         {
             "topic": "Wi-Fi",
-            "fact": "Wi-Fi в офисе: SSID = V-Brain, пароль = Welcome2024. Смена пароля каждый месяц.",
+            "fact": "Office Wi-Fi: SSID = V-Brain, password = Welcome2024. Password changes monthly.",
             "confidence": 0.92,
         },
         {
-            "topic": "Зарплата",
-            "fact": "Зарплата выплачивается 25-го числа каждого месяца на карту. Перевод обычно приходит до 15:00.",
+            "topic": "Salary",
+            "fact": "Salary is paid on the 25th of each month to your bank card. Transfer usually arrives before 3:00 PM.",
             "confidence": 0.98,
         },
         {
-            "topic": "Отпуск",
-            "fact": "Минимальный отпуск 14 дней. Заявление подавать минимум за 2 недели. Согласовывать с руководителем.",
+            "topic": "Vacation",
+            "fact": "Minimum vacation is 14 days. Submit request at least 2 weeks in advance. Must be approved by manager.",
             "confidence": 0.88,
         },
         {
-            "topic": "Больничный",
-            "fact": "Первые 3 дня больничного оплачиваются работодателем, далее по больничному листу. Справку предоставить в течение 5 дней.",
+            "topic": "Sick Leave",
+            "fact": "First 3 days of sick leave are paid by employer, then per sick leave certificate. Provide certificate within 5 days.",
             "confidence": 0.90,
         },
         {
-            "topic": "Кофе и обед",
-            "fact": "Кофе и чай бесплатные в зоне отдыха. Обед в столовой с 12:00 до 14:00. Бюджет на обед 500 рублей.",
+            "topic": "Office Amenities",
+            "fact": "Coffee and tea are free in the break area. Lunch in cafeteria from 12:00 to 14:00. Lunch budget is 500 rubles.",
             "confidence": 0.85,
         },
         {
-            "topic": "IT Проблемы",
-            "fact": "При проблемах с компьютером: 1) Перезагрузите, 2) Проверьте интернет, 3) Напишите в тикет-систему или позвоните на 8-800-IT-HELP.",
+            "topic": "IT Issues",
+            "fact": "For computer issues: 1) Restart, 2) Check internet, 3) Submit ticket or call 8-800-IT-HELP.",
             "confidence": 0.87,
         },
         {
-            "topic": "Дежурства и встречи",
-            "fact": "График дежурств публикуется в календаре. Ежедневный стендап в 10:30 в Zoom. Ссылка: company.zoom.us/daily-standup",
+            "topic": "Meetings",
+            "fact": "Duty schedule is published in the calendar. Daily standup at 10:30 AM in Zoom. Link: company.zoom.us/daily-standup",
             "confidence": 0.86,
         },
         {
-            "topic": "Пропуск",
-            "fact": "Пропуск в офис выдается в первом отделении на первом этаже. Не передавайте пропуск другим сотрудникам.",
+            "topic": "Access Badge",
+            "fact": "Office access badge is issued at reception on the first floor. Do not share your badge with other employees.",
             "confidence": 0.95,
         },
         {
-            "topic": "Премии",
-            "fact": "Премии выплачиваются квартально по результатам работы. Максимальная премия 30% от оклада.",
+            "topic": "Bonuses",
+            "fact": "Bonuses are paid quarterly based on performance. Maximum bonus is 30% of base salary.",
             "confidence": 0.85,
         },
         {
             "topic": "VPN",
-            "fact": "Компания использует WireGuard для VPN. Конфиг на почте после оформления. Секретный ключ не передавать никому.",
+            "fact": "Company uses WireGuard for VPN. Configuration sent by email after onboarding. Never share your secret key.",
             "confidence": 0.90,
         },
         {
             "topic": "Code Review",
-            "fact": "Каждый PR требует минимум одного одобрения. Время на ревью до 24 часов рабочих дней.",
+            "fact": "Each PR requires at least one approval. Review time is up to 24 business hours.",
             "confidence": 0.88,
         },
         {
-            "topic": "Переработки",
-            "fact": "Переработки оплачиваются по ставке 1.5 от часовой. Работать больше 4 часов сверхурочно запрещено без разрешения.",
+            "topic": "Overtime",
+            "fact": "Overtime is paid at 1.5x hourly rate. Working more than 4 hours overtime is prohibited without permission.",
             "confidence": 0.89,
         },
         {
-            "topic": "Канцелярия",
-            "fact": "Канцелярия (ручки, тетради) в шкафу на кухне. Если что-то закончилось, написать офис-менеджеру.",
+            "topic": "Office Supplies",
+            "fact": "Office supplies (pens, notebooks) are in the kitchen cabinet. If anything runs out, message the office manager.",
             "confidence": 0.82,
         },
         {
             "topic": "GitHub",
-            "fact": "Организация GitHub: v-brain-corp. Репозитории приватные. После добавления в команду запросить доступ.",
+            "fact": "GitHub organization: v-brain-corp. Repositories are private. Request access after being added to the team.",
             "confidence": 0.90,
         },
         {
-            "topic": "ИПР",
-            "fact": "Индивидуальный план развития (ИПР) составляется в первый месяц работы. Обсудить с руководителем задачи на 3 месяца.",
+            "topic": "Development Plan",
+            "fact": "Individual Development Plan (IDP) is created in the first month. Discuss 3-month goals with your manager.",
             "confidence": 0.85,
         },
     ]
 
+    # Pending review items (for variety in admin panel)
+    pending_items = [
+        {
+            "topic": "Remote Work",
+            "fact": "Remote work is allowed up to 2 days per week with manager approval. Requires VPN access.",
+            "confidence": 0.75,
+        },
+        {
+            "topic": "Training Budget",
+            "fact": "Annual training budget is 50,000 rubles per employee. Requires prior approval and expense report.",
+            "confidence": 0.68,
+        },
+        {
+            "topic": "Parking",
+            "fact": "Parking is available in the underground lot. Monthly fee is 5,000 rubles. Register with security.",
+            "confidence": 0.82,
+        },
+        {
+            "topic": "Conference Room",
+            "fact": "Book conference rooms via Google Calendar. Maximum booking is 4 hours. Cancellations required 1 hour prior.",
+            "confidence": 0.70,
+        },
+        {
+            "topic": "Equipment",
+            "fact": "Laptops are provided on day 1. Additional monitors require business justification approved by IT director.",
+            "confidence": 0.78,
+        },
+    ]
+
     created = 0
-    for item_data in items_data:
+
+    # Create published items
+    for item_data in published_items:
         existing = db.query(KnowledgeItem).filter_by(
             source_refs=f'["{source_id}"]',
             fact=item_data["fact"]
@@ -299,22 +331,40 @@ def create_test_knowledge_items(db: Session, source_id: str) -> int:
             db.add(item)
             created += 1
 
+    # Create pending items
+    for item_data in pending_items:
+        existing = db.query(KnowledgeItem).filter_by(
+            source_refs=f'["{source_id}"]',
+            fact=item_data["fact"]
+        ).first()
+
+        if not existing:
+            item = KnowledgeItem(
+                source_refs=f'["{source_id}"]',
+                topic=item_data["topic"],
+                fact=item_data["fact"],
+                confidence=item_data["confidence"],
+                status=KnowledgeStatus.PENDING,
+            )
+            db.add(item)
+            created += 1
+
     db.commit()
     return created
 
 
 def main() -> int:
-    print("Создание тестовых данных для V-Brain\n")
+    print("Creating test data for V-Brain\n")
 
     # Create Telegram export file
-    print("1. Создание Telegram экспорта...")
+    print("1. Creating Telegram export...")
     telegram_file = create_realistic_telegram_export()
-    print(f"   ✓ Файл создан: {telegram_file}")
+    print(f"   ✓ File created: {telegram_file}")
 
     # Create database entries
     db = SessionLocal()
     try:
-        print("\n2. Создание Source записи...")
+        print("\n2. Creating Source record...")
         existing_source = db.query(Source).filter_by(filename="test_onboarding.json").first()
 
         if not existing_source:
@@ -330,32 +380,34 @@ def main() -> int:
             )
             db.add(source)
             db.commit()
-            print(f"   ✓ Source создан (ID: {source_id})")
+            print(f"   ✓ Source created (ID: {source_id})")
         else:
             source_id = existing_source.id
-            print(f"   ✓ Source уже существует (ID: {source_id})")
+            print(f"   ✓ Source already exists (ID: {source_id})")
 
-        print("\n3. Создание Knowledge Items...")
+        print("\n3. Creating Knowledge Items...")
         created_items = create_test_knowledge_items(db, source_id)
-        print(f"   ✓ Создано {created_items} knowledge items")
+        print(f"   ✓ Created {created_items} knowledge items")
 
         # Verify
         total_items = db.query(KnowledgeItem).count()
         published_items = db.query(KnowledgeItem).filter_by(status=KnowledgeStatus.PUBLISHED).count()
+        pending_items = db.query(KnowledgeItem).filter_by(status=KnowledgeStatus.PENDING).count()
 
-        print(f"\n4. Итоговая статистика:")
-        print(f"   Всего items в БД: {total_items}")
-        print(f"   Опубликовано: {published_items}")
+        print(f"\n4. Final statistics:")
+        print(f"   Total items in DB: {total_items}")
+        print(f"   Published: {published_items}")
+        print(f"   Pending review: {pending_items}")
 
-        print(f"\n✓ Тестовые данные успешно созданы!")
-        print(f"\nТеперь можно запустить интеграционный тест:")
+        print(f"\n✓ Test data created successfully!")
+        print(f"\nNow you can run the integration test:")
         print(f"   python scripts/integration_test.py")
 
         return 0
 
     except Exception as e:
         db.rollback()
-        print(f"\n✗ Ошибка: {e}")
+        print(f"\n✗ Error: {e}")
         return 1
     finally:
         db.close()

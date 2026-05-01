@@ -137,10 +137,29 @@ CI runs the same checks on push/pull requests:
 
 ---
 
+## Demo Data
+
+To populate the admin panel with demo data (fake users, feedback events, analytics):
+
+```bash
+# Create test knowledge items
+uv run python scripts/create_test_data.py
+
+# Index knowledge into Qdrant
+uv run python scripts/index_knowledge.py
+
+# Add demo users and feedback for analytics
+uv run python scripts/add_demo_data.py
+```
+
+This will show realistic usage patterns in the admin panel for demonstration purposes.
+
+---
+
 ## Security and MVP constraints
 
-- PII anonymization is part of the ingestion pipeline
-- Bot access is restricted by role whitelist
-- MVP data sources: Telegram JSON + PDF
-- Primary data/answer language is currently configured in prompts and policies
+- **PII anonymization** is built into the ingestion pipeline (phones, emails, names are masked)
+- **Bot access** is restricted to whitelisted Telegram users
+- **Data sources** (MVP): Telegram JSON exports and PDF documents
+- **Language** primarily Russian, configured in prompts and policies
 

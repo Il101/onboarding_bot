@@ -113,35 +113,35 @@ def verify_indexing(db: Session, client: QdrantClient, collection_name: str = "k
 
 
 def main() -> int:
-    print("Индексация знаний в Qdrant\n")
+    print("Indexing knowledge to Qdrant\n")
 
     # Initialize Qdrant client
     client = QdrantClient(host=settings.qdrant_host, port=settings.qdrant_port)
 
     try:
         # Create collection
-        print("1. Создание коллекции Qdrant...")
+        print("1. Creating Qdrant collection...")
         create_qdrant_collection(client, "knowledge")
 
         # Index items
-        print("\n2. Индексация знаний...")
+        print("\n2. Indexing knowledge items...")
         db = SessionLocal()
         try:
             indexed = index_knowledge_items(db, client, "knowledge")
-            print(f"   ✓ Проиндексировано {indexed} items")
+            print(f"   ✓ Indexed {indexed} items")
 
             # Verify
-            print("\n3. Проверка индексации...")
+            print("\n3. Verifying indexing...")
             verify_indexing(db, client, "knowledge")
 
-            print("\n✓ Индексация завершена успешно!")
+            print("\n✓ Indexing completed successfully!")
             return 0
 
         finally:
             db.close()
 
     except Exception as e:
-        print(f"\n✗ Ошибка: {e}")
+        print(f"\n✗ Error: {e}")
         import traceback
         traceback.print_exc()
         return 1

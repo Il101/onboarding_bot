@@ -545,7 +545,7 @@ async def analytics_page(request: Request, db: Session = Depends(get_db_session)
     # Popular questions (top 10 thread_ids by frequency)
     popular_questions = (
         db.query(
-            FeedbackEvent.thread_id,
+            FeedbackEvent.thread_id.label("question"),
             func.count(FeedbackEvent.id).label("count"),
         )
         .group_by(FeedbackEvent.thread_id)
