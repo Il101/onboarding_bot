@@ -4,32 +4,28 @@ System readiness check script.
 Tests all major components of V-Brain system.
 """
 
-import json
-import os
 import sys
-import tempfile
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 import qdrant_client as qc
 from sqlalchemy import text
-from sqlalchemy.orm import Session
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.api.deps import SessionLocal, engine
 from src.ai.llm_client import llm_chat
+from src.api.deps import SessionLocal, engine
 from src.core.config import settings
 from src.core.logging import get_logger
 from src.models.knowledge_item import KnowledgeItem, KnowledgeStatus
 from src.models.source import Source, SourceType
 from src.models.telegram_user import TelegramUser, UserRole
-from src.pipeline.filters.noise import filter_messages
-from src.pipeline.parsers.telegram import parse_telegram_export
-from src.pipeline.parsers.pdf import extract_pdf_text
-from src.pipeline.anonymizer.engine import create_analyzer, create_anonymizer, anonymize_text
+from src.pipeline.anonymizer.engine import anonymize_text, create_analyzer, create_anonymizer
 from src.pipeline.chunker.text_chunker import chunk_text
+from src.pipeline.filters.noise import filter_messages
+from src.pipeline.parsers.pdf import extract_pdf_text
+from src.pipeline.parsers.telegram import parse_telegram_export
 
 logger = get_logger(__name__)
 
@@ -269,12 +265,12 @@ class ReadinessChecker:
             }
 
             # Create temp file and parse
-            import tempfile
             import json
+            import tempfile
             with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
                 json.dump(sample_telegram, f)
                 temp_file = f.name
-            
+
             try:
                 parsed = parse_telegram_export(temp_file)
                 if len(parsed) >= 2:
@@ -289,8 +285,8 @@ class ReadinessChecker:
             self.record_result("E2E", "Telegram Parser", False, error=str(e))
 
         try:
-            import reportlab.pdfgen.canvas as canvas
             import reportlab.lib.pagesizes as pagesizes
+            import reportlab.pdfgen.canvas as canvas
 
             with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
                 c = canvas.Canvas(f.name, pagesize=pagesizes.A4)

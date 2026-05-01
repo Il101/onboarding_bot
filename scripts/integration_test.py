@@ -17,17 +17,15 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import requests
 from sqlalchemy import text
-from sqlalchemy.orm import Session
 
-from src.api.deps import SessionLocal, engine
 from src.ai.llm_client import llm_chat
+from src.ai.rag.retriever import HybridRetriever
+from src.api.deps import SessionLocal, engine
 from src.core.config import settings
 from src.core.logging import get_logger
 from src.models.knowledge_item import KnowledgeItem, KnowledgeStatus
-from src.models.source import Source, SourceType
 from src.pipeline.indexer.embedder import Embedder
 from src.pipeline.parsers.telegram import parse_telegram_export
-from src.ai.rag.retriever import HybridRetriever
 
 logger = get_logger(__name__)
 
@@ -269,7 +267,7 @@ class IntegrationTester:
     def test_pii_anonymization(self) -> None:
         print_header("PII ANONYMIZATION TEST")
         try:
-            from src.pipeline.anonymizer.engine import create_analyzer, create_anonymizer, anonymize_text
+            from src.pipeline.anonymizer.engine import anonymize_text, create_analyzer, create_anonymizer
 
             analyzer = create_analyzer()
             anonymizer = create_anonymizer()
@@ -283,16 +281,6 @@ class IntegrationTester:
 
             for category, text in test_cases:
                 anonymized = anonymize_text(text, analyzer, anonymizer)
-
-                # Check if PII was actually removed
-                original_has_pi = any(
-                    pattern in text.lower()
-                    for pattern in ["@", "+7", "иван", "петров", "александр"]
-                )
-                anonymized_has_pi = any(
-                    pattern in anonymized.lower()
-                    for pattern in ["@", "+7", "иван", "петров", "александр"]
-                )
 
                 # For this test, we just verify anonymization runs and changes text
                 changed = text != anonymized

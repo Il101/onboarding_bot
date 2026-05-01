@@ -7,7 +7,6 @@ Generates: Telegram export file, creates sources, runs ingest, publishes knowled
 import json
 import sys
 import tempfile
-from datetime import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -15,9 +14,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from sqlalchemy.orm import Session
 
 from src.api.deps import SessionLocal
+from src.core.logging import get_logger
 from src.models.knowledge_item import KnowledgeItem, KnowledgeStatus
 from src.models.source import Source, SourceType
-from src.core.logging import get_logger
 
 logger = get_logger(__name__)
 
@@ -368,8 +367,9 @@ def main() -> int:
         existing_source = db.query(Source).filter_by(filename="test_onboarding.json").first()
 
         if not existing_source:
-            from src.models.source import IngestStatus
             import uuid
+
+            from src.models.source import IngestStatus
             source_id = str(uuid.uuid4())
             source = Source(
                 id=source_id,
@@ -394,14 +394,14 @@ def main() -> int:
         published_items = db.query(KnowledgeItem).filter_by(status=KnowledgeStatus.PUBLISHED).count()
         pending_items = db.query(KnowledgeItem).filter_by(status=KnowledgeStatus.PENDING).count()
 
-        print(f"\n4. Final statistics:")
+        print("\n4. Final statistics:")
         print(f"   Total items in DB: {total_items}")
         print(f"   Published: {published_items}")
         print(f"   Pending review: {pending_items}")
 
-        print(f"\n✓ Test data created successfully!")
-        print(f"\nNow you can run the integration test:")
-        print(f"   python scripts/integration_test.py")
+        print("\n✓ Test data created successfully!")
+        print("\nNow you can run the integration test:")
+        print("   python scripts/integration_test.py")
 
         return 0
 

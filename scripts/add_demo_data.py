@@ -162,16 +162,16 @@ def main() -> int:
         ).scalar()
         avg_rating = round(float(avg_rating_row), 2) if avg_rating_row is not None else 0
 
-        print(f"\n3. Demo statistics:")
+        print("\n3. Demo statistics:")
         print(f"   Total users: {total_users}")
         print(f"   Total feedback: {total_feedback}")
         print(f"   Positive feedback: {positive_feedback} ({(positive_feedback/total_feedback*100):.1f}%)")
         print(f"   Active users (7 days): {active_users}")
         print(f"   Average rating: {avg_rating * 100:.0f}%")
 
-        print(f"\n✓ Demo data added successfully!")
-        print(f"\nNow visit the admin panel at:")
-        print(f"   http://localhost:8000/admin")
+        print("\n✓ Demo data added successfully!")
+        print("\nNow visit the admin panel at:")
+        print("   http://localhost:8000/admin")
 
         return 0
 

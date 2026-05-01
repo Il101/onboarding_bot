@@ -1,11 +1,13 @@
 from fastembed import SparseTextEmbedding, TextEmbedding
 
+from src.core.config import settings
+
 
 class Embedder:
     def __init__(
         self,
         dense_model: str = "intfloat/multilingual-e5-large",
-        sparse_model: str | None = None,
+        sparse_model: str | None = settings.sparse_model_name,
     ):
         self._dense = TextEmbedding(model_name=dense_model)
         self._sparse = SparseTextEmbedding(model_name=sparse_model) if sparse_model else None

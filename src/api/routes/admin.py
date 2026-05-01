@@ -343,7 +343,7 @@ async def approve_knowledge(
         count = 0
         for item in items:
             item.status = KnowledgeStatus.PUBLISHED
-            item.updated_at = datetime.utcnow()
+            item.updated_at = datetime.now(UTC)
             count += 1
         db.commit()
         return HTMLResponse(
@@ -369,7 +369,7 @@ async def reject_knowledge(
         count = 0
         for item in items:
             item.status = KnowledgeStatus.REJECTED
-            item.updated_at = datetime.utcnow()
+            item.updated_at = datetime.now(UTC)
             count += 1
         db.commit()
         return HTMLResponse(
@@ -412,7 +412,7 @@ async def edit_knowledge(
             status_code=404,
         )
     item.fact = fact
-    item.updated_at = datetime.utcnow()
+    item.updated_at = datetime.now(UTC)
     db.commit()
     return templates.TemplateResponse(
         request,
@@ -536,7 +536,7 @@ async def analytics_page(request: Request, db: Session = Depends(get_db_session)
     total_feedback = db.query(func.count(FeedbackEvent.id)).scalar() or 0
 
     # Active users (unique user_ids with feedback in last 7 days)
-    week_ago = datetime.utcnow() - timedelta(days=7)
+    week_ago = datetime.now(UTC) - timedelta(days=7)
     active_users = (
         db.query(func.count(func.distinct(FeedbackEvent.user_id))).filter(FeedbackEvent.created_at >= week_ago).scalar()
         or 0

@@ -29,15 +29,49 @@ New employees ask questions in the bot and receive grounded answers with source 
 
 ## Architecture (high level)
 
-```text
-Telegram/PDF -> Ingestion API -> Celery workers -> PII + Parsing + Chunking
-                                   |-> Embeddings -> Qdrant
-                                   |-> Knowledge extraction -> PostgreSQL
+```mermaid
+flowchart LR
+    A["Telegram JSON / PDF"] --> B["FastAPI ingestion API"]
+    B --> C["Celery workers"]
+    C --> D["PII anonymization"]
+    D --> E["Parsing and chunking"]
+    E --> F["Dense + sparse embeddings"]
+    E --> G["Knowledge extraction"]
+    F --> H["Qdrant"]
+    G --> I["PostgreSQL"]
 
-Telegram user -> Bot (python-telegram-bot) -> LangGraph orchestration
-                                           -> Retrieval API (FastAPI)
-                                           -> RAG answer + source attribution
+    J["Telegram user"] --> K["Telegram bot"]
+    K --> L["LangGraph orchestration"]
+    L --> M["FastAPI retrieval API"]
+    M --> H
+    M --> I
+    L --> N["Grounded answer with citations"]
 ```
+
+---
+
+## Demo surfaces
+
+### Admin panel
+
+![Sources page](screenshots/admin-sources.png)
+![Knowledge review page](screenshots/admin-knowledge.png)
+![Users page](screenshots/admin-users.png)
+![Analytics page](screenshots/admin-analytics.png)
+
+### Typical reviewer flow
+
+1. Upload a Telegram export or PDF in the admin panel.
+2. Let Celery parse, anonymize, chunk, and index the content.
+3. Review extracted knowledge items and publish only high-confidence facts.
+4. Ask the Telegram bot an onboarding question and receive a grounded answer with source attribution.
+
+### Example product outcome
+
+**Question:** "How do I book a meeting room?"  
+**Answer shape:** a concise instruction derived from published knowledge, followed by source references from the indexed corpus.
+
+This repository includes demo-data scripts so the admin panel can be evaluated without internal company data.
 
 ---
 
@@ -156,10 +190,19 @@ This will show realistic usage patterns in the admin panel for demonstration pur
 
 ---
 
+## Engineering decisions
+
+- **PII before LLM/indexing:** chat and document content is anonymized before downstream extraction or retrieval stages.
+- **Asynchronous ingestion:** parsing, transcription, extraction, and indexing run in Celery workers to keep the admin API responsive.
+- **Hybrid retrieval contract:** dense embeddings are paired with sparse vectors and reranked before answer synthesis.
+- **Human review gate:** extracted facts land in review before publication, which keeps the bot grounded on curated knowledge instead of raw ingestion output.
+
+---
+
 ## Security and MVP constraints
 
 - **PII anonymization** is built into the ingestion pipeline (phones, emails, names are masked)
 - **Bot access** is restricted to whitelisted Telegram users
 - **Data sources** (MVP): Telegram JSON exports and PDF documents
 - **Language** primarily Russian, configured in prompts and policies
-
+- **Admin auth** is intentionally lightweight for MVP/local deployment; session storage is not yet designed for multi-admin or distributed deployment

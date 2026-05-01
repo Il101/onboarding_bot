@@ -51,6 +51,7 @@ ignore = ["E501"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+norecursedirs = [".planning", "scratch", "tests/planning"]
 
 [build-system]
 requires = ["hatchling"]

@@ -16,6 +16,14 @@ scratch/
 
 # Internal planning artifacts (not for public release)
 .planning/
+CLAUDE.md
+.github/agents/
+.github/get-shit-done/
+.github/skills/
+.github/copilot-instructions.md
+.github/gsd-file-manifest.json
+tests/planning/
+scripts/verify_backfill.py
 *_READINESS_REPORT.md
 Spec_*.pdf
 

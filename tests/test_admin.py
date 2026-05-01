@@ -127,9 +127,9 @@ def test_users_page_requires_auth(client):
 
 
 def test_users_page_renders(admin_client, db_session):
-    from datetime import datetime
+    from datetime import UTC, datetime
 
-    users = [MagicMock(user_id=12345, role="employee", created_at=datetime.utcnow())]
+    users = [MagicMock(user_id=12345, role="employee", created_at=datetime.now(UTC))]
     db_session.query.return_value.order_by.return_value.all.return_value = users
 
     response = admin_client.get("/api/admin/users")
@@ -293,7 +293,7 @@ def test_admin_sources_list_returns_html(admin_client, db_session):
 
 def _make_knowledge_item(item_id=1, fact="Test fact", topic="Test topic", confidence=0.8, status=None):
     """Helper to create a mock KnowledgeItem for tests."""
-    from datetime import datetime
+    from datetime import UTC, datetime
 
     from src.models.knowledge_item import KnowledgeStatus as KS
 
@@ -304,8 +304,8 @@ def _make_knowledge_item(item_id=1, fact="Test fact", topic="Test topic", confid
     item.confidence = confidence
     item.status = status if status is not None else KS.PENDING
     item.source_refs = "[]"
-    item.created_at = datetime.utcnow()
-    item.updated_at = datetime.utcnow()
+    item.created_at = datetime.now(UTC)
+    item.updated_at = datetime.now(UTC)
     return item
 
 
