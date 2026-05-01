@@ -1,3 +1,4 @@
+from src.models.admin_log import AdminLog
 from src.models.base import Base
 from src.models.feedback_event import FeedbackEvent
 from src.models.ingest_job import IngestJob
@@ -16,4 +17,5 @@ __all__ = [
     "KnowledgeStatus",
     "TelegramUser",
     "UserRole",
+    "AdminLog",
 ]

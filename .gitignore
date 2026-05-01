@@ -1,8 +1,26 @@
+# Environment
 .env
+.env.local
 .venv/
+
+# Development tools
 .claude/
 __pycache__/
 *.pyc
 .pytest_cache/
+.ruff_cache/
+
+# Data directories
 data/
 scratch/
+
+# Internal planning artifacts (not for public release)
+.planning/
+*_READINESS_REPORT.md
+Spec_*.pdf
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

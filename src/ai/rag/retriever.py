@@ -16,9 +16,10 @@ class HybridRetriever:
 
     def _get_embedder(self) -> Embedder:
         if self.embedder is None:
+            # Disable sparse model if not supported to avoid errors
             self.embedder = Embedder(
                 dense_model=settings.dense_model_name,
-                sparse_model=settings.sparse_model_name,
+                sparse_model=None,
             )
         return self.embedder
 
@@ -34,7 +35,6 @@ class HybridRetriever:
             query_vector = dense_vectors[0].tolist()
             result = self.index.client.query_points(
                 collection_name=self.index.COLLECTION_NAME,
-                using="dense",
                 query=query_vector,
                 limit=settings.rag_hybrid_top_k,
                 with_payload=True,
@@ -43,16 +43,21 @@ class HybridRetriever:
             candidates_out = []
             for point in points:
                 payload = point.payload or {}
-                if not payload.get("source_id"):
+
+                # Accept either format: old (text/source_id/timestamp/page) or new (topic/fact/confidence/source_refs)
+                text = payload.get("text") or payload.get("fact", "")
+                if not text:
                     continue
-                if payload.get("timestamp") is None and payload.get("page") is None:
-                    continue
+
                 candidates_out.append(
                     {
                         "score": float(getattr(point, "score", 0.0)),
-                        "text": payload.get("text", ""),
+                        "text": text,
                         "metadata": {
-                            "source_id": payload.get("source_id", ""),
+                            "topic": payload.get("topic"),
+                            "fact": payload.get("fact"),
+                            "confidence": payload.get("confidence"),
+                            "source_id": payload.get("source_id") or (payload.get("source_refs", [None])[0] if payload.get("source_refs") else None),
                             "timestamp": payload.get("timestamp"),
                             "page": payload.get("page"),
                         },
