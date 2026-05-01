@@ -11,8 +11,13 @@ def test_synthesizer_returns_fallback_when_low_relevance():
     assert result.sources
 
 
-def test_synthesizer_returns_grounded_answer_when_relevant():
+def test_synthesizer_returns_grounded_answer_when_relevant(monkeypatch):
     from src.ai.rag.synthesizer import synthesize_answer
+
+    monkeypatch.setattr(
+        "src.ai.rag.synthesizer.llm_chat",
+        lambda **_: "Open CRM and check the client card.",
+    )
 
     candidates = [
         {
